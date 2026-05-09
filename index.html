@@ -537,6 +537,152 @@
     animation: slide 1.4s infinite ease-in-out;
   }
   @keyframes slide { 0% { transform: translateX(-110%); } 100% { transform: translateX(330%); } }
+
+  /* ───────── Warn banner (partial failures) ───────── */
+  .warn-banner {
+    margin-top: 12px;
+    padding: 9px 12px;
+    border-radius: var(--radius-sm);
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    color: var(--warn);
+    font-size: 12px; line-height: 1.45;
+  }
+  .warn-banner code {
+    font-family: var(--mono); font-size: 11px;
+    background: rgba(180,101,0,0.10);
+    padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ───────── Allocation extras ───────── */
+  .alloc-check {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--ink-1); cursor: pointer;
+    user-select: none;
+  }
+  .alloc-check input { margin: 0; cursor: pointer; }
+  .alloc-btn {
+    background: transparent; border: 0; cursor: pointer;
+    font: inherit; font-size: 12.5px; color: var(--accent); font-weight: 500;
+    padding: 0;
+  }
+  .alloc-btn:hover { text-decoration: underline; }
+  .alloc textarea {
+    font: inherit; font-family: var(--mono); font-size: 12px;
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 7px 9px; background: white; outline: none;
+    resize: vertical; min-height: 64px; width: 100%;
+    transition: border-color .12s;
+  }
+  .alloc textarea:focus { border-color: var(--ink-2); }
+  .alloc input[type="text"] {
+    font: inherit; font-size: 12.5px; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 6px 9px; background: white; outline: none;
+    font-family: var(--mono);
+    flex: 1; min-width: 160px;
+    transition: border-color .12s;
+  }
+  .alloc input[type="text"]:focus { border-color: var(--ink-2); }
+
+  /* ───────── Preview ───────── */
+  .preview {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 13px;
+    margin-bottom: 8px;
+  }
+  .preview-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 9px; gap: 8px; flex-wrap: wrap;
+  }
+  .preview-head h4 {
+    margin: 0;
+    font-size: 10.5px; font-weight: 600; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.07em;
+  }
+  .preview-head h4 span {
+    color: var(--ink-3); font-weight: 500; margin-left: 6px;
+    text-transform: none; letter-spacing: 0; font-size: 11.5px;
+  }
+  .preview-actions { display: inline-flex; gap: 2px; }
+  .preview-actions button {
+    background: transparent; border: 0; cursor: pointer;
+    font: inherit; font-size: 11.5px; color: var(--ink-2); font-weight: 500;
+    padding: 4px 8px; border-radius: 4px;
+    transition: background .12s, color .12s;
+  }
+  .preview-actions button:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+  .preview-list {
+    max-height: 220px; overflow-y: auto;
+    display: grid; gap: 3px;
+  }
+  .preview-list::-webkit-scrollbar { width: 6px; }
+  .preview-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+  .preview-row {
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; padding: 5px 9px;
+    background: var(--bg);
+    border-radius: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .preview-row .addr { font-family: var(--mono); color: var(--ink-1); }
+  .preview-row .v { color: var(--ink); font-weight: 500; }
+  .preview-row .v .orig {
+    color: var(--ink-3); font-weight: 400; margin-left: 5px;
+    font-size: 10.5px; font-family: var(--mono);
+  }
+  .preview-empty {
+    font-size: 12px; color: var(--ink-3); padding: 8px 0; text-align: center;
+  }
+
+  /* ───────── Time-zone hint ───────── */
+  .time-tz-hint { font-size: 11.5px; color: var(--ink-3); margin-top: 8px; }
+
+  /* ───────── Identity chips (multi-source) ───────── */
+  .identities {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 10px;
+  }
+  .id-chip {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 5px 6px 5px 6px;
+    max-width: 100%;
+  }
+  .id-chip.contract { background: var(--accent-soft); border-color: rgba(91,59,255,0.20); }
+  .id-chip .avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--ink);
+    overflow: hidden; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; font-size: 10px;
+  }
+  .id-chip.contract .avatar { background: var(--accent); }
+  .id-chip .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .id-chip .who { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+  .id-chip .who .name {
+    font-size: 12px; font-weight: 500; color: var(--ink);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px;
+  }
+  .id-chip .who .addr { font-size: 10.5px; color: var(--ink-3); font-family: var(--mono); }
+  .id-chip .rm {
+    background: transparent; border: 0; cursor: pointer;
+    width: 20px; height: 20px; padding: 0; margin-right: 2px;
+    border-radius: 50%;
+    font-size: 15px; line-height: 1; color: var(--ink-3);
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .12s, color .12s;
+  }
+  .id-chip .rm:hover { background: rgba(0,0,0,0.06); color: var(--ink); }
+  .add-row { margin-bottom: 12px; }
+
+  @media (max-width: 600px) {
+    .platform.expanded { max-width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -575,17 +721,14 @@
       </div>
       <div id="who-status" class="inline-status" hidden></div>
       <div id="who-error" class="inline-err" hidden></div>
+      <div id="who-warn" class="warn-banner" hidden></div>
     </div>
 
     <!-- ─── Step 2 ─── -->
     <div class="step" id="step-pick" hidden>
-      <div class="identity">
-        <div class="avatar" id="id-avatar"></div>
-        <div class="who">
-          <div class="name" id="id-name">—</div>
-          <div class="addr" id="id-addr">—</div>
-        </div>
-        <button class="change" id="id-change">Change</button>
+      <div class="identities" id="identities-list"></div>
+      <div class="add-row">
+        <button class="alloc-btn" id="add-identity" type="button">+ Add another wallet or contract</button>
       </div>
       <div class="section-head">
         <h3 id="pick-title">Collections</h3>
@@ -607,6 +750,7 @@
         <button class="time-pill" id="time-custom" aria-pressed="false">Custom date</button>
         <input type="datetime-local" class="time-custom" id="time-input" hidden />
       </div>
+      <div id="time-tz-hint" class="time-tz-hint" hidden></div>
       <button class="primary" id="snap-go">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 7h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7"/>
@@ -623,8 +767,8 @@
     <!-- ─── Step 4 ─── -->
     <div class="step" id="step-export" hidden>
       <div class="snap-summary">
-        <div class="summ"><div class="lbl">Holders</div><div class="val" id="x-holders">—</div></div>
-        <div class="summ"><div class="lbl">Total points</div><div class="val" id="x-tokens">—</div></div>
+        <div class="summ"><div class="lbl">Wallets</div><div class="val" id="x-holders">—</div></div>
+        <div class="summ"><div class="lbl" id="x-tokens-lbl">Tokens</div><div class="val" id="x-tokens">—</div></div>
         <div class="summ"><div class="lbl">Captured</div><div class="val small" id="x-time">—</div></div>
       </div>
       <div class="alloc">
@@ -632,17 +776,49 @@
           <span class="lbl">Allocation</span>
           <select id="alloc-mode">
             <option value="total">By tokens held</option>
-            <option value="flat">Flat — same value per wallet</option>
+            <option value="flat">Flat — same per wallet</option>
+            <option value="cap">Capped at max</option>
             <option value="collections">By collections held</option>
-            <option value="cap">Capped at max per wallet</option>
+            <option value="sqrt">Square root (anti-whale)</option>
+            <option value="random">Random raffle</option>
+            <option value="budget">Pro-rata budget</option>
+            <option value="tier">Tiered</option>
           </select>
-          <input type="number" id="alloc-value" min="1" value="1" hidden>
+        </div>
+        <div class="alloc-row" id="alloc-value-row" hidden>
+          <span class="lbl" id="alloc-value-lbl">Value</span>
+          <input type="number" id="alloc-value" min="1" max="1000000" value="1">
+          <span class="hint" id="alloc-value-hint"></span>
+        </div>
+        <div class="alloc-row" id="alloc-tiers-row" hidden>
+          <span class="lbl">Tiers</span>
+          <input type="text" id="alloc-tiers" value="1-3:1, 4-10:2, 11+:3">
+          <span class="hint">min-max:value</span>
         </div>
         <div class="alloc-row">
           <span class="lbl">Min tokens</span>
           <input type="number" id="alloc-min" min="1" value="1">
-          <span class="hint">Exclude wallets holding fewer (counts original tokens)</span>
+          <span class="hint">Skip wallets with &lt; N original tokens</span>
         </div>
+        <div class="alloc-row">
+          <span class="lbl">Exclude</span>
+          <label class="alloc-check"><input type="checkbox" id="alloc-no-contracts"> Smart contracts</label>
+          <button type="button" class="alloc-btn" id="alloc-excl-toggle">Custom list…</button>
+        </div>
+        <div class="alloc-row" id="alloc-excl-row" hidden>
+          <textarea id="alloc-excl" placeholder="Paste 0x… addresses to exclude, one per line"></textarea>
+        </div>
+      </div>
+      <div class="preview" id="preview" hidden>
+        <div class="preview-head">
+          <h4>Preview <span id="preview-count"></span></h4>
+          <div class="preview-actions">
+            <button id="copy-os" type="button">Copy OS</button>
+            <button id="copy-es" type="button">Copy ES</button>
+            <button id="copy-addrs" type="button">Copy addrs</button>
+          </div>
+        </div>
+        <div class="preview-list" id="preview-list"></div>
       </div>
       <div class="exports">
         <button class="export-btn" id="dl-json">
@@ -655,14 +831,14 @@
             <img src="https://cdn.simpleicons.org/opensea/white" width="14" height="14" alt="" aria-hidden="true">
           </span>
           <span>OpenSea CSV</span>
-          <span class="sub">For OpenSea drops</span>
+          <span class="sub">wallet,number_of_tokens</span>
         </button>
         <button class="export-btn" id="dl-csv-es">
           <span class="ico es">
             <img src="https://cdn.simpleicons.org/ethereum/white" width="14" height="14" alt="" aria-hidden="true">
           </span>
           <span>Etherscan CSV</span>
-          <span class="sub">Matches Etherscan format</span>
+          <span class="sub">HolderAddress,Balance</span>
         </button>
       </div>
       <button class="primary ghost" id="restart" style="margin-top: 10px;">New snapshot</button>
@@ -705,10 +881,20 @@ const alchemyNftUrl = (chainId) => `${ALCHEMY_BASE}/${chainBy(chainId).alchemy}/
    STATE & DOM
    ════════════════════════════════════════════════════════════════════ */
 const state = {
-  identity: null, collections: [], picked: [],
+  identities: [],          // [{input, address, ensName, avatar, kind: "wallet"|"contract"}]
+  collections: [],         // [{contract, chain, name, image, standard, supply, sources: Set<addr>, selected}]
+  picked: [],
   when: { kind: "now", ts: null, blockByChain: {} },
   snapshot: null,
-  allocation: { mode: "total", value: 1, minTokens: 1 },
+  partialErrors: [],       // {chain, op, msg} from latest discovery
+  allocation: {
+    mode: "total",
+    value: 1,
+    minTokens: 1,
+    tiers: "1-3:1, 4-10:2, 11+:3",
+    excludeContracts: false,
+    excludeList: "",
+  },
 };
 const $  = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -1023,24 +1209,42 @@ async function getOwnersNow(chainId, contract, onProgress) {
 async function getOwnersAtBlock(chainId, contract, endBlock, standard, onProgress) {
   const isERC1155 = standard === "ERC1155";
   const cat = isERC1155 ? ["erc1155"] : ["erc721"];
-  const all = []; let pageKey = null; let pages = 0;
+  const burn = "0x0000000000000000000000000000000000000000";
+
+  /* Process transfers incrementally — never hold the full list in memory.
+     For ERC-721: tokenOwner Map (last write wins; order:asc guarantees latest).
+     For ERC-1155: per-(addr,tokenId) balance delta. */
+  const tokenOwner = !isERC1155 ? new Map() : null;
+  const balances   =  isERC1155 ? new Map() : null;
+  let count = 0; let pageKey = null; let pages = 0;
   do {
     const params = { contractAddresses: [contract], category: cat, fromBlock: "0x0", toBlock: "0x" + endBlock.toString(16), withMetadata: false, excludeZeroValue: false, maxCount: "0x3e8", order: "asc" };
     if (pageKey) params.pageKey = pageKey;
     const result = await rpc(chainId, "alchemy_getAssetTransfers", [params]);
-    all.push(...(result.transfers || []));
+    const transfers = result.transfers || [];
+    for (const t of transfers) {
+      if (!isERC1155) {
+        const id = t.tokenId || t.erc721TokenId; if (!id) continue;
+        tokenOwner.set(id, (t.to || "").toLowerCase());
+      } else {
+        const meta = t.erc1155Metadata || [];
+        const from = (t.from || "").toLowerCase();
+        const to   = (t.to   || "").toLowerCase();
+        for (const m of meta) {
+          const tid = m.tokenId; const qty = parseInt(m.value, 16) || 0;
+          if (!tid || !qty) continue;
+          if (from && from !== burn) balances.set(`${from}:${tid}`, (balances.get(`${from}:${tid}`) || 0) - qty);
+          if (to   && to   !== burn) balances.set(`${to}:${tid}`,   (balances.get(`${to}:${tid}`)   || 0) + qty);
+        }
+      }
+    }
+    count += transfers.length;
     pageKey = result.pageKey || null;
-    onProgress && onProgress(all.length);
+    onProgress && onProgress(count);
     if (++pages > 200) break;
   } while (pageKey);
 
-  const burn = "0x0000000000000000000000000000000000000000";
   if (!isERC1155) {
-    const tokenOwner = new Map();
-    for (const t of all) {
-      const id = t.tokenId || t.erc721TokenId; if (!id) continue;
-      tokenOwner.set(id, (t.to || "").toLowerCase());
-    }
     const counts = new Map(); let total = 0;
     for (const [, owner] of tokenOwner) {
       if (!owner || owner === burn) continue;
@@ -1048,18 +1252,6 @@ async function getOwnersAtBlock(chainId, contract, endBlock, standard, onProgres
     }
     return { owners: [...counts.entries()].map(([address, count]) => ({ address, count })), totalTokens: total, source: "alchemy.history" };
   } else {
-    const balances = new Map();
-    for (const t of all) {
-      const meta = t.erc1155Metadata || [];
-      const from = (t.from || "").toLowerCase();
-      const to   = (t.to   || "").toLowerCase();
-      for (const m of meta) {
-        const tid = m.tokenId; const qty = parseInt(m.value, 16) || 0;
-        if (!tid || !qty) continue;
-        if (from && from !== burn) balances.set(`${from}:${tid}`, (balances.get(`${from}:${tid}`) || 0) - qty);
-        if (to   && to   !== burn) balances.set(`${to}:${tid}`,   (balances.get(`${to}:${tid}`)   || 0) + qty);
-      }
-    }
     const totals = new Map(); let total = 0;
     for (const [k, v] of balances) {
       if (v <= 0) continue;
@@ -1076,12 +1268,12 @@ async function getOwnersAtBlock(chainId, contract, endBlock, standard, onProgres
 $("#who-input").addEventListener("keydown", e => { if (e.key === "Enter") $("#who-btn").click(); });
 $("#who-btn").addEventListener("click", async () => {
   clearError("#who-error");
+  hide("#who-warn");
   const raw = $("#who-input").value.trim();
   if (!raw) { setError("#who-error", "Paste a contract or ENS to begin."); return; }
   $("#who-btn").disabled = true;
 
   try {
-    // Verify the backend before doing anything else — so real errors aren't swallowed.
     setStatus("#who-status", `Checking backend…`);
     await proxyHealthCheck();
 
@@ -1097,6 +1289,11 @@ $("#who-btn").addEventListener("click", async () => {
       throw new Error("That's not an ENS name or a 0x address.");
     }
 
+    // Reject duplicates of an already-added identity
+    if (state.identities.some(i => i.address === address)) {
+      throw new Error(`Already added: ${ensName || shortAddr(address)}.`);
+    }
+
     setStatus("#who-status", `Probing ${shortAddr(address)} on ${CHAINS.length} chains…`);
     let directChecks;
     try {
@@ -1106,92 +1303,108 @@ $("#who-btn").addEventListener("click", async () => {
     }
     const directHits = directChecks.filter(Boolean);
 
+    /* CASE 1: Address itself is an NFT contract — add as a contract identity */
     if (directHits.length) {
       directHits.forEach(c => c.selected = true);
-      state.identity = { input: raw, address, ensName, avatar };
-      state.collections = directHits;
-      state.picked = [...directHits];
-      renderIdentity(); renderCollections();
+      state.identities.push({ input: raw, address, ensName, avatar, kind: "contract" });
+      appendCollections(directHits, null);
+      state.picked = state.collections.filter(c => c.selected);
+      renderIdentities(); renderCollections();
       clearStatus("#who-status");
       $("#who-btn").disabled = false;
-      $("#pick-next").disabled = false;
+      $("#pick-next").disabled = !state.picked.length;
       goToStep("pick");
       return;
     }
 
+    /* CASE 2: Address is a wallet/creator — discover their collections */
     if (!ensName) { try { const rev = await reverseENS(address); ensName = rev.name; avatar = avatar || rev.avatar; } catch {} }
 
     setStatus("#who-status", `Asking OpenSea for collections by this wallet…`);
 
-    // Primary path: ask OpenSea directly. They have creator → collections
-    // mapping fully indexed via collection.owner — no transaction parsing needed.
     const apiErrors = [];
-    const collections = [];
+    const found = [];
     const seen = new Set();
 
     const osPerChain = await Promise.all(CHAINS.map(async (c) => {
-      try {
-        const found = await findCreatorCollectionsOpenSea(c.opensea, address);
-        return found;
-      } catch (e) {
+      try { return await findCreatorCollectionsOpenSea(c.opensea, address); }
+      catch (e) {
         apiErrors.push({ chain: c.id, op: "opensea", msg: e.message || String(e) });
         return [];
       }
     }));
-
     for (const arr of osPerChain) {
       for (const item of arr) {
         if (item && item.contract && !seen.has(item.contract)) {
           seen.add(item.contract);
-          collections.push(item);
-          renderCollectionsLive(collections);
+          found.push(item);
         }
       }
     }
-    setStatus("#who-status", `Found ${collections.length} collection${collections.length === 1 ? "" : "s"}…`);
+    setStatus("#who-status", `Found ${found.length} collection${found.length === 1 ? "" : "s"}…`);
 
-    // Fallback to Alchemy direct-deploy detection only if OpenSea returned
-    // nothing AND there were no OpenSea errors (i.e., the wallet really has
-    // no OS-indexed collections, but might be a pure on-chain devy who
-    // deployed without listing anything).
-    if (!collections.length && !apiErrors.length) {
-      setStatus("#who-status", `Nothing in OpenSea index. Checking direct deployments via Alchemy…`);
-      const alchemyResults = await Promise.all(CHAINS.map(async (c) => {
-        const direct = await findCreatedContractsOnChain(c.id, address)
+    // Fallback A: Direct external deploys (creator's own EOA → contract)
+    if (!found.length && !apiErrors.length) {
+      setStatus("#who-status", `Nothing in OpenSea index. Checking direct deployments…`);
+      const direct = await Promise.all(CHAINS.map(async (c) => {
+        const list = await findCreatedContractsOnChain(c.id, address)
           .catch(e => { apiErrors.push({ chain: c.id, op: "alchemy.deploys", msg: e.message || String(e) }); return []; });
         const out = [];
-        for (const d of direct) {
+        for (const d of list) {
           const meta = await getContractMetadata(c.id, d.contract);
           if (meta) out.push(meta);
         }
         return out;
       }));
-      for (const arr of alchemyResults) {
-        for (const meta of arr) {
-          if (!seen.has(meta.contract)) {
-            seen.add(meta.contract);
-            collections.push(meta);
-            renderCollectionsLive(collections);
+      for (const arr of direct) for (const m of arr) {
+        if (!seen.has(m.contract)) { seen.add(m.contract); found.push(m); }
+      }
+    }
+
+    // Fallback B: Factory-deployed collections (Manifold, Foundation, Zora, etc.)
+    // — wallet appears as openSeaMetadata.creatorAddress but isn't the EOA deployer.
+    if (!found.length && !apiErrors.length) {
+      setStatus("#who-status", `Checking factory-deployed collections…`);
+      const owned = await Promise.all(CHAINS.map(async (c) => {
+        const list = (await findOwnedContractsOnChain(c.id, address)
+          .catch(e => { apiErrors.push({ chain: c.id, op: "alchemy.owned", msg: e.message || String(e) }); return []; })).slice(0, 100);
+        const out = [];
+        // Concurrency-4 metadata fetch
+        let cur = 0;
+        async function w() {
+          while (cur < list.length) {
+            const i = cur++;
+            const m = await getContractMetadata(c.id, list[i].contract);
+            if (m && (m.osCreator === address || m.deployer === address)) out.push(m);
           }
         }
+        await Promise.all(Array.from({ length: 4 }, w));
+        return out;
+      }));
+      for (const arr of owned) for (const m of arr) {
+        if (!seen.has(m.contract)) { seen.add(m.contract); found.push(m); }
       }
     }
 
-    if (!collections.length) {
+    if (!found.length) {
       if (apiErrors.length) {
-        const sample = apiErrors.slice(0, 3).map(e => `<code>${e.chain}/${e.op}</code>: ${escapeHtml(e.msg)}`).join("<br/>");
-        throw new Error(`No collections found and ${apiErrors.length} API call${apiErrors.length === 1 ? "" : "s"} errored:<br/>${sample}<br/><br/>Most likely <code>OPENSEA_API_KEY</code> isn't set in your Cloudflare env, or the proxy isn't deployed.`);
+        const sample = apiErrors.slice(0, 3).map(e => `<code>${e.chain}/${e.op}</code>: ${escapeHtml(e.msg).slice(0,160)}`).join("<br/>");
+        throw new Error(`No collections found and ${apiErrors.length} API call${apiErrors.length === 1 ? "" : "s"} errored:<br/>${sample}`);
       }
-      throw new Error("This wallet doesn't appear as the creator of any collection that OpenSea has indexed, and has no direct on-chain deploys we could verify. Try pasting the contract address directly.");
+      throw new Error("This wallet isn't indexed as creator on OpenSea, and has no direct or factory deploys we could verify. Try pasting the contract address directly.");
     }
-    collections.sort((a, b) => (b.supply || 0) - (a.supply || 0));
-    collections.forEach(c => c.selected = false);
+    found.sort((a, b) => (b.supply || 0) - (a.supply || 0));
+    found.forEach(c => c.selected = state.identities.length === 0);
 
-    state.identity = { input: raw, address, ensName, avatar };
-    state.collections = collections; state.picked = [];
-    renderIdentity(); renderCollections();
+    state.identities.push({ input: raw, address, ensName, avatar, kind: "wallet" });
+    appendCollections(found, address);
+    state.picked = state.collections.filter(c => c.selected);
+    state.partialErrors = apiErrors;
+    renderIdentities(); renderCollections();
+    showPartialErrors(apiErrors);
     clearStatus("#who-status");
     $("#who-btn").disabled = false;
+    $("#pick-next").disabled = !state.picked.length;
     goToStep("pick");
   } catch (e) {
     clearStatus("#who-status");
@@ -1200,17 +1413,88 @@ $("#who-btn").addEventListener("click", async () => {
   }
 });
 
-/* ════════════════════════════════════════════════════════════════════
-   IDENTITY + COLLECTIONS
-   ════════════════════════════════════════════════════════════════════ */
-function renderIdentity() {
-  const id = state.identity; if (!id) return;
-  const av = $("#id-avatar");
-  if (id.avatar) av.innerHTML = `<img src="${escapeHtml(id.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='${(id.ensName || id.address).slice(0,1).toUpperCase()}'" />`;
-  else av.textContent = (id.ensName || id.address).slice(0,1).toUpperCase();
-  setText("#id-name", id.ensName || "Wallet");
-  setText("#id-addr", shortAddr(id.address));
+function showPartialErrors(errors) {
+  const banner = $("#who-warn");
+  if (!errors || !errors.length) { hide(banner); return; }
+  const sample = errors.slice(0, 3).map(e => `<code>${escapeHtml(e.chain)}/${escapeHtml(e.op)}</code>: ${escapeHtml(e.msg).slice(0,140)}`).join("<br/>");
+  banner.innerHTML = `${errors.length} chain${errors.length === 1 ? "" : "s"} had errors during discovery:<br/>${sample}`;
+  show(banner);
 }
+
+/* ════════════════════════════════════════════════════════════════════
+   IDENTITIES (multi) + COLLECTIONS
+   ════════════════════════════════════════════════════════════════════ */
+function renderIdentities() {
+  const wrap = $("#identities-list");
+  if (!state.identities.length) { hide(wrap); return; }
+  show(wrap);
+  wrap.innerHTML = "";
+  state.identities.forEach((id, i) => {
+    const chip = document.createElement("div");
+    chip.className = "id-chip" + (id.kind === "contract" ? " contract" : "");
+    const av = document.createElement("div"); av.className = "avatar";
+    const ch = (id.ensName || id.address || "?").slice(0, 1).toUpperCase();
+    if (id.avatar) {
+      const img = document.createElement("img");
+      img.src = id.avatar; img.referrerPolicy = "no-referrer";
+      img.addEventListener("error", () => { av.textContent = ch; }, { once: true });
+      av.appendChild(img);
+    } else av.textContent = ch;
+    const who = document.createElement("div"); who.className = "who";
+    const nm = document.createElement("div"); nm.className = "name";
+    nm.textContent = id.ensName || (id.kind === "contract" ? "Contract" : "Wallet");
+    const ad = document.createElement("div"); ad.className = "addr";
+    ad.textContent = shortAddr(id.address);
+    who.appendChild(nm); who.appendChild(ad);
+    const rm = document.createElement("button");
+    rm.className = "rm"; rm.type = "button"; rm.textContent = "×";
+    rm.setAttribute("aria-label", "Remove");
+    rm.addEventListener("click", () => removeIdentity(i));
+    chip.appendChild(av); chip.appendChild(who); chip.appendChild(rm);
+    wrap.appendChild(chip);
+  });
+}
+
+function appendCollections(found, sourceAddr) {
+  const byKey = new Map(state.collections.map(c => [`${c.chain}:${c.contract}`, c]));
+  for (const c of found) {
+    const key = `${c.chain}:${c.contract}`;
+    const existing = byKey.get(key);
+    if (existing) {
+      existing.sources = existing.sources || new Set();
+      if (sourceAddr) existing.sources.add(sourceAddr);
+    } else {
+      c.sources = new Set(sourceAddr ? [sourceAddr] : []);
+      state.collections.push(c);
+      byKey.set(key, c);
+    }
+  }
+}
+
+function removeIdentity(idx) {
+  const id = state.identities[idx];
+  if (!id) return;
+  state.identities.splice(idx, 1);
+  // Drop or update collections sourced from this identity
+  state.collections = state.collections.filter(c => {
+    if (!c.sources || c.sources.size === 0) return true; // direct contract — keep
+    c.sources.delete(id.address);
+    return c.sources.size > 0;
+  });
+  state.picked = state.collections.filter(c => c.selected);
+  renderIdentities();
+  renderCollections();
+  if (!state.collections.length) {
+    goToStep("who");
+    $("#who-input").focus();
+  }
+}
+
+function collectionDisplayName(c) {
+  if (c.name && c.name !== "Untitled") return c.name;
+  return `(${shortAddr(c.contract)})`;
+}
+
 function renderCollectionsLive(list) { state.collections = list; renderCollections(); }
 function renderCollections() {
   const wrap = $("#collections");
@@ -1223,7 +1507,7 @@ function renderCollections() {
       <span class="col-img">${c.image ? `<img src="${escapeHtml(c.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()"/>` : ""}</span>
       <span class="col-info">
         <span class="name">
-          <span class="label-text">${escapeHtml(c.name || "Untitled")}</span>
+          <span class="label-text">${escapeHtml(collectionDisplayName(c))}</span>
           <span class="tag ${ch.cls}">${ch.short}</span>
           <span class="tag ${c.standard === "ERC1155" ? "tag-1155" : "tag-721"}">${c.standard === "ERC1155" ? "1155" : "721"}</span>
         </span>
@@ -1251,7 +1535,13 @@ function updatePickMeta() {
 }
 $("#pick-all").addEventListener("click", () => { state.collections.forEach(c => c.selected = true); renderCollections(); });
 $("#pick-none").addEventListener("click", () => { state.collections.forEach(c => c.selected = false); renderCollections(); });
-$("#id-change").addEventListener("click", () => { goToStep("who"); $("#who-input").focus(); });
+$("#add-identity").addEventListener("click", () => {
+  $("#who-input").value = "";
+  clearError("#who-error");
+  hide("#who-warn");
+  goToStep("who");
+  $("#who-input").focus();
+});
 $("#pick-next").addEventListener("click", () => { if (state.picked.length) goToStep("when"); });
 
 /* ════════════════════════════════════════════════════════════════════
@@ -1261,6 +1551,7 @@ $("#time-now").addEventListener("click", () => {
   $("#time-now").setAttribute("aria-pressed", "true");
   $("#time-custom").setAttribute("aria-pressed", "false");
   hide("#time-input");
+  hide("#time-tz-hint");
   state.when = { kind: "now", ts: null, blockByChain: {} };
 });
 $("#time-custom").addEventListener("click", () => {
@@ -1272,6 +1563,10 @@ $("#time-custom").addEventListener("click", () => {
     const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     $("#time-input").value = d.toISOString().slice(0,16);
   }
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "local";
+  const hint = $("#time-tz-hint");
+  hint.textContent = `Local time (${tz}). Resolved to nearest block per chain — accuracy ~30s.`;
+  show(hint);
   state.when = { kind: "custom", ts: null, blockByChain: {} };
 });
 
@@ -1336,59 +1631,216 @@ $("#snap-go").addEventListener("click", async () => {
 });
 
 /* ════════════════════════════════════════════════════════════════════
-   STEP 4
+   STEP 4 — allocation, filters, preview, exports
    ════════════════════════════════════════════════════════════════════ */
+
+/* "1-3:1, 4-10:2, 11+:3" → [{min,max,n}, ...] */
+function parseTiers(spec) {
+  if (!spec) return [];
+  return spec.split(",").map(p => p.trim()).filter(Boolean).map(part => {
+    const [range, val] = part.split(":").map(s => (s || "").trim());
+    const n = Math.max(0, Number(val) || 0);
+    if (range && range.includes("+")) {
+      const min = Number(range.replace("+", "").trim()) || 1;
+      return { min, max: Infinity, n };
+    }
+    const [mn, mx] = (range || "").split("-").map(s => Number((s || "").trim()) || 0);
+    return { min: mn || 1, max: mx || mn || 1, n };
+  });
+}
+function tierValue(count, tiers) {
+  for (const t of tiers) if (count >= t.min && count <= t.max) return t.n;
+  return 0;
+}
+
+function parseExcludeList(text) {
+  if (!text) return new Set();
+  const out = new Set();
+  for (const line of String(text).split(/[\s,;]+/)) {
+    const v = line.trim().toLowerCase();
+    if (/^0x[a-f0-9]{40}$/.test(v)) out.add(v);
+  }
+  return out;
+}
+
+/* Detect smart contracts via eth_getCode batch on Ethereum mainnet.
+   Limitation: only checks ETH — addresses that are contracts on L2s only
+   may slip through. Sufficient for marketplace/router exclusion. */
+async function detectContracts(addresses) {
+  const set = new Set();
+  if (!addresses.length) return set;
+  const CHUNK = 100;
+  for (let i = 0; i < addresses.length; i += CHUNK) {
+    const chunk = addresses.slice(i, i + CHUNK);
+    const calls = chunk.map(a => ({ method: "eth_getCode", params: [a, "latest"] }));
+    let res;
+    try { res = await rpcBatch("ethereum", calls); } catch { continue; }
+    if (!Array.isArray(res)) continue;
+    // Result order matches request order by id, but be defensive
+    const byId = new Map(res.map(r => [r.id, r.result]));
+    for (let j = 0; j < chunk.length; j++) {
+      const code = byId.get(j);
+      if (code && code !== "0x" && code !== "0x0") set.add(chunk[j]);
+    }
+  }
+  return set;
+}
+
+function allocationLabel() {
+  const m = state.allocation.mode;
+  if (m === "total") return "Tokens";
+  if (m === "cap") return "Tokens (capped)";
+  if (m === "random") return "Winners";
+  if (m === "budget") return "Allocations";
+  return "Allocations";
+}
+
 function computeAllocations() {
   const s = state.snapshot; if (!s) return [];
   const a = state.allocation;
   const minT = Math.max(1, Number(a.minTokens) || 1);
-  const v = Math.max(1, Number(a.value) || 1);
+  const v = Math.max(1, Math.min(1_000_000, Number(a.value) || 1));
+  const exclude = parseExcludeList(a.excludeList);
+  const contracts = a.excludeContracts ? (s.contracts || new Set()) : new Set();
 
-  // Per-wallet count of distinct collections (only needed in "collections" mode)
   let collMap = null;
   if (a.mode === "collections") {
     collMap = new Map();
     for (const col of s.perCollection) {
       for (const o of col.owners) {
-        if (!collMap.has(o.address)) collMap.set(o.address, 0);
-        collMap.set(o.address, collMap.get(o.address) + 1);
+        collMap.set(o.address, (collMap.get(o.address) || 0) + 1);
       }
     }
   }
 
-  const out = [];
+  // Pass 1: filter eligible base
+  const base = [];
   for (const h of s.merged) {
     if (h.count < minT) continue;
-    let n;
-    if (a.mode === "flat") n = v;
-    else if (a.mode === "cap") n = Math.min(h.count, v);
-    else if (a.mode === "collections") n = collMap.get(h.address) || 1;
-    else n = h.count;
-    if (n < 1) continue;
-    out.push({ address: h.address, count: n, original: h.count });
+    if (exclude.has(h.address)) continue;
+    if (contracts.has(h.address)) continue;
+    base.push(h);
   }
+
+  // Pass 2: apply mode
+  let out = [];
+  if (a.mode === "random") {
+    const k = Math.min(v, base.length);
+    const idx = base.map((_, i) => i);
+    for (let i = idx.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [idx[i], idx[j]] = [idx[j], idx[i]];
+    }
+    for (const i of idx.slice(0, k)) {
+      const h = base[i];
+      out.push({ address: h.address, count: 1, original: h.count });
+    }
+  } else if (a.mode === "budget") {
+    const totalShare = base.reduce((sm, h) => sm + h.count, 0);
+    if (totalShare > 0) {
+      const tmp = base.map(h => {
+        const exact = (h.count / totalShare) * v;
+        const n = Math.floor(exact);
+        return { address: h.address, count: n, original: h.count, frac: exact - n };
+      });
+      // Largest-remainder method to distribute leftover
+      let allocated = tmp.reduce((sm, t) => sm + t.count, 0);
+      let leftover = v - allocated;
+      tmp.sort((x, y) => y.frac - x.frac);
+      for (let i = 0; i < tmp.length && leftover > 0; i++) {
+        tmp[i].count++; leftover--;
+      }
+      out = tmp.filter(t => t.count >= 1).map(({ address, count, original }) => ({ address, count, original }));
+    }
+  } else if (a.mode === "tier") {
+    const tiers = parseTiers(a.tiers);
+    for (const h of base) {
+      const n = tierValue(h.count, tiers);
+      if (n >= 1) out.push({ address: h.address, count: n, original: h.count });
+    }
+  } else {
+    for (const h of base) {
+      let n;
+      if (a.mode === "flat") n = v;
+      else if (a.mode === "cap") n = Math.min(h.count, v);
+      else if (a.mode === "collections") n = collMap.get(h.address) || 1;
+      else if (a.mode === "sqrt") n = Math.max(1, Math.ceil(Math.sqrt(h.count)));
+      else n = h.count;
+      if (n >= 1) out.push({ address: h.address, count: n, original: h.count });
+    }
+  }
+
   out.sort((x, y) => y.count - x.count);
   return out;
 }
 
+function renderPreview(list) {
+  const el = $("#preview-list");
+  if (!el) return;
+  el.innerHTML = "";
+  if (!list.length) {
+    const empty = document.createElement("div");
+    empty.className = "preview-empty";
+    empty.textContent = "No wallets match current filters.";
+    el.appendChild(empty);
+    return;
+  }
+  const showOriginal = state.allocation.mode !== "total";
+  for (const h of list.slice(0, 25)) {
+    const row = document.createElement("div");
+    row.className = "preview-row";
+    const a = document.createElement("span"); a.className = "addr"; a.textContent = shortAddr(h.address);
+    const v = document.createElement("span"); v.className = "v"; v.textContent = fmt(h.count);
+    if (showOriginal && h.original !== h.count) {
+      const o = document.createElement("span"); o.className = "orig";
+      o.textContent = `was ${fmt(h.original)}`;
+      v.appendChild(document.createTextNode(" "));
+      v.appendChild(o);
+    }
+    row.appendChild(a); row.appendChild(v);
+    el.appendChild(row);
+  }
+}
+
 function renderExport() {
-  const s = state.snapshot;
+  const s = state.snapshot; if (!s) return;
   const list = computeAllocations();
   const total = list.reduce((acc, h) => acc + h.count, 0);
   setText("#x-holders", fmt(list.length));
   setText("#x-tokens", fmt(total));
+  setText("#x-tokens-lbl", allocationLabel());
   const blocks = s.kind === "custom"
     ? Object.entries(s.blockByChain).map(([c, b]) => `${chainBy(c).short} ${fmt(b)}`).join(" · ")
     : "live";
   setText("#x-time", s.capturedAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + " · " + blocks);
+
+  show("#preview");
+  setText("#preview-count", list.length > 25 ? `· top 25 of ${fmt(list.length)}` : `· ${fmt(list.length)}`);
+  renderPreview(list);
 }
 
 function syncAllocationUI() {
   const a = state.allocation;
-  const valEl = $("#alloc-value");
-  const showValue = a.mode === "flat" || a.mode === "cap";
-  if (showValue) { valEl.hidden = false; valEl.value = a.value; }
-  else { valEl.hidden = true; }
+  const m = a.mode;
+  const valRow  = $("#alloc-value-row");
+  const valEl   = $("#alloc-value");
+  const valLbl  = $("#alloc-value-lbl");
+  const valHint = $("#alloc-value-hint");
+  const tierRow = $("#alloc-tiers-row");
+
+  hide(valRow); hide(tierRow);
+
+  if (m === "flat") {
+    show(valRow); valLbl.textContent = "Per wallet"; valHint.textContent = "Same number for everyone"; valEl.value = a.value;
+  } else if (m === "cap") {
+    show(valRow); valLbl.textContent = "Cap"; valHint.textContent = "min(holdings, cap)"; valEl.value = a.value;
+  } else if (m === "random") {
+    show(valRow); valLbl.textContent = "Pick K"; valHint.textContent = "Random K wallets, value 1 each"; valEl.value = a.value;
+  } else if (m === "budget") {
+    show(valRow); valLbl.textContent = "Total"; valHint.textContent = "Distributed pro-rata by holdings"; valEl.value = a.value;
+  } else if (m === "tier") {
+    show(tierRow);
+  }
 }
 
 $("#alloc-mode").addEventListener("change", (e) => {
@@ -1397,13 +1849,43 @@ $("#alloc-mode").addEventListener("change", (e) => {
   if (state.snapshot) renderExport();
 });
 $("#alloc-value").addEventListener("input", (e) => {
-  state.allocation.value = Math.max(1, Number(e.target.value) || 1);
+  state.allocation.value = Math.max(1, Math.min(1_000_000, Number(e.target.value) || 1));
   if (state.snapshot) renderExport();
 });
 $("#alloc-min").addEventListener("input", (e) => {
   state.allocation.minTokens = Math.max(1, Number(e.target.value) || 1);
   if (state.snapshot) renderExport();
 });
+$("#alloc-tiers").addEventListener("input", (e) => {
+  state.allocation.tiers = e.target.value;
+  if (state.snapshot) renderExport();
+});
+$("#alloc-excl-toggle").addEventListener("click", () => {
+  const row = $("#alloc-excl-row");
+  if (row.hidden) { show(row); $("#alloc-excl").focus(); } else { hide(row); }
+});
+$("#alloc-excl").addEventListener("input", (e) => {
+  state.allocation.excludeList = e.target.value;
+  if (state.snapshot) renderExport();
+});
+$("#alloc-no-contracts").addEventListener("change", async (e) => {
+  state.allocation.excludeContracts = e.target.checked;
+  if (e.target.checked && state.snapshot && !state.snapshot.contracts) {
+    e.target.disabled = true;
+    toast("Detecting smart contracts…");
+    try {
+      const addrs = state.snapshot.merged.map(h => h.address);
+      state.snapshot.contracts = await detectContracts(addrs);
+      toast(`Found ${state.snapshot.contracts.size} contract addresses`);
+    } catch {
+      state.snapshot.contracts = new Set();
+      toast("Contract detection failed");
+    }
+    e.target.disabled = false;
+  }
+  if (state.snapshot) renderExport();
+});
+
 function downloadFile(filename, content, type = "text/plain") {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
@@ -1412,24 +1894,37 @@ function downloadFile(filename, content, type = "text/plain") {
   setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
 }
 function snapshotFilename(ext) {
-  const s = state.snapshot, id = state.identity;
-  const slug = (id.ensName || (state.picked[0] && state.picked[0].name) || "snapsus").toString()
-    .replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+  const s = state.snapshot;
+  const seed = state.identities[0] || state.picked[0] || {};
+  const slug = (seed.ensName || seed.name || (state.picked[0] && state.picked[0].name) || "snapsus")
+    .toString().replace(/[^a-z0-9]+/gi, "_").toLowerCase();
   const stamp = s.capturedAt.toISOString().replace(/[:.]/g, "-").slice(0, 16);
   return `snapsus-${slug}-${stamp}.${ext}`;
 }
+async function copyText(text, label) {
+  try { await navigator.clipboard.writeText(text); toast(label || "Copied"); }
+  catch { toast("Copy failed — use download"); }
+}
+
 $("#dl-json").addEventListener("click", () => {
   if (!state.snapshot) return;
   const s = state.snapshot;
   const list = computeAllocations();
   const a = state.allocation;
   const payload = {
-    tool: "Snapsus", version: 3,
+    tool: "Snapsus", version: 4,
     captured_at: s.capturedAt.toISOString(),
     moment: s.kind === "custom" ? "historical" : "live",
     blocks: s.blockByChain || {},
-    creator: state.identity ? { input: state.identity.input, address: state.identity.address, ens: state.identity.ensName || null } : null,
-    allocation: { mode: a.mode, value: (a.mode === "flat" || a.mode === "cap") ? a.value : null, min_tokens: a.minTokens },
+    sources: state.identities.map(i => ({ input: i.input, address: i.address, ens: i.ensName || null, kind: i.kind })),
+    allocation: {
+      mode: a.mode,
+      value: ["flat","cap","random","budget"].includes(a.mode) ? a.value : null,
+      tiers: a.mode === "tier" ? parseTiers(a.tiers) : null,
+      min_tokens: a.minTokens,
+      exclude_contracts: a.excludeContracts,
+      exclude_list: [...parseExcludeList(a.excludeList)],
+    },
     collections: s.perCollection.map(c => ({ contract: c.contract, name: c.name, standard: c.standard, chain: c.chain, total_tokens: c.totalTokens, holders: c.owners.length, source: c.source })),
     holders: list,
   };
@@ -1452,16 +1947,48 @@ $("#dl-csv-es").addEventListener("click", () => {
   downloadFile(snapshotFilename("etherscan.csv"), lines.join("\n"), "text/csv;charset=utf-8");
   toast("Etherscan CSV downloaded");
 });
+$("#copy-os").addEventListener("click", () => {
+  if (!state.snapshot) return;
+  const list = computeAllocations();
+  const lines = ["wallet_address,number_of_tokens"];
+  for (const h of list) lines.push(`${h.address},${h.count}`);
+  copyText(lines.join("\n"), "OpenSea CSV copied");
+});
+$("#copy-es").addEventListener("click", () => {
+  if (!state.snapshot) return;
+  const list = computeAllocations();
+  const lines = ["HolderAddress,Balance,PendingBalanceUpdate"];
+  for (const h of list) lines.push(`${h.address},${h.count},No`);
+  copyText(lines.join("\n"), "Etherscan CSV copied");
+});
+$("#copy-addrs").addEventListener("click", () => {
+  if (!state.snapshot) return;
+  const list = computeAllocations();
+  copyText(list.map(h => h.address).join("\n"), "Addresses copied");
+});
+
 $("#restart").addEventListener("click", () => {
-  state.identity = null; state.collections = []; state.picked = []; state.snapshot = null;
+  state.identities = []; state.collections = []; state.picked = []; state.snapshot = null;
+  state.partialErrors = [];
   state.when = { kind: "now", ts: null, blockByChain: {} };
-  state.allocation = { mode: "total", value: 1, minTokens: 1 };
+  state.allocation = {
+    mode: "total", value: 1, minTokens: 1,
+    tiers: "1-3:1, 4-10:2, 11+:3",
+    excludeContracts: false, excludeList: "",
+  };
   $("#alloc-mode").value = "total";
   $("#alloc-min").value = "1";
+  $("#alloc-value").value = "1";
+  $("#alloc-tiers").value = "1-3:1, 4-10:2, 11+:3";
+  $("#alloc-excl").value = "";
+  $("#alloc-no-contracts").checked = false;
+  hide("#alloc-excl-row"); hide("#preview");
   syncAllocationUI();
   $("#who-input").value = "";
+  hide("#who-warn"); clearError("#who-error");
   $("#time-now").click();
   goToStep("who");
+  $("#who-input").focus();
 });
 
 /* ════════════════════════════════════════════════════════════════════
