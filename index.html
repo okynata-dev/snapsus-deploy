@@ -216,6 +216,7 @@
   .input-wrap button:hover { background: #1a1a1a; }
   .input-wrap button:disabled { opacity: 0.5; cursor: not-allowed; }
 
+  [hidden] { display: none !important; }
   .inline-status {
     display: flex; align-items: center; gap: 9px;
     font-size: 12.5px; color: var(--ink-2);
@@ -793,8 +794,8 @@ async function blockAtTimestamp(chainId, unixTs) {
    parsing on-chain transactions.
    ════════════════════════════════════════════════════════════════════ */
 async function findCreatorCollectionsOpenSea(chainOSSlug, address) {
-  // 1. Walk through NFTs owned on this chain, collect unique collection slugs
-  //    plus the token_standard hint per collection.
+  // 1a. Walk through NFTs owned on this chain, collect unique collection slugs
+  //     plus the token_standard hint per collection.
   const slugs = new Set();
   const slugStandard = new Map();
   let next = "", pages = 0;
@@ -812,6 +813,27 @@ async function findCreatorCollectionsOpenSea(chainOSSlug, address) {
     next = data.next || "";
     if (++pages > 12) break; // 2400 NFTs cap
   } while (next);
+
+  // 1b. Catch OpenSea Drops where the creator never minted to themselves.
+  //     Look up the account's username, then list collections by creator_username
+  //     for this chain. Each path is best-effort — failures don't break us.
+  try {
+    const acct = await fetchJson(`${OPENSEA_BASE}/accounts/${address}`);
+    const uname = acct && acct.username;
+    if (uname) {
+      let cnext = "", cpages = 0;
+      do {
+        let curl = `${OPENSEA_BASE}/collections?creator_username=${encodeURIComponent(uname)}&chain=${chainOSSlug}&limit=100`;
+        if (cnext) curl += `&next=${encodeURIComponent(cnext)}`;
+        const cdata = await fetchJson(curl);
+        for (const col of (cdata.collections || [])) {
+          if (col.collection) slugs.add(col.collection);
+        }
+        cnext = cdata.next || "";
+        if (++cpages > 5) break;
+      } while (cnext);
+    }
+  } catch { /* creator-username path unavailable; rely on owned-NFT path */ }
 
   if (!slugs.size) return [];
 
