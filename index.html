@@ -442,6 +442,30 @@
   .summ .val { font-size: 18px; font-weight: 600; margin-top: 3px; letter-spacing: -0.012em; font-variant-numeric: tabular-nums; }
   .summ .val.small { font-size: 12px; font-weight: 500; line-height: 1.35; padding-top: 2px; color: var(--ink-1); font-family: var(--mono); letter-spacing: 0; }
 
+  .alloc {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 13px;
+    margin-bottom: 8px;
+    display: flex; flex-direction: column; gap: 9px;
+  }
+  .alloc-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .alloc-row .lbl {
+    font-size: 10.5px; color: var(--ink-3); text-transform: uppercase;
+    letter-spacing: 0.07em; font-weight: 500; min-width: 78px;
+  }
+  .alloc select, .alloc input[type="number"] {
+    font: inherit; font-size: 13px; color: var(--ink);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 6px 9px; background: white; outline: none;
+    transition: border-color .12s;
+  }
+  .alloc select:focus, .alloc input[type="number"]:focus { border-color: var(--ink-2); }
+  .alloc select { flex: 1; min-width: 180px; cursor: pointer; }
+  .alloc input[type="number"] { width: 80px; font-variant-numeric: tabular-nums; }
+  .alloc .hint { font-size: 11.5px; color: var(--ink-3); }
+
   .exports {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
   }
@@ -600,8 +624,25 @@
     <div class="step" id="step-export" hidden>
       <div class="snap-summary">
         <div class="summ"><div class="lbl">Holders</div><div class="val" id="x-holders">—</div></div>
-        <div class="summ"><div class="lbl">Tokens</div><div class="val" id="x-tokens">—</div></div>
+        <div class="summ"><div class="lbl">Total points</div><div class="val" id="x-tokens">—</div></div>
         <div class="summ"><div class="lbl">Captured</div><div class="val small" id="x-time">—</div></div>
+      </div>
+      <div class="alloc">
+        <div class="alloc-row">
+          <span class="lbl">Allocation</span>
+          <select id="alloc-mode">
+            <option value="total">By tokens held</option>
+            <option value="flat">Flat — same value per wallet</option>
+            <option value="collections">By collections held</option>
+            <option value="cap">Capped at max per wallet</option>
+          </select>
+          <input type="number" id="alloc-value" min="1" value="1" hidden>
+        </div>
+        <div class="alloc-row">
+          <span class="lbl">Min tokens</span>
+          <input type="number" id="alloc-min" min="1" value="1">
+          <span class="hint">Exclude wallets holding fewer (counts original tokens)</span>
+        </div>
       </div>
       <div class="exports">
         <button class="export-btn" id="dl-json">
@@ -667,6 +708,7 @@ const state = {
   identity: null, collections: [], picked: [],
   when: { kind: "now", ts: null, blockByChain: {} },
   snapshot: null,
+  allocation: { mode: "total", value: 1, minTokens: 1 },
 };
 const $  = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
@@ -1296,15 +1338,72 @@ $("#snap-go").addEventListener("click", async () => {
 /* ════════════════════════════════════════════════════════════════════
    STEP 4
    ════════════════════════════════════════════════════════════════════ */
+function computeAllocations() {
+  const s = state.snapshot; if (!s) return [];
+  const a = state.allocation;
+  const minT = Math.max(1, Number(a.minTokens) || 1);
+  const v = Math.max(1, Number(a.value) || 1);
+
+  // Per-wallet count of distinct collections (only needed in "collections" mode)
+  let collMap = null;
+  if (a.mode === "collections") {
+    collMap = new Map();
+    for (const col of s.perCollection) {
+      for (const o of col.owners) {
+        if (!collMap.has(o.address)) collMap.set(o.address, 0);
+        collMap.set(o.address, collMap.get(o.address) + 1);
+      }
+    }
+  }
+
+  const out = [];
+  for (const h of s.merged) {
+    if (h.count < minT) continue;
+    let n;
+    if (a.mode === "flat") n = v;
+    else if (a.mode === "cap") n = Math.min(h.count, v);
+    else if (a.mode === "collections") n = collMap.get(h.address) || 1;
+    else n = h.count;
+    if (n < 1) continue;
+    out.push({ address: h.address, count: n, original: h.count });
+  }
+  out.sort((x, y) => y.count - x.count);
+  return out;
+}
+
 function renderExport() {
   const s = state.snapshot;
-  setText("#x-holders", fmt(s.merged.length));
-  setText("#x-tokens", fmt(s.totalTokens));
+  const list = computeAllocations();
+  const total = list.reduce((acc, h) => acc + h.count, 0);
+  setText("#x-holders", fmt(list.length));
+  setText("#x-tokens", fmt(total));
   const blocks = s.kind === "custom"
     ? Object.entries(s.blockByChain).map(([c, b]) => `${chainBy(c).short} ${fmt(b)}`).join(" · ")
     : "live";
   setText("#x-time", s.capturedAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + " · " + blocks);
 }
+
+function syncAllocationUI() {
+  const a = state.allocation;
+  const valEl = $("#alloc-value");
+  const showValue = a.mode === "flat" || a.mode === "cap";
+  if (showValue) { valEl.hidden = false; valEl.value = a.value; }
+  else { valEl.hidden = true; }
+}
+
+$("#alloc-mode").addEventListener("change", (e) => {
+  state.allocation.mode = e.target.value;
+  syncAllocationUI();
+  if (state.snapshot) renderExport();
+});
+$("#alloc-value").addEventListener("input", (e) => {
+  state.allocation.value = Math.max(1, Number(e.target.value) || 1);
+  if (state.snapshot) renderExport();
+});
+$("#alloc-min").addEventListener("input", (e) => {
+  state.allocation.minTokens = Math.max(1, Number(e.target.value) || 1);
+  if (state.snapshot) renderExport();
+});
 function downloadFile(filename, content, type = "text/plain") {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
@@ -1322,35 +1421,44 @@ function snapshotFilename(ext) {
 $("#dl-json").addEventListener("click", () => {
   if (!state.snapshot) return;
   const s = state.snapshot;
+  const list = computeAllocations();
+  const a = state.allocation;
   const payload = {
-    tool: "Snapsus", version: 2,
+    tool: "Snapsus", version: 3,
     captured_at: s.capturedAt.toISOString(),
     moment: s.kind === "custom" ? "historical" : "live",
     blocks: s.blockByChain || {},
     creator: state.identity ? { input: state.identity.input, address: state.identity.address, ens: state.identity.ensName || null } : null,
+    allocation: { mode: a.mode, value: (a.mode === "flat" || a.mode === "cap") ? a.value : null, min_tokens: a.minTokens },
     collections: s.perCollection.map(c => ({ contract: c.contract, name: c.name, standard: c.standard, chain: c.chain, total_tokens: c.totalTokens, holders: c.owners.length, source: c.source })),
-    holders: s.merged,
+    holders: list,
   };
   downloadFile(snapshotFilename("json"), JSON.stringify(payload, null, 2), "application/json");
   toast("JSON downloaded");
 });
 $("#dl-csv-os").addEventListener("click", () => {
   if (!state.snapshot) return;
+  const list = computeAllocations();
   const lines = ["wallet_address,number_of_tokens"];
-  for (const h of state.snapshot.merged) lines.push(`${h.address},${h.count}`);
+  for (const h of list) lines.push(`${h.address},${h.count}`);
   downloadFile(snapshotFilename("opensea.csv"), lines.join("\n"), "text/csv;charset=utf-8");
   toast("OpenSea CSV downloaded");
 });
 $("#dl-csv-es").addEventListener("click", () => {
   if (!state.snapshot) return;
+  const list = computeAllocations();
   const lines = ["HolderAddress,Balance,PendingBalanceUpdate"];
-  for (const h of state.snapshot.merged) lines.push(`${h.address},${h.count},No`);
+  for (const h of list) lines.push(`${h.address},${h.count},No`);
   downloadFile(snapshotFilename("etherscan.csv"), lines.join("\n"), "text/csv;charset=utf-8");
   toast("Etherscan CSV downloaded");
 });
 $("#restart").addEventListener("click", () => {
   state.identity = null; state.collections = []; state.picked = []; state.snapshot = null;
   state.when = { kind: "now", ts: null, blockByChain: {} };
+  state.allocation = { mode: "total", value: 1, minTokens: 1 };
+  $("#alloc-mode").value = "total";
+  $("#alloc-min").value = "1";
+  syncAllocationUI();
   $("#who-input").value = "";
   $("#time-now").click();
   goToStep("who");
@@ -1367,6 +1475,7 @@ function goToStep(s) {
   const target = $(`#step-${s}`);
   if (target) setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
 }
+syncAllocationUI();
 goToStep("who");
 $("#who-input").focus();
 </script>
