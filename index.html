@@ -1,0 +1,1355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Snapsus</title>
+<meta name="description" content="A precise list of every wallet that holds an NFT in your collection. Multi-chain. Built for builders." />
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><circle cx='32' cy='34' r='11' fill='none' stroke='white' stroke-width='3'/><rect x='24' y='17' width='16' height='5' rx='1.5' fill='white'/><circle cx='32' cy='34' r='3' fill='white'/></svg>" />
+<style>
+  /* ───────── Tokens ───────── */
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  :root {
+    --ink:        #0a0a0a;
+    --ink-1:      #2a2a2a;
+    --ink-2:      #6b6b6b;
+    --ink-3:      #9a9a9a;
+    --ink-4:      #cfcfcf;
+    --line:       rgba(10,10,10,0.08);
+    --line-2:     rgba(10,10,10,0.04);
+    --paper:      #ffffff;
+    --bg:         #fafaf7;
+    --glass:      rgba(255,255,255,0.78);
+    --accent:     #5b3bff;
+    --accent-soft:#eee9ff;
+    --success:    #00875a;
+    --danger:     #c53030;
+    --warn:       #b46500;
+    --radius-sm:  6px;
+    --radius:     10px;
+    --radius-lg:  14px;
+    --shadow-1:   0 1px 2px rgba(10,10,10,0.04);
+    --shadow-2:   0 4px 16px -4px rgba(10,10,10,0.06), 0 1px 2px rgba(10,10,10,0.04);
+    --shadow-3:   0 24px 48px -16px rgba(10,10,10,0.10), 0 2px 6px rgba(10,10,10,0.04);
+    --font:       "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --mono:       ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
+  }
+  body {
+    font-family: var(--font);
+    color: var(--ink);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+    letter-spacing: -0.005em;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Restrained backdrop — single subtle radial mesh */
+  .backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .backdrop::before {
+    content: ""; position: absolute; inset: -10%;
+    background:
+      radial-gradient(60vmax 50vmax at 85% -10%, rgba(91,59,255,0.07), transparent 55%),
+      radial-gradient(50vmax 40vmax at -10% 100%, rgba(91,59,255,0.04), transparent 55%);
+  }
+  .backdrop::after {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(10,10,10,0.025) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(10,10,10,0.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 80%);
+  }
+
+  /* ───────── Top bar (non-sticky to avoid hero overlap) ───────── */
+  .topbar {
+    position: relative; z-index: 10;
+    border-bottom: 1px solid var(--line-2);
+    background: rgba(250,250,247,0.85);
+    backdrop-filter: saturate(180%) blur(8px);
+    -webkit-backdrop-filter: saturate(180%) blur(8px);
+  }
+  .topbar-inner {
+    max-width: 1180px; margin: 0 auto;
+    padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    color: var(--ink); text-decoration: none;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 22px; height: 22px; border-radius: 6px;
+    background: var(--ink);
+    position: relative; flex-shrink: 0;
+  }
+  .brand-mark::before {
+    content: ""; position: absolute;
+    inset: 5px;
+    border: 1.6px solid white; border-radius: 50%;
+  }
+  .brand-mark::after {
+    content: ""; position: absolute;
+    top: 3px; left: 6px; right: 6px; height: 3px;
+    background: white; border-radius: 1px;
+  }
+  .topbar-meta { display: flex; align-items: center; gap: 18px; font-size: 13px; color: var(--ink-2); }
+  .topbar-meta a { color: inherit; text-decoration: none; }
+  .topbar-meta a:hover { color: var(--ink); }
+  .docs-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
+    background: white;
+    transition: border-color .15s, color .15s;
+  }
+  .docs-link:hover { border-color: var(--ink-3); }
+
+  /* ───────── Stage ───────── */
+  .stage {
+    min-height: calc(100vh - 57px);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 64px 22px 80px;
+  }
+  @media (max-width: 600px) { .stage { padding-top: 44px; } }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 10px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: var(--ink-2);
+    letter-spacing: 0.01em;
+    margin-bottom: 22px;
+  }
+  .eyebrow .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px rgba(0,135,90,0.6);
+  }
+
+  .stage h1 {
+    margin: 0 0 12px;
+    font-size: clamp(28px, 3.6vw, 38px);
+    letter-spacing: -0.025em;
+    line-height: 1.08;
+    font-weight: 600;
+    text-align: center;
+  }
+  .stage .lede {
+    color: var(--ink-2);
+    margin: 0 auto 32px;
+    max-width: 520px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    text-align: center;
+  }
+
+  /* ───────── Glass platform ───────── */
+  .platform {
+    width: 100%;
+    max-width: 540px;
+    background: var(--glass);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-3);
+    padding: 22px;
+    transition: max-width .35s cubic-bezier(.2,.8,.2,1);
+  }
+  .platform.expanded { max-width: 720px; }
+  @media (max-width: 600px) { .platform { padding: 18px; } }
+
+  .step { animation: fadeUp .35s ease both; }
+  .step + .step { margin-top: 22px; padding-top: 22px; border-top: 1px solid var(--line); }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .question {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink-2);
+    margin: 0 0 12px;
+    text-align: left;
+    letter-spacing: -0.005em;
+  }
+  .question strong { color: var(--ink); font-weight: 600; }
+
+  /* Input */
+  .input-wrap {
+    display: flex; align-items: stretch;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: border-color .15s, box-shadow .15s;
+    overflow: hidden;
+  }
+  .input-wrap:focus-within {
+    border-color: rgba(91,59,255,0.5);
+    box-shadow: 0 0 0 3px rgba(91,59,255,0.12);
+  }
+  .input-wrap input {
+    flex: 1; min-width: 0;
+    background: transparent; border: 0; outline: none;
+    color: var(--ink); font: inherit; font-size: 14px;
+    padding: 13px 14px;
+    font-family: var(--mono);
+  }
+  .input-wrap input::placeholder { color: var(--ink-3); font-family: var(--font); letter-spacing: -0.005em; }
+  .input-wrap button {
+    background: var(--ink);
+    color: white;
+    border: 0; cursor: pointer;
+    padding: 0 18px;
+    font: inherit; font-size: 13px; font-weight: 500;
+    transition: background .15s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .input-wrap button:hover { background: #1a1a1a; }
+  .input-wrap button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .inline-status {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 12.5px; color: var(--ink-2);
+    margin-top: 12px;
+  }
+  .spinner {
+    width: 12px; height: 12px;
+    border: 1.6px solid rgba(0,0,0,0.1);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .inline-err {
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: var(--danger);
+    font-size: 12.5px;
+    text-align: left;
+    line-height: 1.45;
+  }
+  .inline-err code {
+    font-family: var(--mono); font-size: 11.5px;
+    background: rgba(197,48,48,0.08);
+    padding: 1px 5px; border-radius: 3px;
+  }
+
+  /* ───────── Identity ───────── */
+  .identity {
+    display: flex; align-items: center; gap: 11px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  .identity .avatar {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--ink);
+    overflow: hidden; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: white; font-weight: 600; font-size: 12px;
+  }
+  .identity .avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .identity .who { flex: 1; min-width: 0; }
+  .identity .who .name { font-size: 13px; font-weight: 600; line-height: 1.2; }
+  .identity .who .addr { font-size: 11px; color: var(--ink-2); font-family: var(--mono); margin-top: 2px; }
+  .identity .change {
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--ink-2); font: inherit; font-size: 12px; font-weight: 500;
+    padding: 5px 9px; border-radius: var(--radius-sm); transition: background .15s, color .15s;
+  }
+  .identity .change:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
+
+  /* ───────── Section header ───────── */
+  .section-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin: 0 0 10px;
+    gap: 12px; flex-wrap: wrap;
+  }
+  .section-head h3 {
+    margin: 0;
+    font-size: 13px; font-weight: 600; color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .section-head .meta {
+    font-size: 12px; color: var(--ink-3);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .section-head .meta button {
+    background: transparent; border: 0; cursor: pointer;
+    font: inherit; font-size: 12px; color: var(--accent); font-weight: 500;
+    padding: 2px 0;
+  }
+  .section-head .meta button:hover { text-decoration: underline; }
+
+  /* ───────── Collection list ───────── */
+  .collections {
+    display: grid; grid-template-columns: 1fr; gap: 6px;
+    max-height: 360px; overflow-y: auto;
+    padding: 2px;
+    margin: 0 -2px;
+  }
+  .collections::-webkit-scrollbar { width: 6px; }
+  .collections::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
+
+  .col-row {
+    display: flex; align-items: center; gap: 11px;
+    padding: 9px 11px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: border-color .12s, background .12s;
+  }
+  .col-row:hover { border-color: var(--ink-4); }
+  .col-row.checked {
+    border-color: rgba(91,59,255,0.4);
+    background: linear-gradient(180deg, var(--accent-soft) 0%, rgba(238,233,255,0.3) 100%);
+  }
+  .check {
+    width: 16px; height: 16px;
+    border: 1.5px solid var(--ink-4);
+    border-radius: 4px;
+    flex-shrink: 0;
+    position: relative;
+    transition: all .12s;
+  }
+  .col-row.checked .check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .col-row.checked .check::after {
+    content: ""; position: absolute;
+    top: 2px; left: 4px;
+    width: 4px; height: 8px;
+    border: solid white;
+    border-width: 0 1.6px 1.6px 0;
+    transform: rotate(45deg);
+  }
+  .col-img {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(135deg, #f0eef5, #e8e4ee);
+    border: 1px solid var(--line);
+    overflow: hidden; flex-shrink: 0;
+  }
+  .col-img img { width: 100%; height: 100%; object-fit: cover; }
+  .col-info { flex: 1; min-width: 0; }
+  .col-info .name {
+    font-size: 13px; font-weight: 500; color: var(--ink);
+    display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+    line-height: 1.25;
+  }
+  .col-info .name .label-text { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
+  .col-info .addr { font-size: 11px; color: var(--ink-3); font-family: var(--mono); margin-top: 2px; }
+  .col-meta { font-size: 11.5px; color: var(--ink-2); white-space: nowrap; font-variant-numeric: tabular-nums; font-family: var(--mono); }
+
+  .tag {
+    display: inline-flex; align-items: center;
+    padding: 1px 6px; border-radius: 4px;
+    background: rgba(10,10,10,0.05);
+    color: var(--ink-1);
+    font-family: var(--mono);
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .tag.tag-1155 { background: rgba(91,59,255,0.08); color: var(--accent); }
+  .tag.tag-721  { background: rgba(10,10,10,0.05); color: var(--ink-1); }
+  .chain-eth  { background: rgba(20,20,20,0.06); color: #1a1a1a; }
+  .chain-base { background: rgba(0,82,255,0.08); color: #0052ff; }
+  .chain-poly { background: rgba(130,71,229,0.08); color: #6e3fcf; }
+  .chain-arb  { background: rgba(40,160,240,0.08); color: #2173a8; }
+  .chain-op   { background: rgba(255,4,32,0.06); color: #c5102b; }
+
+  /* ───────── Time picker ───────── */
+  .time-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .time-pill {
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink-1);
+    padding: 8px 13px;
+    border-radius: var(--radius-sm);
+    font: inherit; font-size: 13px; font-weight: 500;
+    transition: all .12s;
+    display: inline-flex; align-items: center; gap: 7px;
+  }
+  .time-pill:hover { border-color: var(--ink-3); color: var(--ink); }
+  .time-pill[aria-pressed="true"] {
+    background: var(--ink); color: white; border-color: var(--ink);
+  }
+  .time-custom {
+    background: white; border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 7px 10px;
+    font: inherit; font-size: 12.5px;
+    color: var(--ink);
+    font-family: var(--mono);
+  }
+
+  /* ───────── Primary action ───────── */
+  .primary {
+    width: 100%;
+    margin-top: 16px;
+    border: 1px solid var(--ink);
+    cursor: pointer;
+    font: inherit; font-weight: 500; font-size: 14px;
+    padding: 12px 18px;
+    border-radius: var(--radius);
+    color: white;
+    background: var(--ink);
+    transition: background .12s, transform .12s, box-shadow .15s, border-color .12s;
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    box-shadow: var(--shadow-1);
+  }
+  .primary:hover { background: #1a1a1a; }
+  .primary:active { transform: translateY(0.5px); }
+  .primary:disabled { opacity: 0.45; cursor: not-allowed; }
+  .ghost {
+    background: white; color: var(--ink); border: 1px solid var(--line);
+  }
+  .ghost:hover { background: white; border-color: var(--ink-3); }
+
+  /* ───────── Snapshot result ───────── */
+  .snap-summary {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 480px) { .snap-summary { grid-template-columns: repeat(2, 1fr); } }
+  .summ {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 11px 12px;
+  }
+  .summ .lbl { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 500; }
+  .summ .val { font-size: 18px; font-weight: 600; margin-top: 3px; letter-spacing: -0.012em; font-variant-numeric: tabular-nums; }
+  .summ .val.small { font-size: 12px; font-weight: 500; line-height: 1.35; padding-top: 2px; color: var(--ink-1); font-family: var(--mono); letter-spacing: 0; }
+
+  .exports {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  }
+  @media (max-width: 480px) { .exports { grid-template-columns: 1fr; } }
+  .export-btn {
+    cursor: pointer;
+    border: 1px solid var(--line);
+    background: white;
+    color: var(--ink);
+    padding: 12px 13px;
+    border-radius: var(--radius);
+    font: inherit; font-size: 13px; font-weight: 500;
+    display: flex; flex-direction: column; align-items: flex-start; gap: 3px;
+    text-align: left;
+    transition: border-color .12s, transform .12s;
+  }
+  .export-btn:hover { border-color: var(--ink-3); }
+  .export-btn .ico {
+    width: 22px; height: 22px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    margin-bottom: 6px;
+  }
+  .export-btn .ico.json { background: rgba(10,10,10,0.05); color: var(--ink); font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .export-btn .ico.os   { background: #2081e2; color: white; }
+  .export-btn .ico.es   { background: #21325b; color: white; font-family: var(--mono); font-size: 11px; font-weight: 700; }
+  .export-btn .sub { font-size: 11px; font-weight: 400; color: var(--ink-3); }
+
+  footer {
+    text-align: center; padding: 28px 22px 36px;
+    color: var(--ink-3); font-size: 12px;
+  }
+  footer a { color: var(--ink-2); text-decoration: none; }
+  footer a:hover { color: var(--ink); }
+  footer .row { margin-top: 4px; font-family: var(--mono); font-size: 11px; }
+
+  .toast {
+    position: fixed; bottom: 24px; left: 50%;
+    transform: translate(-50%, 24px);
+    background: var(--ink);
+    color: white;
+    padding: 9px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .2s, transform .3s cubic-bezier(.2,.9,.3,1.2);
+    z-index: 100;
+    box-shadow: var(--shadow-3);
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  .progressbar {
+    height: 2px; border-radius: 999px;
+    background: rgba(0,0,0,0.06);
+    margin-top: 10px;
+    overflow: hidden;
+    position: relative;
+  }
+  .progressbar > div {
+    position: absolute; inset: 0;
+    width: 0%;
+    background: var(--ink);
+    transition: width .4s ease;
+    border-radius: 999px;
+  }
+  .progressbar.indeterminate > div {
+    width: 30%;
+    animation: slide 1.4s infinite ease-in-out;
+  }
+  @keyframes slide { 0% { transform: translateX(-110%); } 100% { transform: translateX(330%); } }
+</style>
+</head>
+<body>
+
+<div class="backdrop" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>Snapsus</span>
+    </a>
+    <div class="topbar-meta">
+      <a class="docs-link" href="https://docs.alchemy.com/reference/nft-api-quickstart" target="_blank" rel="noreferrer">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M14 4h6v6M20 4L9 15M9 9H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Docs
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="stage">
+  <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Multi-chain holder snapshots</span>
+  <h1>Every wallet that ever held it.</h1>
+  <p class="lede">Drop in a creator, ENS, or a contract. Pick a moment in time. Get every holder, ready for any drop.</p>
+
+  <section class="platform" id="platform">
+
+    <!-- ─── Step 1 ─── -->
+    <div class="step" id="step-who">
+      <p class="question">Who are we snapping?</p>
+      <div class="input-wrap">
+        <input id="who-input" type="text" autocomplete="off" spellcheck="false"
+               placeholder="Your contract or ENS" />
+        <button id="who-btn" type="button">
+          <span>Find</span>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div id="who-status" class="inline-status" hidden></div>
+      <div id="who-error" class="inline-err" hidden></div>
+    </div>
+
+    <!-- ─── Step 2 ─── -->
+    <div class="step" id="step-pick" hidden>
+      <div class="identity">
+        <div class="avatar" id="id-avatar"></div>
+        <div class="who">
+          <div class="name" id="id-name">—</div>
+          <div class="addr" id="id-addr">—</div>
+        </div>
+        <button class="change" id="id-change">Change</button>
+      </div>
+      <div class="section-head">
+        <h3 id="pick-title">Collections</h3>
+        <div class="meta">
+          <span id="pick-meta">—</span>
+          <button id="pick-all">All</button>
+          <button id="pick-none">None</button>
+        </div>
+      </div>
+      <div class="collections" id="collections"></div>
+      <button class="primary" id="pick-next" disabled><span>Continue</span></button>
+    </div>
+
+    <!-- ─── Step 3 ─── -->
+    <div class="step" id="step-when" hidden>
+      <p class="question">Capture <strong>when?</strong></p>
+      <div class="time-row">
+        <button class="time-pill" id="time-now" aria-pressed="true">Right now</button>
+        <button class="time-pill" id="time-custom" aria-pressed="false">Custom date</button>
+        <input type="datetime-local" class="time-custom" id="time-input" hidden />
+      </div>
+      <button class="primary" id="snap-go">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 7h14a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9a2 2 0 012-2z" stroke="currentColor" stroke-width="1.7"/>
+          <path d="M9 7l1.5-3h3L15 7" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          <circle cx="12" cy="13.5" r="3" stroke="currentColor" stroke-width="1.7"/>
+        </svg>
+        Take snapshot
+      </button>
+      <div id="snap-status" class="inline-status" hidden></div>
+      <div id="snap-progress" class="progressbar indeterminate" hidden><div></div></div>
+      <div id="snap-error" class="inline-err" hidden></div>
+    </div>
+
+    <!-- ─── Step 4 ─── -->
+    <div class="step" id="step-export" hidden>
+      <div class="snap-summary">
+        <div class="summ"><div class="lbl">Holders</div><div class="val" id="x-holders">—</div></div>
+        <div class="summ"><div class="lbl">Tokens</div><div class="val" id="x-tokens">—</div></div>
+        <div class="summ"><div class="lbl">Captured</div><div class="val small" id="x-time">—</div></div>
+      </div>
+      <div class="exports">
+        <button class="export-btn" id="dl-json">
+          <span class="ico json">{ }</span>
+          <span>JSON archive</span>
+          <span class="sub">Full detail with metadata</span>
+        </button>
+        <button class="export-btn" id="dl-csv-os">
+          <span class="ico os">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="white" stroke-width="2"/><path d="M7 13l3.5-1 1-3.5 1 3.5 4 1-4 1-1 3.5-1-3.5-3.5-1z" fill="white"/></svg>
+          </span>
+          <span>OpenSea CSV</span>
+          <span class="sub">For OpenSea drops</span>
+        </button>
+        <button class="export-btn" id="dl-csv-es">
+          <span class="ico es">E</span>
+          <span>Etherscan CSV</span>
+          <span class="sub">Matches Etherscan format</span>
+        </button>
+      </div>
+      <button class="primary ghost" id="restart" style="margin-top: 10px;">New snapshot</button>
+    </div>
+
+  </section>
+</main>
+
+<footer>
+  <div>Snapsus</div>
+  <div class="row">alchemy · ens · defillama</div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+
+/* ════════════════════════════════════════════════════════════════════
+   CONFIG — proxy through Cloudflare Functions (key never reaches browser)
+   The middleware at functions/api/alchemy/_middleware.js appends the real
+   ALCHEMY_API_KEY env var on the server side and forwards to Alchemy.
+   ════════════════════════════════════════════════════════════════════ */
+const ALCHEMY_BASE = "/api/alchemy";
+const OPENSEA_BASE = "/api/opensea";
+
+const CHAINS = [
+  { id: "ethereum", name: "Ethereum",  alchemy: "eth-mainnet",     opensea: "ethereum", llama: "ethereum",  short: "ETH",  cls: "chain-eth"  },
+  { id: "base",     name: "Base",      alchemy: "base-mainnet",    opensea: "base",     llama: "base",      short: "BASE", cls: "chain-base" },
+  { id: "polygon",  name: "Polygon",   alchemy: "polygon-mainnet", opensea: "matic",    llama: "polygon",   short: "POLY", cls: "chain-poly" },
+  { id: "arbitrum", name: "Arbitrum",  alchemy: "arb-mainnet",     opensea: "arbitrum", llama: "arbitrum",  short: "ARB",  cls: "chain-arb"  },
+  { id: "optimism", name: "Optimism",  alchemy: "opt-mainnet",     opensea: "optimism", llama: "optimism",  short: "OP",   cls: "chain-op"   },
+];
+const chainBy = (id) => CHAINS.find(c => c.id === id);
+const chainByOpenSea = (osSlug) => CHAINS.find(c => c.opensea === osSlug);
+const alchemyRpcUrl = (chainId) => `${ALCHEMY_BASE}/${chainBy(chainId).alchemy}/v2`;
+const alchemyNftUrl = (chainId) => `${ALCHEMY_BASE}/${chainBy(chainId).alchemy}/nft/v3`;
+
+/* ════════════════════════════════════════════════════════════════════
+   STATE & DOM
+   ════════════════════════════════════════════════════════════════════ */
+const state = {
+  identity: null, collections: [], picked: [],
+  when: { kind: "now", ts: null, blockByChain: {} },
+  snapshot: null,
+};
+const $  = (s) => document.querySelector(s);
+const $$ = (s) => Array.from(document.querySelectorAll(s));
+const show = (el) => { (typeof el === "string" ? $(el) : el).hidden = false; };
+const hide = (el) => { (typeof el === "string" ? $(el) : el).hidden = true; };
+const setText = (s, t) => { const el = $(s); if (el) el.textContent = t; };
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast._x); toast._x = setTimeout(() => t.classList.remove("show"), 1700); }
+const fmt = (n) => Number(n).toLocaleString("en-US");
+const shortAddr = (a) => a ? a.slice(0,6) + "…" + a.slice(-4) : "";
+const isAddress = (s) => /^0x[a-fA-F0-9]{40}$/.test(s.trim());
+const isENS     = (s) => /\.eth$/i.test(s.trim());
+function setStatus(sel, text) { const el = $(sel); if (!el) return; el.innerHTML = `<span class="spinner"></span><span>${text}</span>`; show(el); }
+function clearStatus(sel) { hide(sel); }
+function setError(sel, html) { const el = $(sel); el.innerHTML = html; show(el); }
+function clearError(sel) { hide(sel); }
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[c])); }
+/* Escape everything dangerous, but preserve a tiny whitelist of our own
+   formatting tags so error messages we author can include <code> and <br/>. */
+function escapeHtmlSoft(s) {
+  const escaped = escapeHtml(s);
+  return escaped
+    .replace(/&lt;code&gt;/g, "<code>")
+    .replace(/&lt;\/code&gt;/g, "</code>")
+    .replace(/&lt;br\s*\/?&gt;/g, "<br/>");
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   FETCH HELPERS
+   ════════════════════════════════════════════════════════════════════ */
+async function fetchJson(url, opts) {
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    let msg = `HTTP ${r.status}`;
+    try {
+      const t = await r.text();
+      // Sanitize: response body could be HTML (e.g. proxy fallback) and we
+      // render error.message via innerHTML downstream. Strip tags + truncate.
+      if (t) msg += " — " + t.replace(/<[^>]*>/g, "").trim().slice(0, 160);
+    } catch {}
+    const err = new Error(msg);
+    err.status = r.status; err.url = url;
+    throw err;
+  }
+  return r.json();
+}
+
+/* Verify the Cloudflare proxy is alive and the Alchemy key works.
+   Uses BAYC (a contract that always exists) as the canary. Surfaces real
+   problems instead of letting them get swallowed by .catch() further down. */
+async function proxyHealthCheck() {
+  const url = `${alchemyNftUrl("ethereum")}/getContractMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d`;
+  let r;
+  try { r = await fetch(url); }
+  catch (e) { throw new Error(`Network error reaching <code>/api/alchemy</code>: ${e.message}`); }
+
+  if (r.status === 404) {
+    throw new Error(`The proxy at <code>/api/alchemy/*</code> isn't deployed. Make sure <code>functions/api/alchemy/_middleware.js</code> is in your repo and Cloudflare Pages picked it up. Check the Functions tab in your Pages deployment — there should be 1 function listed.`);
+  }
+  if (r.status === 401 || r.status === 403) {
+    throw new Error(`Alchemy rejected the key (${r.status}). Check that <code>ALCHEMY_API_KEY</code> in Cloudflare env vars is correct and the App has Ethereum enabled.`);
+  }
+  if (r.status === 500) {
+    let detail = "";
+    try { const j = await r.json(); detail = j.error || ""; } catch {}
+    throw new Error(`Proxy returned 500. Detail: ${detail || "(no body)"}`);
+  }
+  if (!r.ok) throw new Error(`Proxy returned HTTP ${r.status}.`);
+  let data;
+  try { data = await r.json(); } catch { throw new Error(`Proxy returned invalid JSON.`); }
+  if (!data || !data.tokenType) {
+    throw new Error(`Proxy responded but the data looks wrong. Got: ${JSON.stringify(data).slice(0, 200)}`);
+  }
+  return true;
+}
+async function rpc(chainId, method, params) {
+  const data = await fetchJson(alchemyRpcUrl(chainId), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+  });
+  if (data.error) throw new Error(data.error.message || "RPC error");
+  return data.result;
+}
+async function rpcBatch(chainId, calls) {
+  const body = calls.map((c, i) => ({ jsonrpc: "2.0", id: i, method: c.method, params: c.params }));
+  const r = await fetch(alchemyRpcUrl(chainId), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!r.ok) throw new Error(`RPC batch HTTP ${r.status}`);
+  return r.json();
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ENS / DEFILLAMA — keyless
+   ════════════════════════════════════════════════════════════════════ */
+async function resolveENS(name) {
+  try {
+    const data = await fetchJson(`https://api.ensideas.com/ens/resolve/${encodeURIComponent(name)}`);
+    if (!data.address) return null;
+    return { address: data.address.toLowerCase(), name: data.name || name, avatar: data.avatar || "" };
+  } catch { return null; }
+}
+async function reverseENS(address) {
+  try {
+    const data = await fetchJson(`https://api.ensideas.com/ens/resolve/${address}`);
+    return { name: data.name || "", avatar: data.avatar || "" };
+  } catch { return { name: "", avatar: "" }; }
+}
+async function blockAtTimestamp(chainId, unixTs) {
+  const c = chainBy(chainId);
+  const data = await fetchJson(`https://coins.llama.fi/block/${c.llama}/${unixTs}`);
+  if (!data || !data.height) throw new Error(`Couldn't resolve block on ${c.name}`);
+  return Number(data.height);
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   OPENSEA — find collections by creator (the right way)
+   Returns collections OWNED by `address` according to OpenSea — that's
+   the canonical "is this their collection" signal, much cleaner than
+   parsing on-chain transactions.
+   ════════════════════════════════════════════════════════════════════ */
+async function findCreatorCollectionsOpenSea(chainOSSlug, address) {
+  // 1. Walk through NFTs owned on this chain, collect unique collection slugs
+  //    plus the token_standard hint per collection.
+  const slugs = new Set();
+  const slugStandard = new Map();
+  let next = "", pages = 0;
+  do {
+    let url = `${OPENSEA_BASE}/chain/${chainOSSlug}/account/${address}/nfts?limit=200`;
+    if (next) url += `&next=${encodeURIComponent(next)}`;
+    const data = await fetchJson(url);
+    for (const nft of (data.nfts || [])) {
+      if (!nft.collection) continue;
+      slugs.add(nft.collection);
+      if (nft.token_standard && !slugStandard.has(nft.collection)) {
+        slugStandard.set(nft.collection, String(nft.token_standard).toUpperCase());
+      }
+    }
+    next = data.next || "";
+    if (++pages > 12) break; // 2400 NFTs cap
+  } while (next);
+
+  if (!slugs.size) return [];
+
+  // 2. For each unique collection, fetch its full record. We only keep
+  //    the ones whose `owner` matches our wallet — that's how OpenSea
+  //    flags a collection as "created by" someone.
+  const slugList = [...slugs];
+  const out = [];
+  const concurrency = 4;
+  let cur = 0;
+  async function w() {
+    while (cur < slugList.length) {
+      const i = cur++;
+      const slug = slugList[i];
+      try {
+        const c = await fetchJson(`${OPENSEA_BASE}/collections/${encodeURIComponent(slug)}`);
+        const owner = (c && c.owner || "").toLowerCase();
+        if (!owner || owner !== address) continue;
+
+        // Pick the contract entry on the chain we're querying
+        const contracts = c.contracts || [];
+        const match = contracts.find(x => (x.chain || "").toLowerCase() === chainOSSlug)
+                   || contracts[0];
+        if (!match || !match.address) continue;
+
+        const std = slugStandard.get(slug) || "ERC721";
+        out.push({
+          contract: (match.address || "").toLowerCase(),
+          chain: (chainByOpenSea(chainOSSlug) || {}).id,
+          name: c.name || "Untitled",
+          image: c.image_url || c.banner_image_url || "",
+          standard: std === "ERC1155" ? "ERC1155" : "ERC721",
+          supply: Number(c.total_supply) || 0,
+          slug,
+          deployer: "",
+          osCreator: address,
+          deployedAt: 0,
+          source: "opensea",
+        });
+      } catch { /* skip the one slug that errored */ }
+    }
+  }
+  await Promise.all(Array.from({ length: concurrency }, w));
+  return out;
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   ALCHEMY — discover contracts, detect NFT, owners (now/historic)
+   ════════════════════════════════════════════════════════════════════ */
+async function findCreatedContractsOnChain(chainId, creator) {
+  const transfers = []; let pageKey = null; let pages = 0;
+  do {
+    const params = { fromAddress: creator, category: ["external"], withMetadata: false, excludeZeroValue: false, maxCount: "0x3e8", order: "asc" };
+    if (pageKey) params.pageKey = pageKey;
+    const result = await rpc(chainId, "alchemy_getAssetTransfers", [params]);
+    transfers.push(...(result.transfers || []));
+    pageKey = result.pageKey || null;
+    if (++pages > 25) break;
+  } while (pageKey);
+
+  const creationTxs = transfers.filter(t => !t.to || t.to === "0x0000000000000000000000000000000000000000");
+  if (!creationTxs.length) return [];
+
+  const out = [];
+  for (let i = 0; i < creationTxs.length; i += 50) {
+    const chunk = creationTxs.slice(i, i + 50);
+    const calls = chunk.map(t => ({ method: "eth_getTransactionReceipt", params: [t.hash] }));
+    let receipts;
+    try { receipts = await rpcBatch(chainId, calls); } catch { continue; }
+    for (const rec of receipts) {
+      if (rec && rec.result && rec.result.contractAddress) {
+        out.push({
+          contract: rec.result.contractAddress.toLowerCase(),
+          block: parseInt(rec.result.blockNumber, 16) || 0,
+          chain: chainId,
+        });
+      }
+    }
+  }
+  const seen = new Set();
+  return out.filter(c => seen.has(c.contract) ? false : (seen.add(c.contract), true));
+}
+
+async function getContractMetadata(chainId, contract) {
+  try {
+    const url = `${alchemyNftUrl(chainId)}/getContractMetadata?contractAddress=${contract}`;
+    const data = await fetchJson(url);
+    const tokenType = (data.tokenType || "").toUpperCase();
+    if (!["ERC721", "ERC1155"].includes(tokenType)) return null;
+    const os = data.openSeaMetadata || {};
+    return {
+      contract: contract.toLowerCase(),
+      chain: chainId,
+      name: data.name || os.collectionName || "Untitled",
+      image: os.imageUrl || os.bannerImageUrl || "",
+      standard: tokenType,
+      supply: Number(data.totalSupply) || 0,
+      slug: os.collectionSlug || "",
+      deployer:  (data.contractDeployer || "").toLowerCase(),
+      osCreator: (os.creatorAddress || "").toLowerCase(),
+      deployedAt: Number(data.deployedBlockNumber) || 0,
+    };
+  } catch { return null; }
+}
+
+/* Contracts where the wallet currently holds NFTs (catches factory-deployed
+   contracts: Manifold, Foundation, Zora etc., where the artist signed but the
+   factory was the actual deployer). */
+async function findOwnedContractsOnChain(chainId, owner) {
+  const contracts = new Set();
+  let pageKey = null; let pages = 0;
+  do {
+    let url = `${alchemyNftUrl(chainId)}/getContractsForOwner?owner=${owner}&pageSize=100`;
+    if (pageKey) url += `&pageKey=${encodeURIComponent(pageKey)}`;
+    let data;
+    try { data = await fetchJson(url); } catch { break; }
+    for (const c of (data.contracts || [])) {
+      const addr = (c.address || "").toLowerCase();
+      if (addr) contracts.add(addr);
+    }
+    pageKey = data.pageKey || null;
+    if (++pages > 10) break;
+  } while (pageKey);
+  return [...contracts].map(c => ({ contract: c, chain: chainId }));
+}
+
+async function getOwnersNow(chainId, contract, onProgress) {
+  const owners = []; let total = 0; let pageKey = null; let pages = 0;
+  do {
+    let url = `${alchemyNftUrl(chainId)}/getOwnersForContract?contractAddress=${contract}&withTokenBalances=true`;
+    if (pageKey) url += `&pageKey=${encodeURIComponent(pageKey)}`;
+    const data = await fetchJson(url);
+    for (const o of (data.owners || [])) {
+      const a = (o.ownerAddress || "").toLowerCase(); if (!a) continue;
+      const bal = (o.tokenBalances || []).reduce((s, t) => {
+        const b = typeof t.balance === "string" ? Number(t.balance) : Number(t.balance || 0);
+        return s + (isFinite(b) ? b : 0);
+      }, 0);
+      if (bal > 0) { owners.push({ address: a, count: bal }); total += bal; }
+    }
+    onProgress && onProgress(owners.length, total);
+    pageKey = data.pageKey || null;
+    if (++pages > 50) break;
+  } while (pageKey);
+  return { owners, totalTokens: total, source: "alchemy" };
+}
+
+async function getOwnersAtBlock(chainId, contract, endBlock, standard, onProgress) {
+  const isERC1155 = standard === "ERC1155";
+  const cat = isERC1155 ? ["erc1155"] : ["erc721"];
+  const all = []; let pageKey = null; let pages = 0;
+  do {
+    const params = { contractAddresses: [contract], category: cat, fromBlock: "0x0", toBlock: "0x" + endBlock.toString(16), withMetadata: false, excludeZeroValue: false, maxCount: "0x3e8", order: "asc" };
+    if (pageKey) params.pageKey = pageKey;
+    const result = await rpc(chainId, "alchemy_getAssetTransfers", [params]);
+    all.push(...(result.transfers || []));
+    pageKey = result.pageKey || null;
+    onProgress && onProgress(all.length);
+    if (++pages > 200) break;
+  } while (pageKey);
+
+  const burn = "0x0000000000000000000000000000000000000000";
+  if (!isERC1155) {
+    const tokenOwner = new Map();
+    for (const t of all) {
+      const id = t.tokenId || t.erc721TokenId; if (!id) continue;
+      tokenOwner.set(id, (t.to || "").toLowerCase());
+    }
+    const counts = new Map(); let total = 0;
+    for (const [, owner] of tokenOwner) {
+      if (!owner || owner === burn) continue;
+      counts.set(owner, (counts.get(owner) || 0) + 1); total++;
+    }
+    return { owners: [...counts.entries()].map(([address, count]) => ({ address, count })), totalTokens: total, source: "alchemy.history" };
+  } else {
+    const balances = new Map();
+    for (const t of all) {
+      const meta = t.erc1155Metadata || [];
+      const from = (t.from || "").toLowerCase();
+      const to   = (t.to   || "").toLowerCase();
+      for (const m of meta) {
+        const tid = m.tokenId; const qty = parseInt(m.value, 16) || 0;
+        if (!tid || !qty) continue;
+        if (from && from !== burn) balances.set(`${from}:${tid}`, (balances.get(`${from}:${tid}`) || 0) - qty);
+        if (to   && to   !== burn) balances.set(`${to}:${tid}`,   (balances.get(`${to}:${tid}`)   || 0) + qty);
+      }
+    }
+    const totals = new Map(); let total = 0;
+    for (const [k, v] of balances) {
+      if (v <= 0) continue;
+      const owner = k.split(":")[0];
+      totals.set(owner, (totals.get(owner) || 0) + v); total += v;
+    }
+    return { owners: [...totals.entries()].map(([address, count]) => ({ address, count })), totalTokens: total, source: "alchemy.history.1155" };
+  }
+}
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 1
+   ════════════════════════════════════════════════════════════════════ */
+$("#who-input").addEventListener("keydown", e => { if (e.key === "Enter") $("#who-btn").click(); });
+$("#who-btn").addEventListener("click", async () => {
+  clearError("#who-error");
+  const raw = $("#who-input").value.trim();
+  if (!raw) { setError("#who-error", "Paste a contract or ENS to begin."); return; }
+  $("#who-btn").disabled = true;
+
+  try {
+    // Verify the backend before doing anything else — so real errors aren't swallowed.
+    setStatus("#who-status", `Checking backend…`);
+    await proxyHealthCheck();
+
+    let address = null, ensName = "", avatar = "";
+    if (isENS(raw)) {
+      setStatus("#who-status", `Resolving ${escapeHtml(raw)}…`);
+      const r = await resolveENS(raw);
+      if (!r) throw new Error(`Couldn't resolve ${raw}.`);
+      address = r.address; ensName = r.name; avatar = r.avatar;
+    } else if (isAddress(raw)) {
+      address = raw.toLowerCase();
+    } else {
+      throw new Error("That's not an ENS name or a 0x address.");
+    }
+
+    setStatus("#who-status", `Probing ${shortAddr(address)} on ${CHAINS.length} chains…`);
+    let directChecks;
+    try {
+      directChecks = await Promise.all(CHAINS.map(c => getContractMetadata(c.id, address).catch(() => null)));
+    } catch (e) {
+      throw new Error(`Couldn't reach Alchemy. Make sure the proxy at <code>/api/alchemy/*</code> is deployed and <code>ALCHEMY_API_KEY</code> is set in Cloudflare. Detail: ${e.message || e}`);
+    }
+    const directHits = directChecks.filter(Boolean);
+
+    if (directHits.length) {
+      directHits.forEach(c => c.selected = true);
+      state.identity = { input: raw, address, ensName, avatar };
+      state.collections = directHits;
+      state.picked = [...directHits];
+      renderIdentity(); renderCollections();
+      clearStatus("#who-status");
+      $("#who-btn").disabled = false;
+      $("#pick-next").disabled = false;
+      goToStep("pick");
+      return;
+    }
+
+    if (!ensName) { try { const rev = await reverseENS(address); ensName = rev.name; avatar = avatar || rev.avatar; } catch {} }
+
+    setStatus("#who-status", `Asking OpenSea for collections by this wallet…`);
+
+    // Primary path: ask OpenSea directly. They have creator → collections
+    // mapping fully indexed via collection.owner — no transaction parsing needed.
+    const apiErrors = [];
+    const collections = [];
+    const seen = new Set();
+
+    const osPerChain = await Promise.all(CHAINS.map(async (c) => {
+      try {
+        const found = await findCreatorCollectionsOpenSea(c.opensea, address);
+        return found;
+      } catch (e) {
+        apiErrors.push({ chain: c.id, op: "opensea", msg: e.message || String(e) });
+        return [];
+      }
+    }));
+
+    for (const arr of osPerChain) {
+      for (const item of arr) {
+        if (item && item.contract && !seen.has(item.contract)) {
+          seen.add(item.contract);
+          collections.push(item);
+          renderCollectionsLive(collections);
+        }
+      }
+    }
+    setStatus("#who-status", `Found ${collections.length} collection${collections.length === 1 ? "" : "s"}…`);
+
+    // Fallback to Alchemy direct-deploy detection only if OpenSea returned
+    // nothing AND there were no OpenSea errors (i.e., the wallet really has
+    // no OS-indexed collections, but might be a pure on-chain devy who
+    // deployed without listing anything).
+    if (!collections.length && !apiErrors.length) {
+      setStatus("#who-status", `Nothing in OpenSea index. Checking direct deployments via Alchemy…`);
+      const alchemyResults = await Promise.all(CHAINS.map(async (c) => {
+        const direct = await findCreatedContractsOnChain(c.id, address)
+          .catch(e => { apiErrors.push({ chain: c.id, op: "alchemy.deploys", msg: e.message || String(e) }); return []; });
+        const out = [];
+        for (const d of direct) {
+          const meta = await getContractMetadata(c.id, d.contract);
+          if (meta) out.push(meta);
+        }
+        return out;
+      }));
+      for (const arr of alchemyResults) {
+        for (const meta of arr) {
+          if (!seen.has(meta.contract)) {
+            seen.add(meta.contract);
+            collections.push(meta);
+            renderCollectionsLive(collections);
+          }
+        }
+      }
+    }
+
+    if (!collections.length) {
+      if (apiErrors.length) {
+        const sample = apiErrors.slice(0, 3).map(e => `<code>${e.chain}/${e.op}</code>: ${escapeHtml(e.msg)}`).join("<br/>");
+        throw new Error(`No collections found and ${apiErrors.length} API call${apiErrors.length === 1 ? "" : "s"} errored:<br/>${sample}<br/><br/>Most likely <code>OPENSEA_API_KEY</code> isn't set in your Cloudflare env, or the proxy isn't deployed.`);
+      }
+      throw new Error("This wallet doesn't appear as the creator of any collection that OpenSea has indexed, and has no direct on-chain deploys we could verify. Try pasting the contract address directly.");
+    }
+    collections.sort((a, b) => (b.supply || 0) - (a.supply || 0));
+    collections.forEach(c => c.selected = false);
+
+    state.identity = { input: raw, address, ensName, avatar };
+    state.collections = collections; state.picked = [];
+    renderIdentity(); renderCollections();
+    clearStatus("#who-status");
+    $("#who-btn").disabled = false;
+    goToStep("pick");
+  } catch (e) {
+    clearStatus("#who-status");
+    setError("#who-error", escapeHtmlSoft(e.message || String(e)));
+    $("#who-btn").disabled = false;
+  }
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   IDENTITY + COLLECTIONS
+   ════════════════════════════════════════════════════════════════════ */
+function renderIdentity() {
+  const id = state.identity; if (!id) return;
+  const av = $("#id-avatar");
+  if (id.avatar) av.innerHTML = `<img src="${escapeHtml(id.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.parentElement.textContent='${(id.ensName || id.address).slice(0,1).toUpperCase()}'" />`;
+  else av.textContent = (id.ensName || id.address).slice(0,1).toUpperCase();
+  setText("#id-name", id.ensName || "Wallet");
+  setText("#id-addr", shortAddr(id.address));
+}
+function renderCollectionsLive(list) { state.collections = list; renderCollections(); }
+function renderCollections() {
+  const wrap = $("#collections");
+  const list = state.collections;
+  wrap.innerHTML = list.map((c, i) => {
+    const ch = chainBy(c.chain) || { short: "?", cls: "" };
+    return `
+    <label class="col-row ${c.selected ? "checked" : ""}" data-i="${i}">
+      <span class="check"></span>
+      <span class="col-img">${c.image ? `<img src="${escapeHtml(c.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()"/>` : ""}</span>
+      <span class="col-info">
+        <span class="name">
+          <span class="label-text">${escapeHtml(c.name || "Untitled")}</span>
+          <span class="tag ${ch.cls}">${ch.short}</span>
+          <span class="tag ${c.standard === "ERC1155" ? "tag-1155" : "tag-721"}">${c.standard === "ERC1155" ? "1155" : "721"}</span>
+        </span>
+        <span class="addr">${shortAddr(c.contract)}</span>
+      </span>
+      <span class="col-meta">${c.supply ? fmt(c.supply) : ""}</span>
+    </label>`;
+  }).join("");
+  $$("#collections .col-row").forEach((row) => {
+    row.addEventListener("click", (e) => {
+      e.preventDefault();
+      const i = Number(row.dataset.i);
+      state.collections[i].selected = !state.collections[i].selected;
+      row.classList.toggle("checked", state.collections[i].selected);
+      updatePickMeta();
+    });
+  });
+  updatePickMeta();
+}
+function updatePickMeta() {
+  const sel = state.collections.filter(c => c.selected);
+  state.picked = sel;
+  $("#pick-next").disabled = !sel.length;
+  setText("#pick-meta", `${state.collections.length} found · ${sel.length} selected`);
+}
+$("#pick-all").addEventListener("click", () => { state.collections.forEach(c => c.selected = true); renderCollections(); });
+$("#pick-none").addEventListener("click", () => { state.collections.forEach(c => c.selected = false); renderCollections(); });
+$("#id-change").addEventListener("click", () => { goToStep("who"); $("#who-input").focus(); });
+$("#pick-next").addEventListener("click", () => { if (state.picked.length) goToStep("when"); });
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 3 — time
+   ════════════════════════════════════════════════════════════════════ */
+$("#time-now").addEventListener("click", () => {
+  $("#time-now").setAttribute("aria-pressed", "true");
+  $("#time-custom").setAttribute("aria-pressed", "false");
+  hide("#time-input");
+  state.when = { kind: "now", ts: null, blockByChain: {} };
+});
+$("#time-custom").addEventListener("click", () => {
+  $("#time-now").setAttribute("aria-pressed", "false");
+  $("#time-custom").setAttribute("aria-pressed", "true");
+  show("#time-input");
+  $("#time-input").focus();
+  if (!$("#time-input").value) {
+    const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    $("#time-input").value = d.toISOString().slice(0,16);
+  }
+  state.when = { kind: "custom", ts: null, blockByChain: {} };
+});
+
+$("#snap-go").addEventListener("click", async () => {
+  clearError("#snap-error");
+  $("#snap-go").disabled = true;
+  show("#snap-status"); show("#snap-progress");
+  $("#snap-status").innerHTML = `<span class="spinner"></span><span>Preparing…</span>`;
+  try {
+    let ts = null;
+    if (state.when.kind === "custom") {
+      const v = $("#time-input").value;
+      if (!v) throw new Error("Pick a date.");
+      ts = Math.floor(new Date(v).getTime() / 1000);
+      const neededChains = [...new Set(state.picked.map(p => p.chain))];
+      $("#snap-status").innerHTML = `<span class="spinner"></span><span>Locating block on ${neededChains.length} chain${neededChains.length === 1 ? "" : "s"}…</span>`;
+      const blocks = await Promise.all(neededChains.map(async c => [c, await blockAtTimestamp(c, ts)]));
+      state.when.ts = ts;
+      state.when.blockByChain = Object.fromEntries(blocks);
+    }
+
+    const out = { perCollection: [], holdersUnion: new Map(), totalTokens: 0 };
+    for (let i = 0; i < state.picked.length; i++) {
+      const c = state.picked[i]; const ch = chainBy(c.chain);
+      $("#snap-status").innerHTML = `<span class="spinner"></span><span>(${i+1}/${state.picked.length}) ${escapeHtml(c.name)} · ${ch.name}…</span>`;
+      let res;
+      if (state.when.kind === "now") {
+        res = await getOwnersNow(c.chain, c.contract, (h, tk) => {
+          $("#snap-status").innerHTML = `<span class="spinner"></span><span>(${i+1}/${state.picked.length}) ${escapeHtml(c.name)} — ${fmt(h)} wallets…</span>`;
+        });
+      } else {
+        const block = state.when.blockByChain[c.chain];
+        res = await getOwnersAtBlock(c.chain, c.contract, block, c.standard, (n) => {
+          $("#snap-status").innerHTML = `<span class="spinner"></span><span>(${i+1}/${state.picked.length}) ${escapeHtml(c.name)} — replayed ${fmt(n)} transfers…</span>`;
+        });
+      }
+      out.perCollection.push({ contract: c.contract, name: c.name, standard: c.standard, chain: c.chain, owners: res.owners, totalTokens: res.totalTokens, source: res.source });
+      for (const o of res.owners) out.holdersUnion.set(o.address, (out.holdersUnion.get(o.address) || 0) + o.count);
+      out.totalTokens += res.totalTokens;
+    }
+
+    const merged = [...out.holdersUnion.entries()]
+      .map(([address, count]) => ({ address, count, share: out.totalTokens ? count / out.totalTokens : 0 }))
+      .sort((a, b) => b.count - a.count);
+
+    state.snapshot = {
+      capturedAt: state.when.kind === "now" ? new Date() : new Date(ts * 1000),
+      kind: state.when.kind,
+      blockByChain: state.when.blockByChain,
+      merged, perCollection: out.perCollection, totalTokens: out.totalTokens,
+    };
+
+    hide("#snap-status"); hide("#snap-progress");
+    $("#snap-go").disabled = false;
+    renderExport();
+    goToStep("export");
+  } catch (e) {
+    hide("#snap-status"); hide("#snap-progress");
+    setError("#snap-error", escapeHtmlSoft(e.message || String(e)));
+    $("#snap-go").disabled = false;
+  }
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   STEP 4
+   ════════════════════════════════════════════════════════════════════ */
+function renderExport() {
+  const s = state.snapshot;
+  setText("#x-holders", fmt(s.merged.length));
+  setText("#x-tokens", fmt(s.totalTokens));
+  const blocks = s.kind === "custom"
+    ? Object.entries(s.blockByChain).map(([c, b]) => `${chainBy(c).short} ${fmt(b)}`).join(" · ")
+    : "live";
+  setText("#x-time", s.capturedAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + " · " + blocks);
+}
+function downloadFile(filename, content, type = "text/plain") {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 200);
+}
+function snapshotFilename(ext) {
+  const s = state.snapshot, id = state.identity;
+  const slug = (id.ensName || (state.picked[0] && state.picked[0].name) || "snapsus").toString()
+    .replace(/[^a-z0-9]+/gi, "_").toLowerCase();
+  const stamp = s.capturedAt.toISOString().replace(/[:.]/g, "-").slice(0, 16);
+  return `snapsus-${slug}-${stamp}.${ext}`;
+}
+$("#dl-json").addEventListener("click", () => {
+  if (!state.snapshot) return;
+  const s = state.snapshot;
+  const payload = {
+    tool: "Snapsus", version: 2,
+    captured_at: s.capturedAt.toISOString(),
+    moment: s.kind === "custom" ? "historical" : "live",
+    blocks: s.blockByChain || {},
+    creator: state.identity ? { input: state.identity.input, address: state.identity.address, ens: state.identity.ensName || null } : null,
+    collections: s.perCollection.map(c => ({ contract: c.contract, name: c.name, standard: c.standard, chain: c.chain, total_tokens: c.totalTokens, holders: c.owners.length, source: c.source })),
+    holders: s.merged,
+  };
+  downloadFile(snapshotFilename("json"), JSON.stringify(payload, null, 2), "application/json");
+  toast("JSON downloaded");
+});
+$("#dl-csv-os").addEventListener("click", () => {
+  if (!state.snapshot) return;
+  const lines = ["wallet_address,number_of_tokens"];
+  for (const h of state.snapshot.merged) lines.push(`${h.address},${h.count}`);
+  downloadFile(snapshotFilename("opensea.csv"), lines.join("\n"), "text/csv;charset=utf-8");
+  toast("OpenSea CSV downloaded");
+});
+$("#dl-csv-es").addEventListener("click", () => {
+  if (!state.snapshot) return;
+  const lines = ["HolderAddress,Balance,PendingBalanceUpdate"];
+  for (const h of state.snapshot.merged) lines.push(`${h.address},${h.count},No`);
+  downloadFile(snapshotFilename("etherscan.csv"), lines.join("\n"), "text/csv;charset=utf-8");
+  toast("Etherscan CSV downloaded");
+});
+$("#restart").addEventListener("click", () => {
+  state.identity = null; state.collections = []; state.picked = []; state.snapshot = null;
+  state.when = { kind: "now", ts: null, blockByChain: {} };
+  $("#who-input").value = "";
+  $("#time-now").click();
+  goToStep("who");
+});
+
+/* ════════════════════════════════════════════════════════════════════
+   STEPS
+   ════════════════════════════════════════════════════════════════════ */
+function goToStep(s) {
+  const all = ["who", "pick", "when", "export"];
+  const idx = all.indexOf(s);
+  all.forEach((n, i) => { const el = $(`#step-${n}`); if (!el) return; if (i <= idx) show(el); else hide(el); });
+  $("#platform").classList.toggle("expanded", idx > 0);
+  const target = $(`#step-${s}`);
+  if (target) setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+}
+goToStep("who");
+$("#who-input").focus();
+</script>
+</body>
+</html>
