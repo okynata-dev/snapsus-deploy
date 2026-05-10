@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <meta name="theme-color" content="#0a0a0a" />
 <meta name="color-scheme" content="light" />
-<title>Snapsus — receipt-grade holder snapshots</title>
+<title>Snapsus</title>
 <meta name="description" content="Every wallet that ever held it. Multi-chain NFT holder snapshots, point-in-time, with eight allocation modes and CSV/JSON exports built for any drop." />
 
 <!-- Open Graph / Twitter -->
@@ -1155,78 +1155,46 @@
     margin-bottom: 14px;
   }
 
-  /* ───────── Use-case cards (premium) ───────── */
+  /* ───────── Use-case cards (lean) ───────── */
   .use-card {
     --uc-accent:      #5b3bff;
     --uc-accent-soft: #eee9ff;
-    --uc-accent-line: rgba(91,59,255,0.18);
-    --uc-glow:        rgba(91,59,255,0.18);
 
     background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(255,255,255,0.78) 100%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.65);
     border-radius: var(--radius-lg);
-    padding: 0;
-    overflow: hidden;
+    padding: 24px 22px 20px;
     position: relative;
     display: flex; flex-direction: column;
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.85),
-      0 8px 24px -10px rgba(10,10,10,0.06),
+      0 4px 12px -6px rgba(10,10,10,0.05),
       0 1px 2px rgba(10,10,10,0.03);
-    transition: transform .28s cubic-bezier(.2,.8,.2,1), box-shadow .35s ease;
+    transition: transform .2s ease, box-shadow .25s ease, border-color .2s ease;
+  }
+  .use-card::before {
+    content: ""; position: absolute; left: 0; top: 22px; bottom: 22px;
+    width: 2px; border-radius: 0 2px 2px 0;
+    background: var(--uc-accent);
+    opacity: 0.7;
   }
   .use-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
+    border-color: rgba(255,255,255,0.85);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,0.85),
-      0 24px 48px -16px var(--uc-glow),
-      0 4px 10px rgba(10,10,10,0.05);
+      0 14px 28px -10px rgba(10,10,10,0.10),
+      0 2px 4px rgba(10,10,10,0.04);
   }
-  .use-whitelist   { --uc-accent: #00875a; --uc-accent-soft: #e6f7ef; --uc-accent-line: rgba(0,135,90,0.20);  --uc-glow: rgba(0,135,90,0.22); }
-  .use-airdrop     { --uc-accent: #5b3bff; --uc-accent-soft: #eee9ff; --uc-accent-line: rgba(91,59,255,0.20); --uc-glow: rgba(91,59,255,0.22); }
-  .use-retroactive { --uc-accent: #b46500; --uc-accent-soft: #fff2e0; --uc-accent-line: rgba(180,101,0,0.20); --uc-glow: rgba(180,101,0,0.22); }
-  .use-governance  { --uc-accent: #1d6fb8; --uc-accent-soft: #e3f1fc; --uc-accent-line: rgba(29,111,184,0.22); --uc-glow: rgba(29,111,184,0.20); }
+  .use-whitelist   { --uc-accent: #00875a; --uc-accent-soft: #e6f7ef; }
+  .use-airdrop     { --uc-accent: #5b3bff; --uc-accent-soft: #eee9ff; }
+  .use-retroactive { --uc-accent: #b46500; --uc-accent-soft: #fff2e0; }
+  .use-governance  { --uc-accent: #1d6fb8; --uc-accent-soft: #e3f1fc; }
 
-  .use-illu {
-    height: 138px;
-    background:
-      radial-gradient(120% 80% at 50% 0%, var(--uc-accent-soft) 0%, transparent 80%),
-      linear-gradient(180deg, rgba(255,255,255,0.4) 0%, transparent 100%);
-    display: flex; align-items: center; justify-content: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .use-illu::before {
-    content: ""; position: absolute; inset: 0;
-    background-image:
-      linear-gradient(to right, var(--uc-accent-line) 1px, transparent 1px),
-      linear-gradient(to bottom, var(--uc-accent-line) 1px, transparent 1px);
-    background-size: 22px 22px;
-    opacity: 0.18;
-    mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 30%, transparent 80%);
-    -webkit-mask-image: radial-gradient(ellipse 60% 60% at 50% 50%, black 30%, transparent 80%);
-  }
-  .use-illu::after {
-    content: ""; position: absolute; bottom: 0; left: 0; right: 0;
-    height: 1px;
-    background: linear-gradient(to right, transparent 0%, var(--uc-accent-line) 50%, transparent 100%);
-  }
-  .use-illu svg {
-    width: 70%; max-width: 240px; height: 100%; max-height: 110px;
-    position: relative; z-index: 1;
-    transition: transform .3s ease;
-  }
-  .use-card:hover .use-illu svg { transform: scale(1.04); }
-
-  .use-content {
-    padding: 20px 22px 18px;
-    display: flex; flex-direction: column;
-    flex: 1;
-  }
   .use-kicker {
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 8px;
     font-family: var(--mono);
     font-size: 10.5px;
     color: var(--uc-accent);
@@ -1235,9 +1203,8 @@
     margin-bottom: 10px;
     font-weight: 500;
   }
-  .use-kicker .num {
-    color: rgba(0,0,0,0.30);
-  }
+  .use-kicker .num { color: rgba(0,0,0,0.32); }
+
   .use-card h3 {
     font-family: var(--serif);
     font-size: 22px;
@@ -1247,18 +1214,15 @@
     color: var(--ink);
     line-height: 1.15;
   }
-  .use-card > .use-content > p,
-  .use-card .use-content p {
+  .use-card p {
     color: var(--ink-2);
     font-size: 13.5px;
     line-height: 1.55;
-    margin: 0 0 18px;
+    margin: 0 0 16px;
     flex: 1;
   }
   .use-tags {
     display: flex; flex-wrap: wrap; gap: 5px;
-    padding-top: 14px;
-    border-top: 1px solid var(--line);
   }
   .use-tag {
     display: inline-flex; align-items: center;
@@ -1700,144 +1664,47 @@
   </div>
   <div class="cards-2x2">
 
-    <!-- ── Whitelists ── -->
     <article class="use-card use-whitelist">
-      <div class="use-illu" aria-hidden="true">
-        <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
-          <!-- Row 1 (faded) -->
-          <rect x="6" y="6" width="88" height="16" rx="5" fill="rgba(0,135,90,0.05)" stroke="rgba(0,135,90,0.18)" stroke-width="0.8"/>
-          <circle cx="15" cy="14" r="3" fill="rgba(0,135,90,0.22)"/>
-          <rect x="22" y="11" width="40" height="2.2" rx="1" fill="rgba(10,10,10,0.30)"/>
-          <rect x="22" y="15.5" width="22" height="1.8" rx="0.9" fill="rgba(10,10,10,0.16)"/>
-          <!-- Row 2 (highlighted) -->
-          <rect x="6" y="32" width="88" height="16" rx="5" fill="rgba(0,135,90,0.14)" stroke="#00875a" stroke-width="1.4"/>
-          <circle cx="15" cy="40" r="3" fill="#00875a"/>
-          <rect x="22" y="37" width="40" height="2.2" rx="1" fill="rgba(10,10,10,0.65)"/>
-          <rect x="22" y="41.5" width="22" height="1.8" rx="0.9" fill="rgba(10,10,10,0.32)"/>
-          <circle cx="84" cy="40" r="5.2" fill="#00875a"/>
-          <path d="M81.6 40 l1.7 1.7 l3.2-3.2" stroke="white" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <!-- Row 3 (faded) -->
-          <rect x="6" y="58" width="88" height="16" rx="5" fill="rgba(0,135,90,0.05)" stroke="rgba(0,135,90,0.18)" stroke-width="0.8"/>
-          <circle cx="15" cy="66" r="3" fill="rgba(0,135,90,0.22)"/>
-          <rect x="22" y="63" width="40" height="2.2" rx="1" fill="rgba(10,10,10,0.30)"/>
-          <rect x="22" y="67.5" width="22" height="1.8" rx="0.9" fill="rgba(10,10,10,0.16)"/>
-        </svg>
-      </div>
-      <div class="use-content">
-        <span class="use-kicker"><span class="num">01</span> Whitelist</span>
-        <h3>Reward your existing collectors</h3>
-        <p>Snapshot today, drop the OpenSea CSV, every wallet on the list mints free or discounted on launch day. The cleanest path from "people who already showed up" to "first in line."</p>
-        <div class="use-tags">
-          <span class="use-tag">Flat alloc</span>
-          <span class="use-tag">Live snapshot</span>
-          <span class="use-tag">OpenSea CSV</span>
-        </div>
+      <span class="use-kicker"><span class="num">01</span> Whitelist</span>
+      <h3>Reward your existing collectors</h3>
+      <p>Snapshot today, drop the OpenSea CSV, every wallet on the list mints free or discounted on launch day.</p>
+      <div class="use-tags">
+        <span class="use-tag">Flat alloc</span>
+        <span class="use-tag">Live snapshot</span>
+        <span class="use-tag">OpenSea CSV</span>
       </div>
     </article>
 
-    <!-- ── Airdrops ── -->
     <article class="use-card use-airdrop">
-      <div class="use-illu" aria-hidden="true">
-        <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
-          <!-- Drop trails -->
-          <g stroke="rgba(91,59,255,0.30)" stroke-width="1" stroke-linecap="round">
-            <line x1="22" y1="2"  x2="22" y2="14"/>
-            <line x1="42" y1="6"  x2="42" y2="22"/>
-            <line x1="62" y1="2"  x2="62" y2="16"/>
-            <line x1="78" y1="10" x2="78" y2="26"/>
-          </g>
-          <!-- Coins -->
-          <circle cx="22" cy="20" r="4"   fill="#5b3bff" opacity="0.5"/>
-          <circle cx="42" cy="32" r="5.5" fill="#5b3bff"/>
-          <circle cx="42" cy="32" r="2.5" fill="white" opacity="0.55"/>
-          <circle cx="62" cy="22" r="4.5" fill="#5b3bff" opacity="0.7"/>
-          <circle cx="78" cy="36" r="4"   fill="#5b3bff" opacity="0.55"/>
-          <!-- Receiver: viewfinder bracket (brand mark) -->
-          <g stroke="#5b3bff" stroke-width="1.7" stroke-linecap="round" fill="none">
-            <path d="M 16 56 L 16 50 L 24 50"/>
-            <path d="M 76 50 L 84 50 L 84 56"/>
-            <path d="M 84 70 L 84 76 L 76 76"/>
-            <path d="M 24 76 L 16 76 L 16 70"/>
-          </g>
-          <circle cx="50" cy="63" r="2.8" fill="#5b3bff"/>
-        </svg>
-      </div>
-      <div class="use-content">
-        <span class="use-kicker"><span class="num">02</span> Airdrop</span>
-        <h3>Distribute tokens however you want</h3>
-        <p>Proportional to holdings, capped to fight whales, square-root for softer curves, or a flat unit so everyone gets the same. Pro-rata mode splits a fixed budget cleanly across the entire list.</p>
-        <div class="use-tags">
-          <span class="use-tag">Pro-rata budget</span>
-          <span class="use-tag">Capped</span>
-          <span class="use-tag">Multi-chain</span>
-        </div>
+      <span class="use-kicker"><span class="num">02</span> Airdrop</span>
+      <h3>Distribute tokens however you want</h3>
+      <p>Proportional, capped to fight whales, square-root for softer curves, or a flat unit. Pro-rata splits a fixed budget cleanly.</p>
+      <div class="use-tags">
+        <span class="use-tag">Pro-rata budget</span>
+        <span class="use-tag">Capped</span>
+        <span class="use-tag">Multi-chain</span>
       </div>
     </article>
 
-    <!-- ── Retroactives ── -->
     <article class="use-card use-retroactive">
-      <div class="use-illu" aria-hidden="true">
-        <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
-          <!-- Curved backwards arrow -->
-          <path d="M 80 22 Q 50 6 22 22" stroke="#b46500" stroke-width="1.4" stroke-linecap="round" fill="none"/>
-          <path d="M 26 19 L 19 23 L 23 30" stroke="#b46500" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-          <!-- Timeline -->
-          <line x1="14" y1="48" x2="86" y2="48" stroke="rgba(180,101,0,0.32)" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="86" y1="44" x2="86" y2="52" stroke="rgba(180,101,0,0.55)" stroke-width="1.5" stroke-linecap="round"/>
-          <!-- Past markers (small dots, fading toward past) -->
-          <circle cx="74" cy="48" r="2.5" fill="rgba(180,101,0,0.32)"/>
-          <circle cx="58" cy="48" r="2.5" fill="rgba(180,101,0,0.40)"/>
-          <circle cx="42" cy="48" r="2.5" fill="rgba(180,101,0,0.50)"/>
-          <!-- Highlighted past moment (the snapshot) -->
-          <circle cx="22" cy="48" r="7"   fill="rgba(180,101,0,0.18)" stroke="#b46500" stroke-width="1.5"/>
-          <circle cx="22" cy="48" r="3"   fill="#b46500"/>
-          <!-- Pulse from selected moment -->
-          <line x1="22" y1="58" x2="22" y2="68" stroke="#b46500" stroke-width="1" stroke-linecap="round" stroke-dasharray="1.5 1.6"/>
-          <line x1="16" y1="68" x2="28" y2="68" stroke="#b46500" stroke-width="1" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="use-content">
-        <span class="use-kicker"><span class="num">03</span> Retroactive</span>
-        <h3>Reward who held it then, not now</h3>
-        <p>Snapshot any past moment — not who holds today, but who held during the window that mattered. Even if they sold since. Block-precise, sub-30-second accuracy, receipt logged in the export.</p>
-        <div class="use-tags">
-          <span class="use-tag">Custom date</span>
-          <span class="use-tag">Block-precise</span>
-          <span class="use-tag">JSON archive</span>
-        </div>
+      <span class="use-kicker"><span class="num">03</span> Retroactive</span>
+      <h3>Reward who held it then, not now</h3>
+      <p>Snapshot any past moment — who held during the window that mattered, even if they sold since. Block-precise, ~30-second accuracy.</p>
+      <div class="use-tags">
+        <span class="use-tag">Custom date</span>
+        <span class="use-tag">Block-precise</span>
+        <span class="use-tag">JSON archive</span>
       </div>
     </article>
 
-    <!-- ── Governance ── -->
     <article class="use-card use-governance">
-      <div class="use-illu" aria-hidden="true">
-        <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
-          <!-- Y-axis ticks -->
-          <line x1="10" y1="22" x2="14" y2="22" stroke="rgba(29,111,184,0.30)" stroke-width="0.9" stroke-linecap="round"/>
-          <line x1="10" y1="38" x2="14" y2="38" stroke="rgba(29,111,184,0.30)" stroke-width="0.9" stroke-linecap="round"/>
-          <line x1="10" y1="54" x2="14" y2="54" stroke="rgba(29,111,184,0.30)" stroke-width="0.9" stroke-linecap="round"/>
-          <!-- Baseline -->
-          <line x1="14" y1="68" x2="88" y2="68" stroke="rgba(29,111,184,0.32)" stroke-width="1"/>
-          <!-- Bars -->
-          <rect x="22" y="46" width="14" height="22" rx="2" fill="rgba(29,111,184,0.18)" stroke="rgba(29,111,184,0.50)" stroke-width="1"/>
-          <rect x="44" y="22" width="14" height="46" rx="2" fill="#1d6fb8"/>
-          <rect x="66" y="36" width="14" height="32" rx="2" fill="rgba(29,111,184,0.30)" stroke="rgba(29,111,184,0.55)" stroke-width="1"/>
-          <!-- Winner highlight bracket above mid bar -->
-          <line x1="44" y1="16" x2="58" y2="16" stroke="#1d6fb8" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="44" y1="14" x2="44" y2="18" stroke="#1d6fb8" stroke-width="1.5" stroke-linecap="round"/>
-          <line x1="58" y1="14" x2="58" y2="18" stroke="#1d6fb8" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="51" cy="16" r="1.6" fill="#1d6fb8"/>
-        </svg>
-      </div>
-      <div class="use-content">
-        <span class="use-kicker"><span class="num">04</span> Governance</span>
-        <h3>Voting power tied to engagement</h3>
-        <p>Power based on real, durable holdings — not last-second speculation. Square-root mode dampens whales while keeping the signal proportional to the wallets that have actually been in the building.</p>
-        <div class="use-tags">
-          <span class="use-tag">Square root</span>
-          <span class="use-tag">Multi-creator</span>
-          <span class="use-tag">Anti-whale</span>
-        </div>
+      <span class="use-kicker"><span class="num">04</span> Governance</span>
+      <h3>Voting power tied to engagement</h3>
+      <p>Based on durable holdings, not last-second speculation. Square-root mode dampens whales while keeping the signal honest.</p>
+      <div class="use-tags">
+        <span class="use-tag">Square root</span>
+        <span class="use-tag">Multi-creator</span>
+        <span class="use-tag">Anti-whale</span>
       </div>
     </article>
 
