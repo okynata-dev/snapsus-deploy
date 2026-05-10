@@ -3122,17 +3122,20 @@ $("#restart").addEventListener("click", () => {
 /* ════════════════════════════════════════════════════════════════════
    STEPS
    ════════════════════════════════════════════════════════════════════ */
-function goToStep(s) {
+function goToStep(s, opts) {
   const all = ["who", "pick", "when", "export"];
   const idx = all.indexOf(s);
   all.forEach((n, i) => { const el = $(`#step-${n}`); if (!el) return; if (i <= idx) show(el); else hide(el); });
   $("#platform").classList.toggle("expanded", idx > 0);
   const target = $(`#step-${s}`);
-  if (target) setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+  if (target && !(opts && opts.skipScroll)) {
+    setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "center" }), 50);
+  }
 }
 syncAllocationUI();
-goToStep("who");
-$("#who-input").focus();
+goToStep("who", { skipScroll: true });
+/* Focus the input but don't yank the viewport — keeps the hero text in view */
+try { $("#who-input").focus({ preventScroll: true }); } catch { $("#who-input").focus(); }
 
 /* Footer year */
 const yearEl = document.getElementById("year");
