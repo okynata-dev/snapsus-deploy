@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 200" width="720" height="200">
+  <!-- Mark -->
+  <rect x="20" y="36" width="128" height="128" rx="28" fill="#0a0a0a"/>
+  <g stroke="white" stroke-width="7" stroke-linecap="round" fill="none" transform="translate(20, 36)">
+    <path d="M28 46 L28 28 L46 28"/>
+    <path d="M82 28 L100 28 L100 46"/>
+    <path d="M100 82 L100 100 L82 100"/>
+    <path d="M46 100 L28 100 L28 82"/>
+  </g>
+  <circle cx="84" cy="100" r="8" fill="white"/>
+  <!-- Wordmark -->
+  <text x="178" y="125" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="80" font-weight="600" letter-spacing="-3" fill="#0a0a0a">Snapsus</text>
+</svg>
