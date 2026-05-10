@@ -1064,9 +1064,9 @@
   .sec {
     max-width: 1080px;
     margin: 0 auto;
-    padding: 96px 24px;
+    padding: 80px 24px;
   }
-  @media (max-width: 720px) { .sec { padding: 64px 22px; } }
+  @media (max-width: 720px) { .sec { padding: 56px 22px; } }
 
   .sec-head {
     max-width: 720px;
@@ -1515,7 +1515,6 @@
       <span class="brand-name">Snapsus</span>
     </a>
     <nav class="topbar-nav">
-      <a href="#how">How</a>
       <a href="#use">Use cases</a>
       <a href="#faq">FAQ</a>
       <button type="button" class="topbar-icon" data-contact-open="general" aria-label="Contact">
@@ -1692,56 +1691,12 @@
   </section>
 </section><!-- /.hero -->
 
-<!-- ───────── Trust strip ───────── -->
-<section class="trust-strip" aria-label="Powered by">
-  <div class="trust-inner">
-    <span class="trust-lbl">Pulled from</span>
-    <span class="trust-pills">
-      <span class="trust-pill">Alchemy</span>
-      <span class="trust-pill">OpenSea</span>
-      <span class="trust-pill">ENS</span>
-      <span class="trust-pill">DefiLlama</span>
-    </span>
-    <span class="trust-lbl">Run on</span>
-    <span class="trust-pills">
-      <span class="trust-pill">Cloudflare</span>
-    </span>
-    <span class="trust-lbl trust-em">No data stored. Keys never leave the edge.</span>
-  </div>
-</section>
-
-<!-- ───────── How it works ───────── -->
-<section class="sec" id="how">
-  <div class="sec-head">
-    <span class="kicker">How it works</span>
-    <h2>Three steps from wallet to CSV.</h2>
-    <p class="sec-lede">No accounts, no waiting, no upload step. Paste an address, pick a moment, download.</p>
-  </div>
-  <div class="cards-3">
-    <div class="card step">
-      <span class="step-num">01</span>
-      <h3>Drop in a creator</h3>
-      <p>An ENS name, a 0x address, or a contract — same input box. Snapsus walks five chains and pulls every collection where they're indexed as creator. Add more wallets to combine multiple drops in one snapshot.</p>
-    </div>
-    <div class="card step">
-      <span class="step-num">02</span>
-      <h3>Pick a moment</h3>
-      <p>Right now, or any historical date. For past moments we resolve the nearest block on each chain via DefiLlama, then replay every transfer to reconstruct ownership exactly as it stood.</p>
-    </div>
-    <div class="card step">
-      <span class="step-num">03</span>
-      <h3>Shape the allocation</h3>
-      <p>One vote per token, flat per wallet, capped, square-root, raffle, pro-rata budget, custom tiers — eight modes, live preview. Filter contracts, paste an exclude list, set a minimum-tokens threshold. Download.</p>
-    </div>
-  </div>
-</section>
-
 <!-- ───────── Use cases ───────── -->
 <section class="sec" id="use">
   <div class="sec-head">
     <span class="kicker">Use cases</span>
-    <h2>Built for the unglamorous part of running a drop.</h2>
-    <p class="sec-lede">Whitelists, airdrops, retroactives, governance — all built on the same primitive: a precise list, on demand.</p>
+    <h2>One primitive. Four jobs.</h2>
+    <p class="sec-lede">Whitelists, airdrops, retroactives, governance — all from a single precise list, on demand.</p>
   </div>
   <div class="cards-2x2">
 
@@ -1889,24 +1844,6 @@
   </div>
 </section>
 
-<!-- ───────── Features ───────── -->
-<section class="sec" id="features">
-  <div class="sec-head">
-    <span class="kicker">What's inside</span>
-    <h2>Quietly precise where it matters.</h2>
-  </div>
-  <div class="features-grid">
-    <div class="feat"><span class="feat-dot"></span><h4>Five chains</h4><p>Ethereum, Base, Polygon, Arbitrum, Optimism — same flow, no chain-switching dialogs.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>Time travel</h4><p>Any historical block, resolved from a date you pick. Block numbers shown in the receipt.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>Multi-source</h4><p>Combine holders from several creators or contracts in a single snapshot, deduped by wallet.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>Eight allocation modes</h4><p>From 1-per-token to square-root, capped, tiered, raffle and pro-rata budget — switch live.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>Smart-contract filter</h4><p>Auto-detect and exclude marketplace pools, vaults, and routers via on-chain code check.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>ENS in preview</h4><p>Names auto-resolve as you scroll the holder list. Lazy-loaded so big snapshots stay fast.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>Custom exclude list</h4><p>Paste your own blocklist — team wallets, scammers, any address — and it disappears from output.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>JSON & CSV export</h4><p>OpenSea drop CSV, Etherscan format, full-detail JSON archive with allocation config and block proof.</p></div>
-    <div class="feat"><span class="feat-dot"></span><h4>Zero data retention</h4><p>Snapshots are computed in your browser and cached only at the edge. Nothing stored, nothing logged.</p></div>
-  </div>
-</section>
 
 <!-- ───────── FAQ ───────── -->
 <section class="sec" id="faq">
@@ -1916,36 +1853,24 @@
   </div>
   <div class="faq-list">
     <details class="faq-item">
-      <summary>Is my data stored anywhere?</summary>
-      <p>No accounts, no database. Your queries hit our edge proxies, the responses are cached for a few minutes at Cloudflare's edge — that's it. The CSV/JSON you download lives only on your machine. Keys to Alchemy and OpenSea never leave the server side.</p>
-    </details>
-    <details class="faq-item">
       <summary>How accurate are historical snapshots?</summary>
-      <p>We resolve the block nearest your chosen timestamp via DefiLlama (≈30-second accuracy) and replay every ERC-721 / ERC-1155 transfer up to that block. The output reflects ownership exactly as it stood at that block. The receipt records the block number per chain so you can verify externally.</p>
+      <p>We resolve the block nearest your chosen timestamp via DefiLlama (≈30-second accuracy) and replay every transfer up to that block. The output reflects ownership exactly as it stood. Block numbers are recorded in the receipt so you can verify externally.</p>
     </details>
     <details class="faq-item">
-      <summary>Which chains are supported?</summary>
-      <p>Ethereum mainnet, Base, Polygon, Arbitrum One, and Optimism. All discovery and snapshot operations run across all five in parallel — you don't pick a chain up front.</p>
-    </details>
-    <details class="faq-item">
-      <summary>Can I combine multiple creators or contracts?</summary>
-      <p>Yes. After the first Find, an "Add another wallet or contract" link appears. Each new entry merges into the picker, deduped by chain + contract address. Removing a creator chip drops collections sourced only from them.</p>
+      <summary>Is my data stored anywhere?</summary>
+      <p>No accounts, no database. CSVs and JSON archives live only on your machine. The Cloudflare edge caches API responses for a few minutes to reduce load — that's it. Shared snapshot links you publish via "Get a shareable link" stay in KV for one year.</p>
     </details>
     <details class="faq-item">
       <summary>What if my collection was deployed via Manifold or Foundation?</summary>
-      <p>Factory-deployed collections are picked up by the secondary discovery pass: we list contracts your wallet appears in, then check whether you're the OpenSea-indexed creator or contract deployer for each. Coverage isn't perfect — if anything's missing, paste the contract address directly.</p>
+      <p>Factory-deployed collections are picked up by a secondary pass: we list contracts your wallet appears in, then check whether you're the OpenSea-indexed creator or contract deployer for each. Coverage isn't perfect — if anything's missing, paste the contract address directly.</p>
     </details>
     <details class="faq-item">
       <summary>How are smart contracts excluded?</summary>
-      <p>Toggling "Exclude smart contracts" runs an <code>eth_getCode</code> batch over every holder address on Ethereum. Anything with bytecode is filtered out — that catches OpenSea Conduit, Blur Pool, gem.xyz, gnosis safes, vaults, and most routers. L2-only contracts may slip through.</p>
+      <p>Toggling "Exclude smart contracts" runs an <code>eth_getCode</code> batch over every holder on Ethereum. Anything with bytecode (Conduit, Blur Pool, gem.xyz, safes, vaults, routers) drops from the list.</p>
     </details>
     <details class="faq-item">
       <summary>Does it cost anything?</summary>
       <p>No. The site is free and we don't sell data. Heavy abuse is rate-limited per IP; for sustained high-volume usage <a href="#" data-contact-open="partnership">get in touch</a>.</p>
-    </details>
-    <details class="faq-item">
-      <summary>Is there an API?</summary>
-      <p>Not yet — the proxies are locked to the snapsus.com origin. A public API with keys is on the roadmap.</p>
     </details>
   </div>
 </section>
@@ -1989,9 +1914,7 @@
     <div class="footer-cols">
       <div class="footer-col">
         <h5>Product</h5>
-        <a href="#how">How it works</a>
         <a href="#use">Use cases</a>
-        <a href="#features">Features</a>
         <a href="#faq">FAQ</a>
       </div>
       <div class="footer-col">
@@ -3595,7 +3518,7 @@ if (yearEl) yearEl.textContent = new Date().getFullYear();
   if (!("IntersectionObserver" in window)) return;
   const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (reduce) return;
-  const targets = document.querySelectorAll(".trust-strip, .sec, .card, .use-card, .feat, .faq-item, .cta-card, .site-footer");
+  const targets = document.querySelectorAll(".sec, .use-card, .faq-item, .cta-card, .site-footer");
   targets.forEach(el => el.classList.add("reveal"));
   const obs = new IntersectionObserver((entries) => {
     entries.forEach((e, i) => {
