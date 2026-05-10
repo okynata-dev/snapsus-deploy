@@ -155,13 +155,14 @@
     .topbar-nav a:not(.topbar-icon) { display: none; }
   }
 
-  /* ───────── Stage ───────── */
-  .stage {
+  /* ───────── Hero ───────── */
+  .hero {
     min-height: calc(100vh - 57px);
     display: flex; flex-direction: column; align-items: center;
     padding: 64px 22px 80px;
+    position: relative;
   }
-  @media (max-width: 600px) { .stage { padding-top: 44px; } }
+  @media (max-width: 600px) { .hero { padding-top: 44px; } }
 
   .eyebrow {
     display: inline-flex; align-items: center; gap: 8px;
@@ -180,7 +181,7 @@
     box-shadow: 0 0 6px rgba(0,135,90,0.6);
   }
 
-  .stage h1 {
+  .hero h1 {
     margin: 0 0 14px;
     font-family: var(--serif);
     font-size: clamp(40px, 5.4vw, 64px);
@@ -190,12 +191,12 @@
     text-align: center;
     color: var(--ink);
   }
-  .stage h1 em {
+  .hero h1 em {
     font-style: italic;
     color: var(--accent);
     font-feature-settings: "ss01" on;
   }
-  .stage .lede {
+  .hero .lede {
     color: var(--ink-2);
     margin: 0 auto 36px;
     max-width: 540px;
@@ -572,13 +573,7 @@
   .export-btn .ico.es   { background: #21325b; color: white; font-family: var(--mono); font-size: 11px; font-weight: 700; }
   .export-btn .sub { font-size: 11px; font-weight: 400; color: var(--ink-3); }
 
-  footer {
-    text-align: center; padding: 28px 22px 36px;
-    color: var(--ink-3); font-size: 12px;
-  }
-  footer a { color: var(--ink-2); text-decoration: none; }
-  footer a:hover { color: var(--ink); }
-  footer .row { margin-top: 4px; font-family: var(--mono); font-size: 11px; }
+  /* Old generic footer styles removed — see .site-footer below */
 
   .toast {
     position: fixed; bottom: 24px; left: 50%;
@@ -788,6 +783,333 @@
   @media (max-width: 600px) {
     .platform.expanded { max-width: 100%; }
   }
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     LANDING SECTIONS BELOW THE HERO
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  /* Trust strip */
+  .trust-strip {
+    border-top: 1px solid var(--line-2);
+    border-bottom: 1px solid var(--line-2);
+    background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.2) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .trust-inner {
+    max-width: 1080px; margin: 0 auto;
+    padding: 18px 24px;
+    display: flex; flex-wrap: wrap; align-items: center;
+    gap: 10px 16px;
+    font-size: 12.5px; color: var(--ink-2);
+  }
+  .trust-lbl {
+    text-transform: uppercase; letter-spacing: 0.1em;
+    font-size: 10.5px; color: var(--ink-3); font-weight: 500;
+  }
+  .trust-lbl.trust-em { color: var(--ink-2); margin-left: auto; text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 400; }
+  .trust-pills { display: inline-flex; gap: 6px; flex-wrap: wrap; }
+  .trust-pill {
+    display: inline-flex; align-items: center;
+    padding: 4px 9px; border-radius: 999px;
+    font-size: 11.5px; color: var(--ink-1); font-weight: 500;
+    background: white;
+    border: 1px solid var(--line);
+  }
+  @media (max-width: 720px) {
+    .trust-lbl.trust-em { margin-left: 0; width: 100%; padding-top: 4px; }
+  }
+
+  /* Generic section */
+  .sec {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 96px 24px;
+  }
+  @media (max-width: 720px) { .sec { padding: 64px 22px; } }
+
+  .sec-head {
+    max-width: 720px;
+    margin: 0 auto 56px;
+    text-align: center;
+  }
+  .sec-head .kicker {
+    display: inline-block;
+    text-transform: uppercase; letter-spacing: 0.12em;
+    font-size: 11px; font-weight: 500; color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .sec-head h2 {
+    font-family: var(--serif);
+    font-size: clamp(30px, 4.2vw, 48px);
+    font-weight: 400;
+    letter-spacing: -0.012em;
+    line-height: 1.08;
+    margin: 0 0 14px;
+    color: var(--ink);
+  }
+  .sec-head .sec-lede {
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.55;
+    margin: 0 auto;
+    max-width: 560px;
+  }
+
+  /* Card grids */
+  .cards-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .cards-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  @media (max-width: 880px) { .cards-3 { grid-template-columns: 1fr; } }
+  @media (max-width: 720px) { .cards-2x2 { grid-template-columns: 1fr; } }
+
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.74) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: var(--radius-lg);
+    padding: 24px 22px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      0 8px 24px -10px rgba(10,10,10,0.06),
+      0 1px 2px rgba(10,10,10,0.03);
+    transition: transform .25s ease, box-shadow .25s ease;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      0 18px 36px -14px rgba(91,59,255,0.12),
+      0 4px 8px rgba(10,10,10,0.05);
+  }
+  .card h3 {
+    font-family: var(--serif);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: -0.005em;
+    margin: 0 0 8px;
+    color: var(--ink);
+  }
+  .card p {
+    color: var(--ink-2);
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* Step cards */
+  .step .step-num {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-3);
+    letter-spacing: 0.08em;
+    margin-bottom: 14px;
+  }
+
+  /* Use-case cards */
+  .use {
+    display: flex; flex-direction: column;
+    gap: 0;
+  }
+  .use-icon {
+    width: 36px; height: 36px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 9px;
+    background: var(--accent-soft);
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+  .use-icon svg { width: 18px; height: 18px; }
+
+  /* Features grid */
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px 28px;
+  }
+  @media (max-width: 880px) { .features-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px) { .features-grid { grid-template-columns: 1fr; } }
+  .feat {
+    display: flex; flex-direction: column;
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+    position: relative;
+  }
+  .feat-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    position: absolute;
+    top: 22px; left: -14px;
+  }
+  .feat h4 {
+    margin: 0 0 6px;
+    font-size: 14px; font-weight: 600;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+  }
+  .feat p {
+    margin: 0; color: var(--ink-2);
+    font-size: 12.5px; line-height: 1.55;
+  }
+
+  /* FAQ */
+  .faq-list {
+    max-width: 760px;
+    margin: 0 auto;
+    border-top: 1px solid var(--line);
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--line);
+    padding: 0;
+    transition: background .15s;
+  }
+  .faq-item summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 18px 4px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 18px;
+    user-select: none;
+  }
+  .faq-item summary::-webkit-details-marker { display: none; }
+  .faq-item summary::after {
+    content: ""; display: inline-block;
+    width: 11px; height: 11px;
+    border-right: 1.5px solid var(--ink-2);
+    border-bottom: 1.5px solid var(--ink-2);
+    transform: rotate(45deg);
+    transition: transform .2s ease;
+    flex-shrink: 0;
+  }
+  .faq-item[open] summary::after { transform: rotate(-135deg); }
+  .faq-item summary:hover { color: var(--accent); }
+  .faq-item p {
+    margin: 0 0 18px;
+    padding: 0 4px;
+    color: var(--ink-2);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .faq-item p code {
+    font-family: var(--mono); font-size: 12.5px;
+    background: rgba(91,59,255,0.06);
+    color: var(--accent);
+    padding: 1px 6px; border-radius: 4px;
+  }
+
+  /* Final CTA */
+  .sec.cta { padding-bottom: 120px; }
+  .cta-card {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1530 100%);
+    border-radius: var(--radius-lg);
+    padding: 56px 28px;
+    text-align: center;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 30px 80px -30px rgba(91,59,255,0.35), 0 12px 28px -10px rgba(10,10,10,0.20);
+  }
+  .cta-card::before {
+    content: ""; position: absolute; inset: 0;
+    background:
+      radial-gradient(60% 60% at 80% 0%, rgba(91,59,255,0.35), transparent 60%),
+      radial-gradient(50% 50% at 0% 100%, rgba(167,139,250,0.18), transparent 60%);
+  }
+  .cta-card > * { position: relative; }
+  .cta-card h2 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 3.6vw, 40px);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    margin: 0 0 10px;
+    color: white;
+  }
+  .cta-card p {
+    color: rgba(255,255,255,0.65);
+    font-size: 15px;
+    margin: 0 0 26px;
+  }
+  .cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 13px 22px;
+    background: white;
+    color: var(--ink);
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: transform .15s, box-shadow .15s;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+  }
+  .cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+
+  /* Footer */
+  .site-footer {
+    border-top: 1px solid var(--line);
+    background: rgba(250,250,247,0.4);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    margin-top: 0;
+  }
+  .footer-inner {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 56px 24px 28px;
+    display: grid;
+    grid-template-columns: 1.4fr 2fr;
+    gap: 48px;
+  }
+  @media (max-width: 720px) { .footer-inner { grid-template-columns: 1fr; gap: 32px; } }
+  .footer-brand { display: flex; flex-direction: column; gap: 10px; }
+  .footer-brand .brand { color: var(--ink); }
+  .footer-tag { color: var(--ink-2); font-size: 13px; margin: 0; max-width: 280px; line-height: 1.5; }
+  .footer-cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  @media (max-width: 480px) { .footer-cols { grid-template-columns: repeat(2, 1fr); } }
+  .footer-col { display: flex; flex-direction: column; gap: 8px; }
+  .footer-col h5 {
+    margin: 0 0 6px;
+    font-size: 11.5px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--ink-3);
+  }
+  .footer-col a {
+    color: var(--ink-1); text-decoration: none; font-size: 13.5px;
+    transition: color .15s;
+  }
+  .footer-col a:hover { color: var(--accent); }
+  .footer-bottom {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 18px 24px 24px;
+    border-top: 1px solid var(--line-2);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-size: 12px; color: var(--ink-3);
+    font-family: var(--mono);
+  }
+  .footer-bottom-right { color: var(--ink-3); }
+  @media (max-width: 480px) {
+    .footer-bottom { font-size: 11px; }
+  }
+
+  /* Smooth scroll for anchor nav */
+  html { scroll-behavior: smooth; scroll-padding-top: 70px; }
 </style>
 </head>
 <body>
@@ -824,7 +1146,8 @@
   </div>
 </header>
 
-<main class="stage">
+<main>
+<section class="hero">
   <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Multi-chain holder snapshots</span>
   <h1>Every wallet that <em>ever</em> held it.</h1>
   <p class="lede">Receipt-grade holder snapshots across Ethereum, Base, Polygon, Arbitrum and Optimism. Multiple creators, point-in-time, eight allocation modes — built for any drop.</p>
@@ -970,11 +1293,213 @@
     </div>
 
   </section>
+</section><!-- /.hero -->
+
+<!-- ───────── Trust strip ───────── -->
+<section class="trust-strip" aria-label="Powered by">
+  <div class="trust-inner">
+    <span class="trust-lbl">Pulled from</span>
+    <span class="trust-pills">
+      <span class="trust-pill">Alchemy</span>
+      <span class="trust-pill">OpenSea</span>
+      <span class="trust-pill">ENS</span>
+      <span class="trust-pill">DefiLlama</span>
+    </span>
+    <span class="trust-lbl">Run on</span>
+    <span class="trust-pills">
+      <span class="trust-pill">Cloudflare</span>
+    </span>
+    <span class="trust-lbl trust-em">No data stored. Keys never leave the edge.</span>
+  </div>
+</section>
+
+<!-- ───────── How it works ───────── -->
+<section class="sec" id="how">
+  <div class="sec-head">
+    <span class="kicker">How it works</span>
+    <h2>Three steps from wallet to CSV.</h2>
+    <p class="sec-lede">No accounts, no waiting, no upload step. Paste an address, pick a moment, download.</p>
+  </div>
+  <div class="cards-3">
+    <div class="card step">
+      <span class="step-num">01</span>
+      <h3>Drop in a creator</h3>
+      <p>An ENS name, a 0x address, or a contract — same input box. Snapsus walks five chains and pulls every collection where they're indexed as creator. Add more wallets to combine multiple drops in one snapshot.</p>
+    </div>
+    <div class="card step">
+      <span class="step-num">02</span>
+      <h3>Pick a moment</h3>
+      <p>Right now, or any historical date. For past moments we resolve the nearest block on each chain via DefiLlama, then replay every transfer to reconstruct ownership exactly as it stood.</p>
+    </div>
+    <div class="card step">
+      <span class="step-num">03</span>
+      <h3>Shape the allocation</h3>
+      <p>One vote per token, flat per wallet, capped, square-root, raffle, pro-rata budget, custom tiers — eight modes, live preview. Filter contracts, paste an exclude list, set a minimum-tokens threshold. Download.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── Use cases ───────── -->
+<section class="sec" id="use">
+  <div class="sec-head">
+    <span class="kicker">Use cases</span>
+    <h2>Built for the unglamorous part of running a drop.</h2>
+    <p class="sec-lede">Whitelists, airdrops, retroactives, governance — all built on the same primitive: a precise list, on demand.</p>
+  </div>
+  <div class="cards-2x2">
+    <div class="card use">
+      <div class="use-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4M12 22a10 10 0 110-20 10 10 0 010 20z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Whitelists</h3>
+      <p>Reward your existing collectors. Snapshot today, drop the OpenSea CSV, every wallet on the list mints free or discounted on launch day.</p>
+    </div>
+    <div class="card use">
+      <div class="use-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 12l9-9 9 9M5 10v10h14V10" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Airdrops</h3>
+      <p>Distribute tokens proportionally to holdings, capped to fight whales, or as a flat unit so everyone gets the same. Pro-rata mode splits a fixed budget cleanly.</p>
+    </div>
+    <div class="card use">
+      <div class="use-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 8v4l2.5 2.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Retroactives</h3>
+      <p>Reward wallets that held during a specific window, even if they sold since. Pick the date, pick the block — Snapsus replays history with sub-30-second accuracy.</p>
+    </div>
+    <div class="card use">
+      <div class="use-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-7h6v7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <h3>Governance</h3>
+      <p>Voting power based on past holdings, not current speculation. Square-root mode dampens whales while keeping signal proportional to engagement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ───────── Features ───────── -->
+<section class="sec" id="features">
+  <div class="sec-head">
+    <span class="kicker">What's inside</span>
+    <h2>Quietly precise where it matters.</h2>
+  </div>
+  <div class="features-grid">
+    <div class="feat"><span class="feat-dot"></span><h4>Five chains</h4><p>Ethereum, Base, Polygon, Arbitrum, Optimism — same flow, no chain-switching dialogs.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>Time travel</h4><p>Any historical block, resolved from a date you pick. Block numbers shown in the receipt.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>Multi-source</h4><p>Combine holders from several creators or contracts in a single snapshot, deduped by wallet.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>Eight allocation modes</h4><p>From 1-per-token to square-root, capped, tiered, raffle and pro-rata budget — switch live.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>Smart-contract filter</h4><p>Auto-detect and exclude marketplace pools, vaults, and routers via on-chain code check.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>ENS in preview</h4><p>Names auto-resolve as you scroll the holder list. Lazy-loaded so big snapshots stay fast.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>Custom exclude list</h4><p>Paste your own blocklist — team wallets, scammers, any address — and it disappears from output.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>JSON & CSV export</h4><p>OpenSea drop CSV, Etherscan format, full-detail JSON archive with allocation config and block proof.</p></div>
+    <div class="feat"><span class="feat-dot"></span><h4>Zero data retention</h4><p>Snapshots are computed in your browser and cached only at the edge. Nothing stored, nothing logged.</p></div>
+  </div>
+</section>
+
+<!-- ───────── FAQ ───────── -->
+<section class="sec" id="faq">
+  <div class="sec-head">
+    <span class="kicker">FAQ</span>
+    <h2>Questions you'd ask if we sat down.</h2>
+  </div>
+  <div class="faq-list">
+    <details class="faq-item">
+      <summary>Is my data stored anywhere?</summary>
+      <p>No accounts, no database. Your queries hit our edge proxies, the responses are cached for a few minutes at Cloudflare's edge — that's it. The CSV/JSON you download lives only on your machine. Keys to Alchemy and OpenSea never leave the server side.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How accurate are historical snapshots?</summary>
+      <p>We resolve the block nearest your chosen timestamp via DefiLlama (≈30-second accuracy) and replay every ERC-721 / ERC-1155 transfer up to that block. The output reflects ownership exactly as it stood at that block. The receipt records the block number per chain so you can verify externally.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Which chains are supported?</summary>
+      <p>Ethereum mainnet, Base, Polygon, Arbitrum One, and Optimism. All discovery and snapshot operations run across all five in parallel — you don't pick a chain up front.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Can I combine multiple creators or contracts?</summary>
+      <p>Yes. After the first Find, an "Add another wallet or contract" link appears. Each new entry merges into the picker, deduped by chain + contract address. Removing a creator chip drops collections sourced only from them.</p>
+    </details>
+    <details class="faq-item">
+      <summary>What if my collection was deployed via Manifold or Foundation?</summary>
+      <p>Factory-deployed collections are picked up by the secondary discovery pass: we list contracts your wallet appears in, then check whether you're the OpenSea-indexed creator or contract deployer for each. Coverage isn't perfect — if anything's missing, paste the contract address directly.</p>
+    </details>
+    <details class="faq-item">
+      <summary>How are smart contracts excluded?</summary>
+      <p>Toggling "Exclude smart contracts" runs an <code>eth_getCode</code> batch over every holder address on Ethereum. Anything with bytecode is filtered out — that catches OpenSea Conduit, Blur Pool, gem.xyz, gnosis safes, vaults, and most routers. L2-only contracts may slip through.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Does it cost anything?</summary>
+      <p>No. The site is free and we don't sell data. Heavy abuse is rate-limited per IP; for sustained high-volume usage drop us a line via GitHub.</p>
+    </details>
+    <details class="faq-item">
+      <summary>Is there an API?</summary>
+      <p>Not yet — the proxies are locked to the snapsus.com origin. A public API with keys is on the roadmap.</p>
+    </details>
+  </div>
+</section>
+
+<!-- ───────── Final CTA ───────── -->
+<section class="sec cta">
+  <div class="cta-card">
+    <h2>Take your first snapshot — it takes 30 seconds.</h2>
+    <p>Drop in an ENS or contract. We'll do the rest.</p>
+    <a class="cta-btn" href="#platform">
+      Start a snapshot
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </a>
+  </div>
+</section>
+
 </main>
 
-<footer>
-  <div>Snapsus</div>
-  <div class="row">alchemy · ens · defillama</div>
+<!-- ───────── Footer ───────── -->
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="brand" href="/">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <g stroke="white" stroke-width="6" stroke-linecap="round">
+              <path d="M14 23 L14 14 L23 14"/>
+              <path d="M41 14 L50 14 L50 23"/>
+              <path d="M50 41 L50 50 L41 50"/>
+              <path d="M23 50 L14 50 L14 41"/>
+            </g>
+            <circle cx="32" cy="32" r="5" fill="white"/>
+          </svg>
+        </span>
+        <span class="brand-name">Snapsus</span>
+      </a>
+      <p class="footer-tag">Receipt-grade holder snapshots, multi-chain.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a href="#how">How it works</a>
+        <a href="#use">Use cases</a>
+        <a href="#features">Features</a>
+        <a href="#faq">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <a href="https://github.com/okynata-dev/snapsus-deploy" target="_blank" rel="noopener">GitHub</a>
+        <a href="https://github.com/okynata-dev/snapsus-deploy/blob/main/README.md" target="_blank" rel="noopener">README</a>
+        <a href="https://github.com/okynata-dev/snapsus-deploy/commits/main" target="_blank" rel="noopener">Changelog</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="/privacy.html">Privacy</a>
+        <a href="/terms.html">Terms</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© <span id="year">2026</span> Snapsus. Built on Cloudflare.</span>
+    <span class="footer-bottom-right">No accounts · No tracking · No data sold</span>
+  </div>
 </footer>
 
 <div class="toast" id="toast"></div>
@@ -2200,6 +2725,10 @@ function goToStep(s) {
 syncAllocationUI();
 goToStep("who");
 $("#who-input").focus();
+
+/* Footer year */
+const yearEl = document.getElementById("year");
+if (yearEl) yearEl.textContent = new Date().getFullYear();
 </script>
 </body>
 </html>
