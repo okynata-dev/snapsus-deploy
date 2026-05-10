@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0a" />
+<title>Terms — Snapsus</title>
+<meta name="description" content="The terms under which Snapsus is provided." />
+<meta name="robots" content="index, follow" />
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif&display=swap" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  :root {
+    --ink: #0a0a0a; --ink-1: #2a2a2a; --ink-2: #6b6b6b; --ink-3: #9a9a9a;
+    --line: rgba(10,10,10,0.08); --line-2: rgba(10,10,10,0.04);
+    --bg: #fafaf7; --accent: #5b3bff;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --serif: "Instrument Serif", "Iowan Old Style", "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+  }
+  body {
+    font-family: var(--font); color: var(--ink); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-size: 15px; line-height: 1.65; letter-spacing: -0.005em;
+  }
+  .backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  .backdrop::before {
+    content: ""; position: absolute; inset: -10%;
+    background:
+      radial-gradient(60vmax 50vmax at 90% -5%, rgba(91,59,255,0.10), transparent 55%),
+      radial-gradient(50vmax 40vmax at -5% 100%, rgba(255,170,110,0.06), transparent 55%);
+  }
+  .topbar {
+    border-bottom: 1px solid var(--line-2);
+    background: rgba(250,250,247,0.85);
+    backdrop-filter: saturate(180%) blur(8px);
+  }
+  .topbar-inner {
+    max-width: 1080px; margin: 0 auto; padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    color: var(--ink); text-decoration: none;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 24px; height: 24px; border-radius: 7px; background: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+  .brand-mark svg { width: 14px; height: 14px; display: block; }
+  .topbar a.back { color: var(--ink-2); text-decoration: none; font-size: 13px; }
+  .topbar a.back:hover { color: var(--ink); }
+
+  .doc { max-width: 720px; margin: 0 auto; padding: 72px 24px 96px; }
+  .doc .meta {
+    font-size: 12px; color: var(--ink-3);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-bottom: 12px;
+  }
+  .doc h1 {
+    font-family: var(--serif);
+    font-size: clamp(38px, 5vw, 56px);
+    font-weight: 400; letter-spacing: -0.012em;
+    line-height: 1.05; margin: 0 0 24px;
+  }
+  .doc .lede {
+    font-size: 17px; color: var(--ink-1);
+    margin: 0 0 40px; line-height: 1.55;
+  }
+  .doc h2 {
+    font-family: var(--serif);
+    font-size: 26px; font-weight: 400; letter-spacing: -0.005em;
+    margin: 36px 0 12px;
+  }
+  .doc p { color: var(--ink-1); margin: 0 0 14px; }
+  .doc ul { margin: 0 0 18px; padding-left: 24px; color: var(--ink-1); }
+  .doc li { margin: 4px 0; }
+  .doc a { color: var(--accent); text-decoration: none; }
+  .doc a:hover { text-decoration: underline; }
+  .doc hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; }
+
+  footer.mini {
+    border-top: 1px solid var(--line);
+    padding: 24px; text-align: center;
+    color: var(--ink-3); font-size: 12px;
+    font-family: var(--mono);
+  }
+</style>
+</head>
+<body>
+
+<div class="backdrop" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <g stroke="white" stroke-width="6" stroke-linecap="round">
+            <path d="M14 23 L14 14 L23 14"/>
+            <path d="M41 14 L50 14 L50 23"/>
+            <path d="M50 41 L50 50 L41 50"/>
+            <path d="M23 50 L14 50 L14 41"/>
+          </g>
+          <circle cx="32" cy="32" r="5" fill="white"/>
+        </svg>
+      </span>
+      <span>Snapsus</span>
+    </a>
+    <a class="back" href="/">← Back to home</a>
+  </div>
+</header>
+
+<main class="doc">
+  <p class="meta">Last updated: 2026-05-10</p>
+  <h1>Terms of use</h1>
+  <p class="lede">Snapsus is provided as a free utility for taking on-chain holder snapshots. By using the site, you agree to the following.</p>
+
+  <h2>The service</h2>
+  <p>Snapsus aggregates publicly available on-chain data via third-party APIs (Alchemy, OpenSea, ENS, DefiLlama) and presents it as holder snapshots. We do not custody assets, broker transactions, or facilitate trading. The site is provided "as is" without warranty of any kind.</p>
+
+  <h2>Accuracy</h2>
+  <p>We make a reasonable effort to produce accurate holder lists, but we cannot guarantee correctness. Historical snapshots depend on third-party block-resolution APIs (~30-second accuracy) and on the completeness of upstream indexers. Always verify critical lists independently before basing valuable decisions on them.</p>
+  <p>Snapsus output is informational, not legal proof of ownership.</p>
+
+  <h2>Acceptable use</h2>
+  <p>You may not:</p>
+  <ul>
+    <li>Use the site to facilitate fraud, harassment, or any unlawful activity.</li>
+    <li>Attempt to bypass rate limits, the origin allowlist, or other access controls.</li>
+    <li>Re-sell access to the proxy endpoints or use them outside the snapsus.com frontend.</li>
+    <li>Probe for vulnerabilities outside a coordinated, good-faith disclosure to the project's GitHub.</li>
+  </ul>
+  <p>We may rate-limit, restrict, or block access from any IP or origin at any time, without notice, for any reason.</p>
+
+  <h2>Third-party services</h2>
+  <p>Use of Snapsus may incidentally invoke third-party APIs whose terms apply alongside ours: Alchemy, OpenSea, ENS Ideas, DefiLlama, Cloudflare. We are not responsible for outages, rate limits, or changes in policy from these providers.</p>
+
+  <h2>Intellectual property</h2>
+  <p>The Snapsus source is published under the repository at <a href="https://github.com/okynata-dev/snapsus-deploy" target="_blank" rel="noopener">github.com/okynata-dev/snapsus-deploy</a>. Brand assets (logo, wordmark, design system) are reserved.</p>
+
+  <h2>Liability</h2>
+  <p>To the maximum extent permitted by law, Snapsus and its contributors are not liable for any direct, indirect, incidental, consequential, or special damages arising from your use of the site, including but not limited to financial loss tied to inaccurate snapshots or downstream airdrop errors.</p>
+  <p>Treat any snapshot as a draft until verified. Don't ship a million-dollar drop without sanity-checking the list.</p>
+
+  <h2>Changes to these terms</h2>
+  <p>We may update these terms at any time. The "last updated" date above will reflect any change. Continued use of the site after a change constitutes acceptance.</p>
+
+  <h2>Termination</h2>
+  <p>We may discontinue the service at any time without notice. There is no guarantee of availability.</p>
+
+  <h2>Governing law</h2>
+  <p>These terms are governed by the law of the jurisdiction in which the operator resides. Disputes that cannot be resolved informally are subject to the exclusive jurisdiction of the operator's local courts.</p>
+
+  <h2>Contact</h2>
+  <p>Questions or concerns: <a href="https://github.com/okynata-dev/snapsus-deploy/issues" target="_blank" rel="noopener">open an issue on GitHub</a>.</p>
+
+  <hr/>
+  <p style="color: var(--ink-3); font-size: 13px;">This is a plain-language summary, not a comprehensive contract. If a more detailed agreement is required for your use case, contact us via GitHub before relying on the service in production.</p>
+</main>
+
+<footer class="mini">© <span id="y"></span> Snapsus · <a href="/" style="color: inherit;">snapsus.com</a> · <a href="/privacy.html" style="color: inherit;">Privacy</a></footer>
+
+<script>document.getElementById("y").textContent = new Date().getFullYear();</script>
+</body>
+</html>
