@@ -101,6 +101,37 @@ The Alchemy v2 RPC proxy only accepts these methods:
 Any other RPC method returns 403. Adjust `ALLOWED_RPC_METHODS` in
 `functions/api/alchemy/_middleware.js` if you need more.
 
+## Shared snapshots (`/s/<id>`)
+
+Clicking "Get a shareable link" on the export step publishes the snapshot
+to Cloudflare KV (the same `RL` namespace, prefixed `snap:`) and returns
+a URL like `https://snapsus.com/s/ABC12345`. Visitors at that URL get
+a "check yourself" page where they can paste an address or ENS to verify
+their inclusion.
+
+Backend lives at `functions/api/snap/_middleware.js`:
+
+| Endpoint                | Method | Notes                              |
+|-------------------------|--------|------------------------------------|
+| `/api/snap/save`        | POST   | Validates + stores snapshot in KV  |
+| `/api/snap/<id>`        | GET    | Returns snapshot JSON, edge-cached |
+
+Routing is handled by `_redirects` (Cloudflare Pages syntax):
+
+```
+/s/*    /share.html    200
+```
+
+The static `share.html` reads the ID from `location.pathname`, fetches
+`/api/snap/<id>`, renders the summary, and lets visitors check addresses.
+
+Sharing requires the `RL` KV binding to be present. If it isn't,
+`/api/snap/save` returns 503 with a setup hint — the rest of the app
+keeps working.
+
+Saved snapshots expire after 1 year. Per-IP rate limit: 5 saves/min,
+60 reads/min.
+
 ## OpenSea path allowlist
 
 The OpenSea proxy only forwards these paths:

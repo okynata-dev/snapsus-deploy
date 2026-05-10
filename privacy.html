@@ -139,8 +139,13 @@
   <p>No accounts. No tracking pixels. No analytics scripts. No cookies. No fingerprinting. We do not embed Google Analytics, Mixpanel, Segment, or any equivalent.</p>
 
   <h2>What we store</h2>
-  <p>Snapshot results are computed in your browser and never persisted on our servers. The CSV and JSON archives you download exist only on your machine. We do not retain a copy.</p>
+  <p>Snapshot results are computed in your browser and never persisted on our servers — <em>unless you explicitly click "Get a shareable link"</em>. The CSV and JSON archives you download exist only on your machine. We do not retain a copy.</p>
   <p>The Cloudflare edge caches some upstream API responses (collection metadata, holder lists) for 1–60 minutes to reduce load. These caches store only the API response bodies — never linked to you, never inspected by us, automatically expired.</p>
+
+  <h2>Shared snapshots</h2>
+  <p>If you click "Get a shareable link" we publish the snapshot to Cloudflare KV under a random 8-character ID and return a URL like <code>snapsus.com/s/ABC12345</code>. Anyone with that URL can view the snapshot and check addresses against it.</p>
+  <p>The published payload is the same data anyone could derive themselves from public on-chain history: holder addresses, allocation counts, the source wallets/contracts you snapshotted, and the block heights used. No personal data is added.</p>
+  <p>Shared snapshots auto-expire after 1 year. We have no UI for deletion before that — if you need a snapshot taken down sooner, open an issue at the <a href="https://github.com/okynata-dev/snapsus-deploy/issues" target="_blank" rel="noopener">project repo</a> with the ID.</p>
 
   <h2>What hits third parties</h2>
   <p>To do its job, Snapsus queries:</p>

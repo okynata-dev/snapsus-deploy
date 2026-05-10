@@ -1,0 +1,3 @@
+# Cloudflare Pages routing
+# Pretty share URLs: /s/ABC123 serves share.html (JS reads ID from pathname)
+/s/*    /share.html    200

@@ -1,0 +1,689 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0a0a0a" />
+<title>Check the snapshot — Snapsus</title>
+<meta name="description" content="Paste your wallet to check whether you're in this Snapsus holder snapshot." />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Am I on this snapshot? — Snapsus" />
+<meta property="og:description" content="Paste your wallet to check whether you're in this Snapsus holder snapshot." />
+<meta property="og:image" content="https://snapsus.com/og.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://snapsus.com/og.png" />
+
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  :root {
+    --ink: #0a0a0a; --ink-1: #2a2a2a; --ink-2: #6b6b6b; --ink-3: #9a9a9a; --ink-4: #cfcfcf;
+    --line: rgba(10,10,10,0.08); --line-2: rgba(10,10,10,0.04);
+    --bg: #fafaf7; --accent: #5b3bff; --accent-soft: #eee9ff;
+    --success: #00875a; --success-bg: #e6f7ef; --success-line: #b8e7d0;
+    --danger: #c53030; --danger-bg: #fef2f2; --danger-line: #fee2e2;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    --serif: "Instrument Serif", "Iowan Old Style", "Times New Roman", serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --radius: 10px; --radius-lg: 14px;
+  }
+  body {
+    font-family: var(--font); color: var(--ink); background: var(--bg);
+    -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+    font-size: 14px; line-height: 1.5; letter-spacing: -0.005em;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  html { scroll-behavior: smooth; }
+
+  /* Backdrop + noise (same as main site) */
+  .backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .backdrop::before {
+    content: ""; position: absolute; inset: -15%;
+    background:
+      radial-gradient(70vmax 55vmax at 88% -8%,  rgba(91,59,255,0.13), transparent 52%),
+      radial-gradient(55vmax 50vmax at -8% 105%, rgba(255,170,110,0.09), transparent 55%),
+      radial-gradient(45vmax 45vmax at 50% 55%,  rgba(120,200,255,0.06), transparent 60%);
+    animation: drift 32s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(-2%, 1.5%, 0) scale(1.03); }
+    100% { transform: translate3d(1.5%, -1%, 0) scale(1.01); }
+  }
+  .noise {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 220px 220px;
+    opacity: 0.045; mix-blend-mode: overlay;
+  }
+
+  /* Topbar (slim) */
+  .topbar {
+    border-bottom: 1px solid var(--line-2);
+    background: rgba(250,250,247,0.85);
+    backdrop-filter: saturate(180%) blur(8px);
+    -webkit-backdrop-filter: saturate(180%) blur(8px);
+  }
+  .topbar-inner {
+    max-width: 880px; margin: 0 auto; padding: 16px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .brand {
+    display: inline-flex; align-items: center; gap: 9px;
+    color: var(--ink); text-decoration: none;
+    font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
+  }
+  .brand-mark {
+    width: 24px; height: 24px; border-radius: 7px; background: var(--ink);
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+  }
+  .brand-mark svg { width: 14px; height: 14px; display: block; }
+  .topbar a.cta {
+    color: var(--ink-2); text-decoration: none; font-size: 13px;
+    transition: color .15s;
+  }
+  .topbar a.cta:hover { color: var(--ink); }
+
+  /* Stage */
+  .stage {
+    max-width: 640px; margin: 0 auto;
+    padding: 56px 24px 80px;
+  }
+  @media (max-width: 600px) { .stage { padding: 40px 22px 56px; } }
+
+  /* Hero */
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(36px, 5.4vw, 54px);
+    font-weight: 400; letter-spacing: -0.012em;
+    line-height: 1.04; margin: 0 0 12px;
+    text-align: center;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero .lede {
+    color: var(--ink-2); margin: 0 auto 28px;
+    max-width: 480px; text-align: center;
+    font-size: 15px; line-height: 1.55;
+  }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 4px 10px;
+    background: white; border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 11.5px; color: var(--ink-2);
+    margin: 0 auto 22px;
+  }
+  .eyebrow .dot {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 6px rgba(0,135,90,0.6);
+  }
+  .eyebrow.warn .dot { background: var(--danger); box-shadow: 0 0 6px rgba(197,48,48,0.55); }
+  .eyebrow-row { display: flex; justify-content: center; }
+
+  /* Glass panel */
+  .panel {
+    background: linear-gradient(135deg, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.68) 100%);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.55);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      0 30px 60px -20px rgba(91,59,255,0.10),
+      0 10px 30px -8px rgba(10,10,10,0.06);
+    padding: 24px;
+    position: relative; overflow: hidden;
+  }
+  .panel::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(140% 60% at 30% -10%, rgba(255,255,255,0.45), transparent 60%);
+    pointer-events: none; border-radius: inherit;
+  }
+  .panel > * { position: relative; }
+
+  /* Snapshot header */
+  .snap-meta {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+    margin-bottom: 20px;
+  }
+  @media (max-width: 480px) { .snap-meta { grid-template-columns: repeat(2, 1fr); } }
+  .meta-cell {
+    background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.74) 100%);
+    border: 1px solid rgba(255,255,255,0.65);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8);
+  }
+  .meta-cell .lbl {
+    font-size: 10px; color: var(--ink-3); text-transform: uppercase;
+    letter-spacing: 0.08em; font-weight: 500;
+  }
+  .meta-cell .val {
+    font-size: 16px; font-weight: 600;
+    margin-top: 3px; letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+  .meta-cell .val.small { font-size: 11.5px; font-weight: 500; line-height: 1.35; padding-top: 2px; color: var(--ink-1); font-family: var(--mono); letter-spacing: 0; }
+
+  /* Sources */
+  .sources {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 18px;
+  }
+  .src-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.78) 100%);
+    border: 1px solid rgba(255,255,255,0.65);
+    border-radius: 999px;
+    padding: 5px 11px;
+    font-size: 12px;
+    color: var(--ink-1);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+  }
+  .src-chip.contract { background: linear-gradient(180deg, rgba(238,233,255,0.95) 0%, rgba(238,233,255,0.72) 100%); border-color: rgba(91,59,255,0.22); }
+  .src-chip .addr { font-family: var(--mono); color: var(--ink-2); font-size: 11px; }
+
+  /* Collections list */
+  .col-list {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-bottom: 22px;
+    font-size: 11.5px;
+    color: var(--ink-2);
+  }
+  .col-list .col-tag {
+    display: inline-flex; align-items: center;
+    padding: 4px 9px;
+    background: rgba(0,0,0,0.04);
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .col-list .col-more { color: var(--ink-3); padding: 4px 0; }
+
+  /* Check input */
+  .check-form {
+    margin-top: 18px;
+  }
+  .check-label {
+    display: block;
+    font-size: 13px;
+    color: var(--ink-1);
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+  .input-wrap {
+    display: flex; align-items: stretch;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.82) 100%);
+    border: 1px solid rgba(255,255,255,0.65);
+    border-radius: var(--radius);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 1px 2px rgba(10,10,10,0.04);
+    transition: border-color .15s, box-shadow .15s;
+    overflow: hidden;
+  }
+  .input-wrap:focus-within {
+    border-color: rgba(91,59,255,0.5);
+    box-shadow: 0 0 0 3px rgba(91,59,255,0.12);
+  }
+  .input-wrap input {
+    flex: 1; min-width: 0;
+    background: transparent; border: 0; outline: none;
+    color: var(--ink); font: inherit; font-size: 14px;
+    padding: 13px 14px; font-family: var(--mono);
+  }
+  .input-wrap input::placeholder { color: var(--ink-3); font-family: var(--font); letter-spacing: -0.005em; }
+  .input-wrap button {
+    background: var(--ink); color: white;
+    border: 0; cursor: pointer;
+    padding: 0 18px; font: inherit; font-size: 13px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: background .15s;
+  }
+  .input-wrap button:hover { background: #1a1a1a; }
+  .input-wrap button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .inline-status {
+    display: flex; align-items: center; gap: 9px;
+    font-size: 12.5px; color: var(--ink-2);
+    margin-top: 12px;
+  }
+  .spinner {
+    width: 12px; height: 12px;
+    border: 1.6px solid rgba(0,0,0,0.1);
+    border-top-color: var(--ink);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  [hidden] { display: none !important; }
+
+  /* Result card (yes / no) */
+  .result {
+    margin-top: 18px;
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    line-height: 1.5;
+    animation: resultPop .42s cubic-bezier(.2,.8,.3,1.4) both;
+  }
+  @keyframes resultPop {
+    0%   { opacity: 0; transform: translateY(8px) scale(0.98); }
+    100% { opacity: 1; transform: none; }
+  }
+  .result.yes {
+    background: linear-gradient(180deg, var(--success-bg) 0%, rgba(230,247,239,0.6) 100%);
+    border-color: var(--success-line);
+    color: var(--success);
+  }
+  .result.no {
+    background: linear-gradient(180deg, var(--danger-bg) 0%, rgba(254,242,242,0.5) 100%);
+    border-color: var(--danger-line);
+    color: var(--danger);
+  }
+  .result-head {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 18px; font-weight: 600; letter-spacing: -0.005em;
+    font-family: var(--serif); font-weight: 400; font-size: 24px;
+  }
+  .result-head svg {
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+    animation: resultIcon .5s cubic-bezier(.2,.8,.3,1.6) both;
+  }
+  @keyframes resultIcon {
+    0%   { transform: scale(0) rotate(-30deg); opacity: 0; }
+    60%  { transform: scale(1.25) rotate(0deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .result-body {
+    margin-top: 6px;
+    font-size: 13.5px; color: var(--ink-1);
+    font-family: var(--font); font-weight: 400;
+  }
+  .result-body strong {
+    font-family: var(--mono); font-weight: 600; font-size: 13px;
+  }
+  .result-actions {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-top: 14px;
+  }
+  .result-action {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 12px; border-radius: 8px;
+    background: white;
+    color: var(--ink-1);
+    border: 1px solid var(--line);
+    font: inherit; font-size: 12.5px; font-weight: 500;
+    text-decoration: none; cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .result-action:hover { border-color: var(--ink-3); color: var(--ink); }
+
+  .err {
+    margin-top: 16px;
+    padding: 12px 14px;
+    border-radius: var(--radius);
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-line);
+    color: var(--danger);
+    font-size: 13px;
+  }
+
+  /* Skeleton during initial load */
+  .skel {
+    height: 14px;
+    background: linear-gradient(90deg, rgba(0,0,0,0.06) 0%, rgba(0,0,0,0.10) 50%, rgba(0,0,0,0.06) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s linear infinite;
+    border-radius: 4px;
+  }
+  @keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+  /* Footer */
+  footer.mini {
+    margin-top: 40px;
+    padding: 24px;
+    text-align: center;
+    color: var(--ink-3);
+    font-size: 12px;
+    font-family: var(--mono);
+  }
+  footer.mini a { color: inherit; }
+  footer.mini a:hover { color: var(--ink-1); }
+
+  .cta-take {
+    text-align: center;
+    margin-top: 28px;
+  }
+  .cta-take a {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 11px 18px; border-radius: var(--radius);
+    background: var(--ink); color: white;
+    text-decoration: none; font-weight: 500; font-size: 13.5px;
+    transition: transform .15s, background .15s;
+    box-shadow: 0 8px 24px -8px rgba(91,59,255,0.30);
+  }
+  .cta-take a:hover { transform: translateY(-1px); background: #1a1a1a; }
+</style>
+</head>
+<body>
+
+<div class="backdrop" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <g stroke="white" stroke-width="6" stroke-linecap="round">
+            <path d="M14 23 L14 14 L23 14"/>
+            <path d="M41 14 L50 14 L50 23"/>
+            <path d="M50 41 L50 50 L41 50"/>
+            <path d="M23 50 L14 50 L14 41"/>
+          </g>
+          <circle cx="32" cy="32" r="5" fill="white"/>
+        </svg>
+      </span>
+      <span>Snapsus</span>
+    </a>
+    <a class="cta" href="/">Take your own snapshot →</a>
+  </div>
+</header>
+
+<main class="stage">
+
+  <!-- Loading state -->
+  <div id="loading" class="hero">
+    <p class="eyebrow-row"><span class="eyebrow"><span class="dot"></span>Loading snapshot…</span></p>
+    <h1>One sec…</h1>
+    <p class="lede">Pulling snapshot details from the edge.</p>
+    <div class="panel">
+      <div class="skel" style="width: 60%; margin-bottom: 10px;"></div>
+      <div class="skel" style="width: 80%; margin-bottom: 10px;"></div>
+      <div class="skel" style="width: 40%;"></div>
+    </div>
+  </div>
+
+  <!-- Error state -->
+  <div id="error-state" hidden class="hero">
+    <p class="eyebrow-row"><span class="eyebrow warn"><span class="dot"></span>Snapshot unavailable</span></p>
+    <h1>This link doesn't <em>resolve</em>.</h1>
+    <p class="lede" id="error-msg">The snapshot may have expired, or the link is wrong.</p>
+    <div class="cta-take">
+      <a href="/">
+        Take a fresh snapshot
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div id="content" hidden>
+    <p class="eyebrow-row"><span class="eyebrow"><span class="dot"></span>Holder snapshot</span></p>
+    <div class="hero">
+      <h1>Are you on the <em>list?</em></h1>
+      <p class="lede">Paste your wallet address or ENS name to check.</p>
+    </div>
+
+    <div class="panel">
+      <!-- Snapshot summary -->
+      <div class="snap-meta">
+        <div class="meta-cell"><div class="lbl">Wallets</div><div class="val" id="m-wallets">—</div></div>
+        <div class="meta-cell"><div class="lbl" id="m-allocs-lbl">Tokens</div><div class="val" id="m-allocs">—</div></div>
+        <div class="meta-cell"><div class="lbl">Captured</div><div class="val small" id="m-time">—</div></div>
+      </div>
+
+      <div id="sources-row" class="sources" hidden></div>
+      <div id="col-list" class="col-list" hidden></div>
+
+      <!-- Check form -->
+      <form class="check-form" id="check-form" autocomplete="off">
+        <label class="check-label" for="addr">Your wallet</label>
+        <div class="input-wrap">
+          <input id="addr" type="text" placeholder="0x… or your.eth" spellcheck="false" />
+          <button type="submit" id="check-btn">
+            Check
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div id="check-status" class="inline-status" hidden></div>
+        <div id="check-err" class="err" hidden></div>
+      </form>
+
+      <div id="result" hidden></div>
+    </div>
+
+    <div class="cta-take">
+      <a href="/">
+        Take your own snapshot
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer class="mini">
+  © <span id="y"></span> Snapsus · <a href="/">snapsus.com</a> · <a href="/privacy.html">Privacy</a>
+</footer>
+
+<script>
+"use strict";
+
+const $ = (s) => document.querySelector(s);
+const fmt = (n) => Number(n).toLocaleString("en-US");
+const shortAddr = (a) => a ? a.slice(0, 6) + "…" + a.slice(-4) : "";
+const isAddress = (s) => /^0x[a-fA-F0-9]{40}$/.test(s.trim());
+const isENS = (s) => /\.eth$/i.test(s.trim());
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+}
+
+document.getElementById("y").textContent = new Date().getFullYear();
+
+/* ── Read ID from URL (rewritten to /share.html via _redirects) ── */
+const ID_RE = /^\/s\/([A-HJ-NP-Z2-9]{8})$/;
+const m = location.pathname.match(ID_RE);
+const id = m ? m[1] : "";
+
+if (!id) {
+  document.getElementById("loading").hidden = true;
+  document.getElementById("error-state").hidden = false;
+  $("#error-msg").textContent = "No snapshot ID in the URL.";
+} else {
+  loadSnap(id);
+}
+
+let snap = null; // global snapshot record after load
+
+async function loadSnap(id) {
+  try {
+    const r = await fetch(`/api/snap/${id}`);
+    if (r.status === 404) throw new Error("Snapshot not found or expired.");
+    if (r.status === 503) throw new Error("Sharing is not configured on this deployment.");
+    if (!r.ok) throw new Error(`Failed to load (${r.status}).`);
+    snap = await r.json();
+    renderSnap(snap);
+  } catch (e) {
+    document.getElementById("loading").hidden = true;
+    document.getElementById("error-state").hidden = false;
+    $("#error-msg").textContent = (e && e.message) || "Couldn't load snapshot.";
+  }
+}
+
+const ALLOCATION_LABEL = {
+  total: "Tokens",
+  flat: "Allocations",
+  cap: "Tokens (capped)",
+  collections: "Allocations",
+  sqrt: "Allocations",
+  random: "Winners",
+  budget: "Allocations",
+  tier: "Allocations",
+};
+
+function renderSnap(s) {
+  document.getElementById("loading").hidden = true;
+  document.getElementById("content").hidden = false;
+
+  /* Summary cells */
+  $("#m-wallets").textContent = fmt(s.stats && s.stats.wallets || (s.h ? s.h.length : 0));
+  const allocLabel = (s.allocation && ALLOCATION_LABEL[s.allocation.mode]) || "Tokens";
+  $("#m-allocs-lbl").textContent = allocLabel;
+  $("#m-allocs").textContent = fmt(s.stats && s.stats.total || 0);
+
+  const captured = s.captured_at ? new Date(s.captured_at) : null;
+  let timeStr = "—";
+  if (captured && !isNaN(captured)) {
+    const dateStr = captured.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    timeStr = dateStr + " · " + (s.kind === "live" ? "live" : "historic");
+  }
+  $("#m-time").textContent = timeStr;
+
+  /* Sources chips */
+  const srcRow = $("#sources-row");
+  if (Array.isArray(s.sources) && s.sources.length) {
+    srcRow.innerHTML = s.sources.slice(0, 6).map(src => {
+      const name = src.ens || (src.kind === "contract" ? "Contract" : "Wallet");
+      return `<span class="src-chip ${src.kind === "contract" ? "contract" : ""}"><strong>${escapeHtml(name)}</strong><span class="addr">${shortAddr(src.address || "")}</span></span>`;
+    }).join("");
+    srcRow.hidden = false;
+  }
+
+  /* Collection list */
+  const colList = $("#col-list");
+  if (Array.isArray(s.collections) && s.collections.length) {
+    const visible = s.collections.slice(0, 8);
+    let html = visible.map(c => `<span class="col-tag">${escapeHtml(c.name || "Untitled")}</span>`).join("");
+    if (s.collections.length > visible.length) {
+      html += `<span class="col-more">+${s.collections.length - visible.length} more</span>`;
+    }
+    colList.innerHTML = html;
+    colList.hidden = false;
+  }
+}
+
+/* ── Check form ── */
+$("#check-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  if (!snap) return;
+
+  const raw = $("#addr").value.trim();
+  $("#check-err").hidden = true;
+  $("#result").hidden = true;
+  if (!raw) {
+    showErr("Paste an address or ENS to check.");
+    return;
+  }
+
+  $("#check-btn").disabled = true;
+  let address = "";
+  try {
+    if (isENS(raw)) {
+      $("#check-status").innerHTML = `<span class="spinner"></span><span>Resolving ${escapeHtml(raw)}…</span>`;
+      $("#check-status").hidden = false;
+      const r = await fetch(`https://api.ensideas.com/ens/resolve/${encodeURIComponent(raw)}`);
+      if (!r.ok) throw new Error("ENS lookup failed.");
+      const d = await r.json();
+      if (!d || !d.address) throw new Error(`Couldn't resolve ${raw}.`);
+      address = String(d.address).toLowerCase();
+    } else if (isAddress(raw)) {
+      address = raw.toLowerCase();
+    } else {
+      throw new Error("Not a valid address or ENS name.");
+    }
+
+    /* Look up in snapshot.h ([address, count] pairs) */
+    const list = Array.isArray(snap.h) ? snap.h : [];
+    const hit = list.find(([a]) => a === address);
+    showResult(hit, address, raw);
+  } catch (err) {
+    showErr((err && err.message) || "Check failed.");
+  } finally {
+    $("#check-btn").disabled = false;
+    $("#check-status").hidden = true;
+  }
+});
+
+function showErr(msg) {
+  $("#check-err").textContent = msg;
+  $("#check-err").hidden = false;
+}
+
+function showResult(hit, address, originalInput) {
+  const result = $("#result");
+  const allocLabel = (snap.allocation && ALLOCATION_LABEL[snap.allocation.mode]) || "Tokens";
+  const url = location.href;
+  if (hit) {
+    const count = hit[1];
+    const ensOrAddr = isENS(originalInput) ? originalInput.toLowerCase() : shortAddr(address);
+    const tweet = encodeURIComponent(`I'm on the list ✓ — checked via Snapsus.\n${url}`);
+    result.className = "result yes";
+    result.innerHTML = `
+      <div class="result-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        You're on the list.
+      </div>
+      <div class="result-body">
+        <strong>${escapeHtml(ensOrAddr)}</strong> · ${fmt(count)} ${allocLabel.toLowerCase()}
+      </div>
+      <div class="result-actions">
+        <a class="result-action" href="https://twitter.com/intent/tweet?text=${tweet}" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2H21l-6.547 7.49L22 22h-6.812l-4.39-6.13L5.78 22H3l7.005-8.013L2 2h6.954l3.97 5.57L18.244 2zm-1.197 18h1.83L7.04 4H5.077l11.97 16z"/></svg>
+          Share on X
+        </a>
+        <button class="result-action" type="button" id="copy-link">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/></svg>
+          Copy link
+        </button>
+      </div>
+    `;
+  } else {
+    const ensOrAddr = isENS(originalInput) ? originalInput.toLowerCase() : shortAddr(address);
+    result.className = "result no";
+    result.innerHTML = `
+      <div class="result-head">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 9l-6 6M9 9l6 6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Not on this list.
+      </div>
+      <div class="result-body">
+        <strong>${escapeHtml(ensOrAddr)}</strong> doesn't appear in this snapshot.
+      </div>
+      <div class="result-actions">
+        <a class="result-action" href="/">
+          Take your own snapshot
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    `;
+  }
+  result.hidden = false;
+
+  /* Wire copy-link button if present */
+  const copyBtn = document.getElementById("copy-link");
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(location.href);
+        copyBtn.textContent = "Copied ✓";
+        setTimeout(() => copyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/></svg>Copy link`, 1500);
+      } catch {}
+    });
+  }
+}
+</script>
+</body>
+</html>

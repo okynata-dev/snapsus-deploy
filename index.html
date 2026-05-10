@@ -545,6 +545,161 @@
   .alloc input[type="number"] { width: 80px; font-variant-numeric: tabular-nums; }
   .alloc .hint { font-size: 11.5px; color: var(--ink-3); }
 
+  /* Share CTA — sits above the export grid */
+  .share-cta {
+    width: 100%;
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(91,59,255,0.08) 0%, rgba(167,139,250,0.06) 100%);
+    border: 1px solid rgba(91,59,255,0.18);
+    color: var(--ink);
+    cursor: pointer;
+    text-align: left;
+    font: inherit;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    transition: transform .15s ease, box-shadow .15s ease, border-color .15s;
+  }
+  .share-cta:hover {
+    transform: translateY(-1px);
+    border-color: rgba(91,59,255,0.32);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 8px 18px -8px rgba(91,59,255,0.20);
+  }
+  .share-cta .share-icon {
+    flex-shrink: 0;
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 9px;
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 6px 14px -4px rgba(91,59,255,0.40);
+  }
+  .share-cta .share-icon svg { width: 18px; height: 18px; }
+  .share-cta .share-text { display: flex; flex-direction: column; flex: 1; min-width: 0; gap: 2px; }
+  .share-cta .share-title { font-size: 14px; font-weight: 600; letter-spacing: -0.005em; }
+  .share-cta .share-sub { font-size: 12px; color: var(--ink-2); line-height: 1.4; }
+  .share-cta .share-arrow {
+    flex-shrink: 0;
+    width: 24px; height: 24px;
+    display: inline-flex; align-items: center; justify-content: center;
+    color: var(--accent);
+  }
+  .share-cta .share-arrow svg { width: 14px; height: 14px; }
+
+  /* Modal */
+  .modal {
+    position: fixed; inset: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 22px;
+    animation: fadeIn .18s ease both;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal-backdrop {
+    position: absolute; inset: 0;
+    background: rgba(10,10,10,0.36);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .modal-card {
+    position: relative;
+    width: 100%; max-width: 460px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.86) 100%);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: var(--radius-lg);
+    padding: 28px 26px 22px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      0 30px 80px -20px rgba(10,10,10,0.20),
+      0 14px 28px -8px rgba(10,10,10,0.10);
+    text-align: center;
+    animation: modalPop .25s cubic-bezier(.2,.8,.3,1.2) both;
+  }
+  @keyframes modalPop {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+    to   { opacity: 1; transform: none; }
+  }
+  .modal-close {
+    position: absolute; top: 10px; right: 14px;
+    width: 28px; height: 28px;
+    background: transparent; border: 0; cursor: pointer;
+    color: var(--ink-3); font-size: 22px; line-height: 1;
+    border-radius: 6px;
+    transition: background .12s, color .12s;
+  }
+  .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--ink); }
+  .modal-card h3 {
+    font-family: var(--serif);
+    font-size: 26px; font-weight: 400;
+    letter-spacing: -0.01em; line-height: 1.1;
+    margin: 0 0 8px;
+  }
+  .modal-card p {
+    color: var(--ink-2);
+    font-size: 13.5px;
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+  .modal-icon {
+    width: 50px; height: 50px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border-radius: 12px;
+    background: var(--accent-soft); color: var(--accent);
+    margin: 0 auto 14px;
+  }
+  .modal-icon.ok { background: #e6f7ef; color: var(--success); }
+  .modal-icon.err { background: #fef2f2; color: var(--danger); }
+  .modal-icon.ok svg { animation: checkPop .42s cubic-bezier(.2,.8,.3,1.5) both; }
+  .spinner-lg {
+    width: 22px; height: 22px;
+    border-width: 2.5px;
+  }
+  .link-box {
+    display: flex; align-items: stretch;
+    background: white; border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin-bottom: 18px;
+  }
+  .link-box input {
+    flex: 1; min-width: 0;
+    background: transparent; border: 0; outline: none;
+    padding: 11px 13px;
+    font-family: var(--mono); font-size: 12.5px;
+    color: var(--ink-1);
+  }
+  .link-box button {
+    background: var(--ink); color: white;
+    border: 0; cursor: pointer;
+    padding: 0 16px;
+    font: inherit; font-size: 12.5px; font-weight: 500;
+    transition: background .15s;
+  }
+  .link-box button:hover { background: #1a1a1a; }
+  .link-box button.copied { background: var(--success); }
+  .modal-actions {
+    display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  }
+  .modal-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    background: white;
+    color: var(--ink-1);
+    border: 1px solid var(--line);
+    text-decoration: none;
+    font: inherit; font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .modal-btn:hover { border-color: var(--ink-3); color: var(--ink); }
+  .modal-btn.primary {
+    background: var(--ink); color: white; border-color: var(--ink);
+  }
+  .modal-btn.primary:hover { background: #1a1a1a; color: white; }
+
   .exports {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
   }
@@ -1307,6 +1462,21 @@
         </div>
         <div class="preview-list" id="preview-list"></div>
       </div>
+      <button class="share-cta" id="dl-share" type="button">
+        <span class="share-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v7a2 2 0 002 2h12a2 2 0 002-2v-7"/>
+            <path d="M16 6l-4-4-4 4M12 2v14"/>
+          </svg>
+        </span>
+        <span class="share-text">
+          <span class="share-title">Get a shareable link</span>
+          <span class="share-sub">Public page where holders can check if they're on the list</span>
+        </span>
+        <span class="share-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </span>
+      </button>
       <div class="exports">
         <button class="export-btn" id="dl-json">
           <span class="ico json">{ }</span>
@@ -1540,6 +1710,50 @@
     <span class="footer-bottom-right">No accounts · No tracking · No data sold</span>
   </div>
 </footer>
+
+<!-- Share modal -->
+<div class="modal" id="share-modal" hidden role="dialog" aria-modal="true" aria-labelledby="share-modal-title">
+  <div class="modal-backdrop" data-modal-close></div>
+  <div class="modal-card">
+    <button class="modal-close" type="button" data-modal-close aria-label="Close">×</button>
+    <div id="share-modal-loading">
+      <div class="modal-icon"><span class="spinner spinner-lg"></span></div>
+      <h3 id="share-modal-title">Publishing snapshot…</h3>
+      <p>Storing the holder list at the edge so you can share it.</p>
+    </div>
+    <div id="share-modal-success" hidden>
+      <div class="modal-icon ok">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Your share link is ready.</h3>
+      <p>Anyone with this link can check whether they're on the list. The link is live for 1 year.</p>
+      <div class="link-box">
+        <input id="share-link" readonly />
+        <button id="share-copy" type="button">Copy</button>
+      </div>
+      <div class="modal-actions">
+        <a id="share-tweet" class="modal-btn primary" href="#" target="_blank" rel="noopener">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2H21l-6.547 7.49L22 22h-6.812l-4.39-6.13L5.78 22H3l7.005-8.013L2 2h6.954l3.97 5.57L18.244 2zm-1.197 18h1.83L7.04 4H5.077l11.97 16z"/></svg>
+          Share on X
+        </a>
+        <a id="share-open" class="modal-btn" href="#" target="_blank" rel="noopener">
+          Open the link
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+      </div>
+    </div>
+    <div id="share-modal-error" hidden>
+      <div class="modal-icon err">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 8v4M12 16h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      </div>
+      <h3>Couldn't publish.</h3>
+      <p id="share-modal-error-msg">Something went wrong. Try again in a moment.</p>
+      <div class="modal-actions">
+        <button class="modal-btn primary" type="button" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <div class="toast" id="toast"></div>
 
@@ -2762,6 +2976,104 @@ $("#dl-csv-es").addEventListener("click", () => {
   downloadFile(snapshotFilename("etherscan.csv"), lines.join("\n"), "text/csv;charset=utf-8");
   toast("Etherscan CSV downloaded", "success");
 });
+/* ── Share modal ── */
+function openShareModal(stage) {
+  const m = $("#share-modal");
+  hide("#share-modal-loading");
+  hide("#share-modal-success");
+  hide("#share-modal-error");
+  show(`#share-modal-${stage}`);
+  show(m);
+}
+function closeShareModal() { hide("#share-modal"); }
+
+document.querySelectorAll("[data-modal-close]").forEach(el => {
+  el.addEventListener("click", closeShareModal);
+});
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("#share-modal").hidden) closeShareModal();
+});
+
+$("#dl-share").addEventListener("click", async () => {
+  if (!state.snapshot) return;
+  const s = state.snapshot;
+  const a = state.allocation;
+  const list = computeAllocations();
+  if (!list.length) {
+    toast("Nothing to share — adjust filters first");
+    return;
+  }
+
+  openShareModal("loading");
+
+  const payload = {
+    captured_at: s.capturedAt.toISOString(),
+    kind: s.kind === "custom" ? "historical" : "live",
+    blocks: s.blockByChain || {},
+    sources: state.identities.map(i => ({
+      address: i.address,
+      ens: i.ensName || null,
+      kind: i.kind,
+    })),
+    collections: s.perCollection.map(c => ({
+      contract: c.contract,
+      name: c.name,
+      chain: c.chain,
+      standard: c.standard,
+    })),
+    allocation: {
+      mode: a.mode,
+      value: ["flat","cap","random","budget"].includes(a.mode) ? a.value : null,
+      min_tokens: a.minTokens,
+    },
+    holders: list.map(h => [h.address, h.count]),
+  };
+
+  try {
+    const r = await fetch("/api/snap/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || `Failed (${r.status})`);
+    }
+    const data = await r.json();
+    const url = data.url;
+    const totalLabel = allocationLabel().toLowerCase();
+    const tweetText = encodeURIComponent(
+      `Just took a holder snapshot — ${list.length} ${list.length === 1 ? "wallet" : "wallets"}. Check if you're on it 👇\n${url}`
+    );
+
+    $("#share-link").value = url;
+    $("#share-tweet").href = `https://twitter.com/intent/tweet?text=${tweetText}`;
+    $("#share-open").href = url;
+    openShareModal("success");
+  } catch (e) {
+    $("#share-modal-error-msg").textContent = (e && e.message) || "Something went wrong.";
+    openShareModal("error");
+  }
+});
+
+$("#share-copy").addEventListener("click", async () => {
+  const btn = $("#share-copy");
+  try {
+    await navigator.clipboard.writeText($("#share-link").value);
+    btn.classList.add("copied");
+    btn.textContent = "Copied ✓";
+    setTimeout(() => {
+      btn.classList.remove("copied");
+      btn.textContent = "Copy";
+    }, 1500);
+  } catch {
+    /* Fallback: select the text */
+    const inp = $("#share-link");
+    inp.select(); inp.setSelectionRange(0, 99999);
+    toast("Press ⌘C to copy");
+  }
+});
+
 $("#copy-os").addEventListener("click", () => {
   if (!state.snapshot) return;
   const list = computeAllocations();
