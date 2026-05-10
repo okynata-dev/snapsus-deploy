@@ -101,6 +101,44 @@ The Alchemy v2 RPC proxy only accepts these methods:
 Any other RPC method returns 403. Adjust `ALLOWED_RPC_METHODS` in
 `functions/api/alchemy/_middleware.js` if you need more.
 
+## Contact form (`/api/contact`)
+
+The footer's "Send a message / Support / Press" links and the topbar
+envelope open an in-page modal. Submissions POST to a Cloudflare Worker
+which forwards them via [Resend](https://resend.com) to your inbox.
+
+### Setup (5 minutes)
+
+1. Sign up at <https://resend.com> (free tier: 3,000 emails/month, 100/day)
+2. Dashboard → API Keys → **Create API Key** → copy it
+3. Cloudflare Pages → Snapsus → Settings → Environment variables → Add:
+   - `RESEND_API_KEY` = your Resend key (toggle **Encrypt** to make it a secret)
+   - Optional: `CONTACT_TO` = destination email (default `snapsusapp@gmail.com`)
+   - Optional: `CONTACT_FROM` = sender (default `Snapsus Contact <onboarding@resend.dev>`)
+4. Trigger a redeploy.
+
+Without `RESEND_API_KEY` the endpoint returns 503 with a clear hint —
+the rest of the site still works, the modal just shows the user a "set
+up still in progress" message.
+
+### Optional: branded sender domain
+
+Resend lets you send from `hello@snapsus.com` instead of the shared
+`onboarding@resend.dev`. Add a domain in their dashboard, copy the
+DNS records they give you, paste into Cloudflare DNS for snapsus.com,
+verify, then set `CONTACT_FROM=Snapsus <hello@snapsus.com>` in Pages.
+
+### What the worker does
+
+| Step              | Detail                                        |
+|-------------------|-----------------------------------------------|
+| Origin check      | Only snapsus.com / *.snapsus.pages.dev        |
+| Rate limit        | 3 submissions per IP per hour (KV)            |
+| Honeypot          | Hidden `company` field — bots fill it, silent |
+| Validation        | Topic allowlist, email regex, length bounds   |
+| Send              | Resend API with text + HTML, reply-to set     |
+| Audit             | Copy stored in KV `contact:<uuid>` for 90 days|
+
 ## Shared snapshots (`/s/<id>`)
 
 Clicking "Get a shareable link" on the export step publishes the snapshot

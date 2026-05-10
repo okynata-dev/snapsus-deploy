@@ -163,6 +163,10 @@
   <h2>Rate limiting</h2>
   <p>To prevent the proxy from being abused as a free Alchemy/OpenSea relay, we count requests per IP per minute via Cloudflare KV. The counter holds an IP and a count for at most 90 seconds, then auto-deletes. We do not retain or analyze this data.</p>
 
+  <h2>Contact form</h2>
+  <p>If you submit a message via the contact form, we receive your email address, the subject and body of your message, the topic you selected, and the IP address that submitted it. The message is delivered to <code>snapsusapp@gmail.com</code> via <a href="https://resend.com" target="_blank" rel="noopener">Resend</a> (transactional email service) and a copy is retained for 90 days under a random ID in Cloudflare KV for audit and abuse-prevention purposes, then auto-deletes.</p>
+  <p>We use the email address solely to reply. We don't add it to any newsletter or sell it.</p>
+
   <h2>Children</h2>
   <p>Snapsus is not directed at children under 13 and we do not knowingly collect data from anyone of any age.</p>
 

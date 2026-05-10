@@ -147,6 +147,11 @@
     display: inline-flex; align-items: center; justify-content: center;
     width: 28px; height: 28px; border-radius: 7px;
     color: var(--ink-2);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    padding: 0;
+    font: inherit;
     transition: background .15s, color .15s;
   }
   .topbar-icon:hover { background: rgba(0,0,0,0.05); color: var(--ink); }
@@ -699,6 +704,86 @@
     background: var(--ink); color: white; border-color: var(--ink);
   }
   .modal-btn.primary:hover { background: #1a1a1a; color: white; }
+
+  /* Contact modal form */
+  .contact-card {
+    max-width: 480px;
+    text-align: left;
+    padding: 28px 26px 24px;
+  }
+  .contact-card h3, .contact-card > div > p { text-align: center; }
+  .contact-label {
+    display: block;
+    margin-bottom: 12px;
+  }
+  .contact-label > span {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--ink-1);
+    margin-bottom: 5px;
+    letter-spacing: -0.005em;
+    text-transform: none;
+  }
+  .contact-label input,
+  .contact-label select,
+  .contact-label textarea {
+    width: 100%;
+    font-family: var(--font);
+    font-size: 13.5px;
+    color: var(--ink);
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    outline: none;
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .contact-label textarea {
+    resize: vertical;
+    min-height: 110px;
+    line-height: 1.55;
+  }
+  .contact-label select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'><path d='M3 4.5l3 3 3-3' stroke='%236b6b6b' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .contact-label input:focus,
+  .contact-label select:focus,
+  .contact-label textarea:focus {
+    border-color: rgba(91,59,255,0.5);
+    box-shadow: 0 0 0 3px rgba(91,59,255,0.10);
+  }
+  .contact-honey {
+    position: absolute;
+    left: -9999px;
+    width: 1px; height: 1px;
+    overflow: hidden;
+  }
+  .contact-submit {
+    width: 100%;
+    margin-top: 4px;
+    padding: 12px 18px;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .contact-err {
+    background: #fef2f2;
+    border: 1px solid #fee2e2;
+    color: var(--danger);
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    margin-bottom: 12px;
+    line-height: 1.45;
+  }
 
   .exports {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
@@ -1433,12 +1518,12 @@
       <a href="#how">How</a>
       <a href="#use">Use cases</a>
       <a href="#faq">FAQ</a>
-      <a href="mailto:snapsusapp@gmail.com" class="topbar-icon" aria-label="Email">
+      <button type="button" class="topbar-icon" data-contact-open="general" aria-label="Contact">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
           <rect x="3" y="5" width="18" height="14" rx="2"/>
           <path d="M3 7l9 7 9-7"/>
         </svg>
-      </a>
+      </button>
     </nav>
   </div>
 </header>
@@ -1856,7 +1941,7 @@
     </details>
     <details class="faq-item">
       <summary>Does it cost anything?</summary>
-      <p>No. The site is free and we don't sell data. Heavy abuse is rate-limited per IP; for sustained high-volume usage drop us a line at <a href="mailto:snapsusapp@gmail.com">snapsusapp@gmail.com</a>.</p>
+      <p>No. The site is free and we don't sell data. Heavy abuse is rate-limited per IP; for sustained high-volume usage <a href="#" data-contact-open="partnership">get in touch</a>.</p>
     </details>
     <details class="faq-item">
       <summary>Is there an API?</summary>
@@ -1911,9 +1996,9 @@
       </div>
       <div class="footer-col">
         <h5>Contact</h5>
-        <a href="mailto:snapsusapp@gmail.com">snapsusapp@gmail.com</a>
-        <a href="mailto:snapsusapp@gmail.com?subject=Snapsus%20support">Support</a>
-        <a href="mailto:snapsusapp@gmail.com?subject=Snapsus%20press%20kit">Press</a>
+        <a href="#" data-contact-open="general">Send a message</a>
+        <a href="#" data-contact-open="support">Support</a>
+        <a href="#" data-contact-open="press">Press</a>
       </div>
       <div class="footer-col">
         <h5>Legal</h5>
@@ -1965,6 +2050,68 @@
       </div>
       <h3>Couldn't publish.</h3>
       <p id="share-modal-error-msg">Something went wrong. Try again in a moment.</p>
+      <div class="modal-actions">
+        <button class="modal-btn primary" type="button" data-modal-close>Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Contact modal -->
+<div class="modal" id="contact-modal" hidden role="dialog" aria-modal="true" aria-labelledby="contact-modal-title">
+  <div class="modal-backdrop" data-modal-close></div>
+  <div class="modal-card contact-card">
+    <button class="modal-close" type="button" data-modal-close aria-label="Close">×</button>
+
+    <div id="contact-modal-form-wrap">
+      <h3 id="contact-modal-title">Send us a message</h3>
+      <p>We'll reply at the email you give us. Most messages get a response within 24h.</p>
+
+      <form id="contact-form" novalidate>
+        <label class="contact-label">
+          <span>Topic</span>
+          <select name="category" id="contact-category" required>
+            <option value="general">General question</option>
+            <option value="support">Support</option>
+            <option value="bug">Bug report</option>
+            <option value="press">Press</option>
+            <option value="partnership">Partnership</option>
+          </select>
+        </label>
+        <label class="contact-label">
+          <span>Your email</span>
+          <input name="email" id="contact-email" type="email" required maxlength="254" placeholder="you@example.com" autocomplete="email" />
+        </label>
+        <label class="contact-label">
+          <span>Subject</span>
+          <input name="subject" id="contact-subject" type="text" required minlength="3" maxlength="120" placeholder="Short summary" />
+        </label>
+        <label class="contact-label">
+          <span>Message</span>
+          <textarea name="message" id="contact-message" required minlength="10" maxlength="5000" rows="5" placeholder="What's on your mind?"></textarea>
+        </label>
+        <!-- Honeypot — bots fill every field -->
+        <label class="contact-honey" aria-hidden="true">
+          <span>Company</span>
+          <input name="company" type="text" tabindex="-1" autocomplete="off" />
+        </label>
+        <div id="contact-error" class="contact-err" hidden></div>
+        <button type="submit" class="modal-btn primary contact-submit" id="contact-submit">Send message</button>
+      </form>
+    </div>
+
+    <div id="contact-modal-loading" hidden>
+      <div class="modal-icon"><span class="spinner spinner-lg"></span></div>
+      <h3>Sending…</h3>
+      <p>Hang on a second.</p>
+    </div>
+
+    <div id="contact-modal-success" hidden>
+      <div class="modal-icon ok">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h3>Message sent.</h3>
+      <p>We'll reply at the email you provided. Most replies land within 24h.</p>
       <div class="modal-actions">
         <button class="modal-btn primary" type="button" data-modal-close>Close</button>
       </div>
@@ -3271,6 +3418,89 @@ $("#dl-share").addEventListener("click", async () => {
     $("#share-modal-error-msg").textContent = (e && e.message) || "Something went wrong.";
     openShareModal("error");
   }
+});
+
+/* ── Contact modal ── */
+function openContactModal(category) {
+  hide("#contact-modal-loading");
+  hide("#contact-modal-success");
+  show("#contact-modal-form-wrap");
+  if (category) {
+    const sel = $("#contact-category");
+    if (sel && [...sel.options].some(o => o.value === category)) sel.value = category;
+  }
+  $("#contact-error").hidden = true;
+  show("#contact-modal");
+  setTimeout(() => {
+    const emailInput = $("#contact-email");
+    if (emailInput && !emailInput.value) emailInput.focus({ preventScroll: true });
+  }, 80);
+}
+
+document.querySelectorAll("[data-contact-open]").forEach(el => {
+  el.addEventListener("click", (e) => {
+    e.preventDefault();
+    openContactModal(el.dataset.contactOpen || "general");
+  });
+});
+
+$("#contact-form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const form = e.target;
+  const data = {
+    category: form.category.value,
+    email: form.email.value.trim(),
+    subject: form.subject.value.trim(),
+    message: form.message.value.trim(),
+    company: form.company ? form.company.value : "", /* honeypot */
+  };
+
+  /* Client-side validation */
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+    showContactErr("Please enter a valid email address.");
+    return;
+  }
+  if (data.subject.length < 3) {
+    showContactErr("Subject is too short.");
+    return;
+  }
+  if (data.message.length < 10) {
+    showContactErr("Message is too short — share a bit more.");
+    return;
+  }
+
+  hide("#contact-modal-form-wrap");
+  show("#contact-modal-loading");
+
+  try {
+    const r = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+    if (!r.ok) {
+      const err = await r.json().catch(() => ({}));
+      throw new Error(err.error || `Failed (${r.status})`);
+    }
+    hide("#contact-modal-loading");
+    show("#contact-modal-success");
+    form.reset();
+  } catch (err) {
+    hide("#contact-modal-loading");
+    show("#contact-modal-form-wrap");
+    showContactErr((err && err.message) || "Failed to send. Try again.");
+  }
+});
+
+function showContactErr(msg) {
+  const el = $("#contact-error");
+  el.textContent = msg;
+  el.hidden = false;
+}
+
+/* Esc closes contact modal too */
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !$("#contact-modal").hidden) hide("#contact-modal");
 });
 
 $("#share-copy").addEventListener("click", async () => {
