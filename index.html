@@ -1110,6 +1110,45 @@
 
   /* Smooth scroll for anchor nav */
   html { scroll-behavior: smooth; scroll-padding-top: 70px; }
+
+  /* ───────── Reveal on scroll ───────── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .reveal.revealed { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ───────── Toast w/ check icon ───────── */
+  .toast {
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .toast-icon {
+    width: 14px; height: 14px;
+    color: rgba(255,255,255,0.9);
+    flex-shrink: 0;
+    animation: checkPop .42s cubic-bezier(.2,.8,.3,1.5) both;
+  }
+  @keyframes checkPop {
+    0%   { transform: scale(0)   rotate(-30deg); opacity: 0; }
+    60%  { transform: scale(1.3) rotate(0deg);   opacity: 1; }
+    100% { transform: scale(1)   rotate(0deg);   opacity: 1; }
+  }
+
+  /* Number count-up — value cell */
+  .summ .val.counting { color: var(--accent); transition: color 1s ease; }
+
+  /* Empty state with hint */
+  .preview-empty .hint {
+    display: block;
+    margin-top: 6px;
+    color: var(--ink-3);
+    font-size: 11.5px;
+  }
 </style>
 </head>
 <body>
@@ -1551,7 +1590,31 @@ const $$ = (s) => Array.from(document.querySelectorAll(s));
 const show = (el) => { (typeof el === "string" ? $(el) : el).hidden = false; };
 const hide = (el) => { (typeof el === "string" ? $(el) : el).hidden = true; };
 const setText = (s, t) => { const el = $(s); if (el) el.textContent = t; };
-function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("show"); clearTimeout(toast._x); toast._x = setTimeout(() => t.classList.remove("show"), 1700); }
+function toast(msg, kind) {
+  const t = $("#toast");
+  t.innerHTML = "";
+  if (kind === "success") {
+    const svgNS = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNS, "svg");
+    svg.setAttribute("class", "toast-icon");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("fill", "none");
+    svg.setAttribute("stroke", "currentColor");
+    svg.setAttribute("stroke-width", "2.6");
+    svg.setAttribute("stroke-linecap", "round");
+    svg.setAttribute("stroke-linejoin", "round");
+    const p = document.createElementNS(svgNS, "polyline");
+    p.setAttribute("points", "20 6 9 17 4 12");
+    svg.appendChild(p);
+    t.appendChild(svg);
+  }
+  const span = document.createElement("span");
+  span.textContent = msg;
+  t.appendChild(span);
+  t.classList.add("show");
+  clearTimeout(toast._x);
+  toast._x = setTimeout(() => t.classList.remove("show"), 1900);
+}
 const fmt = (n) => Number(n).toLocaleString("en-US");
 const shortAddr = (a) => a ? a.slice(0,6) + "…" + a.slice(-4) : "";
 const isAddress = (s) => /^0x[a-fA-F0-9]{40}$/.test(s.trim());
@@ -2274,7 +2337,7 @@ $("#snap-go").addEventListener("click", async () => {
 
     hide("#snap-status"); hide("#snap-progress");
     $("#snap-go").disabled = false;
-    renderExport();
+    renderExport(true);
     goToStep("export");
   } catch (e) {
     hide("#snap-status"); hide("#snap-progress");
@@ -2441,7 +2504,18 @@ function renderPreview(list) {
   if (!list.length) {
     const empty = document.createElement("div");
     empty.className = "preview-empty";
-    empty.textContent = "No wallets match current filters.";
+    const msg = document.createElement("span");
+    msg.textContent = "No wallets match current filters.";
+    const hint = document.createElement("span");
+    hint.className = "hint";
+    const a = state.allocation;
+    if (a.minTokens > 1) hint.textContent = `Try lowering Min tokens (now ${a.minTokens}).`;
+    else if (a.excludeContracts) hint.textContent = "Try unchecking Exclude smart contracts.";
+    else if ((a.excludeList || "").trim()) hint.textContent = "Try clearing the custom exclude list.";
+    else if (a.mode === "tier") hint.textContent = "Tier brackets may not cover any holdings — adjust tiers.";
+    else hint.textContent = "Loosen the allocation filters and try again.";
+    empty.appendChild(msg);
+    empty.appendChild(hint);
     el.appendChild(empty);
     return;
   }
@@ -2522,12 +2596,33 @@ function updateEnsRow(addr, name) {
   });
 }
 
-function renderExport() {
+function animateCount(sel, target, dur = 700) {
+  const el = $(sel); if (!el) return;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce || target === 0) { el.textContent = fmt(target); return; }
+  el.classList.add("counting");
+  const start = performance.now();
+  function tick(now) {
+    const t = Math.min(1, (now - start) / dur);
+    const ease = 1 - Math.pow(1 - t, 3); // easeOutCubic
+    el.textContent = fmt(Math.round(target * ease));
+    if (t < 1) requestAnimationFrame(tick);
+    else { el.textContent = fmt(target); setTimeout(() => el.classList.remove("counting"), 800); }
+  }
+  requestAnimationFrame(tick);
+}
+
+function renderExport(animate) {
   const s = state.snapshot; if (!s) return;
   const list = computeAllocations();
   const total = list.reduce((acc, h) => acc + h.count, 0);
-  setText("#x-holders", fmt(list.length));
-  setText("#x-tokens", fmt(total));
+  if (animate) {
+    animateCount("#x-holders", list.length);
+    animateCount("#x-tokens", total);
+  } else {
+    setText("#x-holders", fmt(list.length));
+    setText("#x-tokens", fmt(total));
+  }
   setText("#x-tokens-lbl", allocationLabel());
   const blocks = s.kind === "custom"
     ? Object.entries(s.blockByChain).map(([c, b]) => `${chainBy(c).short} ${fmt(b)}`).join(" · ")
@@ -2621,8 +2716,8 @@ function snapshotFilename(ext) {
   const stamp = s.capturedAt.toISOString().replace(/[:.]/g, "-").slice(0, 16);
   return `snapsus-${slug}-${stamp}.${ext}`;
 }
-async function copyText(text, label) {
-  try { await navigator.clipboard.writeText(text); toast(label || "Copied"); }
+async function copyText(text, label, kind) {
+  try { await navigator.clipboard.writeText(text); toast(label || "Copied", kind || "success"); }
   catch { toast("Copy failed — use download"); }
 }
 
@@ -2649,7 +2744,7 @@ $("#dl-json").addEventListener("click", () => {
     holders: list,
   };
   downloadFile(snapshotFilename("json"), JSON.stringify(payload, null, 2), "application/json");
-  toast("JSON downloaded");
+  toast("JSON downloaded", "success");
 });
 $("#dl-csv-os").addEventListener("click", () => {
   if (!state.snapshot) return;
@@ -2657,7 +2752,7 @@ $("#dl-csv-os").addEventListener("click", () => {
   const lines = ["wallet_address,number_of_tokens"];
   for (const h of list) lines.push(`${h.address},${h.count}`);
   downloadFile(snapshotFilename("opensea.csv"), lines.join("\n"), "text/csv;charset=utf-8");
-  toast("OpenSea CSV downloaded");
+  toast("OpenSea CSV downloaded", "success");
 });
 $("#dl-csv-es").addEventListener("click", () => {
   if (!state.snapshot) return;
@@ -2665,26 +2760,26 @@ $("#dl-csv-es").addEventListener("click", () => {
   const lines = ["HolderAddress,Balance,PendingBalanceUpdate"];
   for (const h of list) lines.push(`${h.address},${h.count},No`);
   downloadFile(snapshotFilename("etherscan.csv"), lines.join("\n"), "text/csv;charset=utf-8");
-  toast("Etherscan CSV downloaded");
+  toast("Etherscan CSV downloaded", "success");
 });
 $("#copy-os").addEventListener("click", () => {
   if (!state.snapshot) return;
   const list = computeAllocations();
   const lines = ["wallet_address,number_of_tokens"];
   for (const h of list) lines.push(`${h.address},${h.count}`);
-  copyText(lines.join("\n"), "OpenSea CSV copied");
+  copyText(lines.join("\n"), "OpenSea CSV copied", "success");
 });
 $("#copy-es").addEventListener("click", () => {
   if (!state.snapshot) return;
   const list = computeAllocations();
   const lines = ["HolderAddress,Balance,PendingBalanceUpdate"];
   for (const h of list) lines.push(`${h.address},${h.count},No`);
-  copyText(lines.join("\n"), "Etherscan CSV copied");
+  copyText(lines.join("\n"), "Etherscan CSV copied", "success");
 });
 $("#copy-addrs").addEventListener("click", () => {
   if (!state.snapshot) return;
   const list = computeAllocations();
-  copyText(list.map(h => h.address).join("\n"), "Addresses copied");
+  copyText(list.map(h => h.address).join("\n"), "Addresses copied", "success");
 });
 
 $("#restart").addEventListener("click", () => {
@@ -2729,6 +2824,26 @@ $("#who-input").focus();
 /* Footer year */
 const yearEl = document.getElementById("year");
 if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+/* Scroll-reveal for landing sections (everything below the hero) */
+(function () {
+  if (!("IntersectionObserver" in window)) return;
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (reduce) return;
+  const targets = document.querySelectorAll(".trust-strip, .sec, .card, .feat, .faq-item, .cta-card, .site-footer");
+  targets.forEach(el => el.classList.add("reveal"));
+  const obs = new IntersectionObserver((entries) => {
+    entries.forEach((e, i) => {
+      if (!e.isIntersecting) return;
+      // small stagger for siblings
+      const idx = Array.from(e.target.parentElement.children).indexOf(e.target);
+      e.target.style.setProperty("--reveal-delay", `${Math.min(idx, 6) * 60}ms`);
+      e.target.classList.add("revealed");
+      obs.unobserve(e.target);
+    });
+  }, { rootMargin: "0px 0px -8% 0px", threshold: 0 });
+  targets.forEach(el => obs.observe(el));
+})();
 </script>
 </body>
 </html>
