@@ -48,22 +48,39 @@
     line-height: 1.5;
   }
 
-  /* Restrained backdrop — single subtle radial mesh */
-  .backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
+  /* Layered backdrop — color washes + grid + animated drift */
+  .backdrop { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
   .backdrop::before {
-    content: ""; position: absolute; inset: -10%;
+    content: ""; position: absolute; inset: -15%;
     background:
-      radial-gradient(60vmax 50vmax at 85% -10%, rgba(91,59,255,0.07), transparent 55%),
-      radial-gradient(50vmax 40vmax at -10% 100%, rgba(91,59,255,0.04), transparent 55%);
+      radial-gradient(70vmax 55vmax at 88% -8%,  rgba(91,59,255,0.13), transparent 52%),
+      radial-gradient(55vmax 50vmax at -8% 105%, rgba(255,170,110,0.09), transparent 55%),
+      radial-gradient(45vmax 45vmax at 50% 55%,  rgba(120,200,255,0.06), transparent 60%),
+      radial-gradient(40vmax 30vmax at 110% 80%, rgba(180,120,255,0.07), transparent 55%);
+    animation: drift 32s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    0%   { transform: translate3d(0, 0, 0)        scale(1); }
+    50%  { transform: translate3d(-2%, 1.5%, 0)   scale(1.03); }
+    100% { transform: translate3d(1.5%, -1%, 0)   scale(1.01); }
   }
   .backdrop::after {
     content: ""; position: absolute; inset: 0;
     background-image:
-      linear-gradient(to right, rgba(10,10,10,0.025) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(10,10,10,0.025) 1px, transparent 1px);
+      linear-gradient(to right, rgba(10,10,10,0.020) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(10,10,10,0.020) 1px, transparent 1px);
     background-size: 64px 64px;
     mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 80%);
     -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 30%, transparent 80%);
+  }
+
+  /* Film-grain noise overlay (SVG turbulence as data URL — no asset) */
+  .noise {
+    position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    background-size: 220px 220px;
+    opacity: 0.045;
+    mix-blend-mode: overlay;
   }
 
   /* ───────── Top bar (non-sticky to avoid hero overlap) ───────── */
@@ -157,15 +174,30 @@
   .platform {
     width: 100%;
     max-width: 540px;
-    background: var(--glass);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    border: 1px solid var(--line);
+    position: relative;
+    background: linear-gradient(135deg, rgba(255,255,255,0.84) 0%, rgba(255,255,255,0.68) 100%);
+    backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border: 1px solid rgba(255,255,255,0.55);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-3);
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,0.85),
+      inset 0 -1px 0 rgba(10,10,10,0.04),
+      inset 1px 0 0 rgba(255,255,255,0.35),
+      0 30px 60px -20px rgba(91,59,255,0.12),
+      0 10px 30px -8px rgba(10,10,10,0.08),
+      0 1px 2px rgba(10,10,10,0.04);
     padding: 22px;
     transition: max-width .35s cubic-bezier(.2,.8,.2,1);
+    overflow: hidden;
   }
+  .platform::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(140% 60% at 30% -10%, rgba(255,255,255,0.45), transparent 60%);
+    pointer-events: none;
+    border-radius: inherit;
+  }
+  .platform > * { position: relative; }
   .platform.expanded { max-width: 720px; }
   @media (max-width: 600px) { .platform { padding: 18px; } }
 
@@ -186,9 +218,12 @@
   /* Input */
   .input-wrap {
     display: flex; align-items: stretch;
-    background: white;
-    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.96) 0%, rgba(255,255,255,0.82) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.65);
     border-radius: var(--radius);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.85), 0 1px 2px rgba(10,10,10,0.04);
     transition: border-color .15s, box-shadow .15s;
     overflow: hidden;
   }
@@ -310,13 +345,16 @@
   .col-row {
     display: flex; align-items: center; gap: 11px;
     padding: 9px 11px;
-    background: white;
-    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.75) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.6);
     border-radius: var(--radius);
     cursor: pointer;
-    transition: border-color .12s, background .12s;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.65), 0 1px 2px rgba(10,10,10,0.025);
+    transition: border-color .12s, background .12s, transform .12s;
   }
-  .col-row:hover { border-color: var(--ink-4); }
+  .col-row:hover { border-color: rgba(91,59,255,0.30); transform: translateY(-0.5px); }
   .col-row.checked {
     border-color: rgba(91,59,255,0.4);
     background: linear-gradient(180deg, var(--accent-soft) 0%, rgba(238,233,255,0.3) 100%);
@@ -433,22 +471,28 @@
   }
   @media (max-width: 480px) { .snap-summary { grid-template-columns: repeat(2, 1fr); } }
   .summ {
-    background: white;
-    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(255,255,255,0.74) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.65);
     border-radius: var(--radius);
     padding: 11px 12px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 2px rgba(10,10,10,0.03);
   }
   .summ .lbl { font-size: 10.5px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.07em; font-weight: 500; }
   .summ .val { font-size: 18px; font-weight: 600; margin-top: 3px; letter-spacing: -0.012em; font-variant-numeric: tabular-nums; }
   .summ .val.small { font-size: 12px; font-weight: 500; line-height: 1.35; padding-top: 2px; color: var(--ink-1); font-family: var(--mono); letter-spacing: 0; }
 
   .alloc {
-    background: white;
-    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.72) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.6);
     border-radius: var(--radius);
     padding: 12px 13px;
     margin-bottom: 8px;
     display: flex; flex-direction: column; gap: 9px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(10,10,10,0.03);
   }
   .alloc-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
   .alloc-row .lbl {
@@ -587,11 +631,14 @@
 
   /* ───────── Preview ───────── */
   .preview {
-    background: white;
-    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(255,255,255,0.72) 100%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.6);
     border-radius: var(--radius);
     padding: 12px 13px;
     margin-bottom: 8px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(10,10,10,0.03);
   }
   .preview-head {
     display: flex; justify-content: space-between; align-items: center;
@@ -615,18 +662,23 @@
   }
   .preview-actions button:hover { background: rgba(0,0,0,0.04); color: var(--ink); }
   .preview-list {
-    max-height: 220px; overflow-y: auto;
+    max-height: 380px; overflow-y: auto;
     display: grid; gap: 3px;
+    padding: 2px;
+    margin: 0 -2px;
   }
   .preview-list::-webkit-scrollbar { width: 6px; }
   .preview-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
   .preview-row {
     display: flex; justify-content: space-between; align-items: center;
-    font-size: 12px; padding: 5px 9px;
-    background: var(--bg);
-    border-radius: 5px;
+    font-size: 12px; padding: 6px 10px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(250,250,247,0.68) 100%);
+    border: 1px solid rgba(255,255,255,0.5);
+    border-radius: 6px;
     font-variant-numeric: tabular-nums;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
   }
+  .preview-row .addr.is-ens { color: var(--ink); font-family: var(--font); font-weight: 500; }
   .preview-row .addr { font-family: var(--mono); color: var(--ink-1); }
   .preview-row .v { color: var(--ink); font-weight: 500; }
   .preview-row .v .orig {
@@ -647,13 +699,19 @@
   }
   .id-chip {
     display: inline-flex; align-items: center; gap: 8px;
-    background: white;
-    border: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.78) 100%);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.65);
     border-radius: 999px;
     padding: 5px 6px 5px 6px;
     max-width: 100%;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.7), 0 1px 2px rgba(10,10,10,0.03);
   }
-  .id-chip.contract { background: var(--accent-soft); border-color: rgba(91,59,255,0.20); }
+  .id-chip.contract {
+    background: linear-gradient(180deg, rgba(238,233,255,0.95) 0%, rgba(238,233,255,0.72) 100%);
+    border-color: rgba(91,59,255,0.22);
+  }
   .id-chip .avatar {
     width: 22px; height: 22px; border-radius: 50%;
     background: var(--ink);
@@ -688,6 +746,7 @@
 <body>
 
 <div class="backdrop" aria-hidden="true"></div>
+<div class="noise" aria-hidden="true"></div>
 
 <header class="topbar">
   <div class="topbar-inner">
@@ -1617,7 +1676,10 @@ $("#snap-go").addEventListener("click", async () => {
       kind: state.when.kind,
       blockByChain: state.when.blockByChain,
       merged, perCollection: out.perCollection, totalTokens: out.totalTokens,
+      ensCache: new Map(),
+      contracts: null,
     };
+    ensLookupCount = 0;
 
     hide("#snap-status"); hide("#snap-progress");
     $("#snap-go").disabled = false;
@@ -1774,9 +1836,16 @@ function computeAllocations() {
   return out;
 }
 
+/* Render the FULL holder list (scrollable). ENS names are filled in
+   lazily as rows scroll into view, capped to keep ensideas.com happy. */
+let ensObserver = null;
+const ENS_LOOKUP_CAP = 600;
+let ensLookupCount = 0;
+
 function renderPreview(list) {
   const el = $("#preview-list");
   if (!el) return;
+  if (ensObserver) { ensObserver.disconnect(); ensObserver = null; }
   el.innerHTML = "";
   if (!list.length) {
     const empty = document.createElement("div");
@@ -1786,10 +1855,17 @@ function renderPreview(list) {
     return;
   }
   const showOriginal = state.allocation.mode !== "total";
-  for (const h of list.slice(0, 25)) {
+  const cache = state.snapshot.ensCache || (state.snapshot.ensCache = new Map());
+  const frag = document.createDocumentFragment();
+  for (const h of list) {
     const row = document.createElement("div");
     row.className = "preview-row";
-    const a = document.createElement("span"); a.className = "addr"; a.textContent = shortAddr(h.address);
+    row.dataset.addr = h.address;
+    const a = document.createElement("span");
+    a.className = "addr";
+    const cached = cache.get(h.address);
+    if (cached) { a.textContent = cached; a.title = h.address; a.classList.add("is-ens"); }
+    else        { a.textContent = shortAddr(h.address); }
     const v = document.createElement("span"); v.className = "v"; v.textContent = fmt(h.count);
     if (showOriginal && h.original !== h.count) {
       const o = document.createElement("span"); o.className = "orig";
@@ -1798,8 +1874,68 @@ function renderPreview(list) {
       v.appendChild(o);
     }
     row.appendChild(a); row.appendChild(v);
-    el.appendChild(row);
+    frag.appendChild(row);
   }
+  el.appendChild(frag);
+  setupEnsLazyLoad();
+}
+
+function setupEnsLazyLoad() {
+  if (!("IntersectionObserver" in window)) return;
+  const root = $("#preview-list");
+  ensObserver = new IntersectionObserver((entries) => {
+    const toFetch = [];
+    for (const e of entries) {
+      if (!e.isIntersecting) continue;
+      ensObserver.unobserve(e.target);
+      const addr = e.target.dataset.addr;
+      if (!addr) continue;
+      const cache = state.snapshot.ensCache;
+      if (!cache.has(addr)) toFetch.push(addr);
+    }
+    if (toFetch.length) lookupEnsBatch(toFetch);
+  }, { root, rootMargin: "300px", threshold: 0 });
+  $$("#preview-list .preview-row").forEach(r => ensObserver.observe(r));
+}
+
+async function lookupEnsBatch(addresses) {
+  const cache = state.snapshot.ensCache;
+  const queue = [];
+  for (const a of addresses) {
+    if (cache.has(a)) continue;
+    if (ensLookupCount >= ENS_LOOKUP_CAP) break;
+    ensLookupCount++;
+    cache.set(a, ""); // mark pending so we don't double-fetch
+    queue.push(a);
+  }
+  if (!queue.length) return;
+  let cur = 0;
+  async function w() {
+    while (cur < queue.length) {
+      const i = cur++;
+      const addr = queue[i];
+      try {
+        const r = await fetch(`https://api.ensideas.com/ens/resolve/${addr}`);
+        if (r.ok) {
+          const d = await r.json();
+          if (d && d.name) {
+            cache.set(addr, d.name);
+            updateEnsRow(addr, d.name);
+          }
+        }
+      } catch { /* ignore — leave pending; row stays as 0x */ }
+    }
+  }
+  await Promise.all(Array.from({ length: 4 }, w));
+}
+
+function updateEnsRow(addr, name) {
+  if (!name) return;
+  $$(`.preview-row[data-addr="${addr}"] .addr`).forEach(el => {
+    el.textContent = name;
+    el.title = addr;
+    el.classList.add("is-ens");
+  });
 }
 
 function renderExport() {
@@ -1815,7 +1951,7 @@ function renderExport() {
   setText("#x-time", s.capturedAt.toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" }) + " · " + blocks);
 
   show("#preview");
-  setText("#preview-count", list.length > 25 ? `· top 25 of ${fmt(list.length)}` : `· ${fmt(list.length)}`);
+  setText("#preview-count", `· ${fmt(list.length)} ${list.length === 1 ? "wallet" : "wallets"}`);
   renderPreview(list);
 }
 
