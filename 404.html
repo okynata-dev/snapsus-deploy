@@ -9,7 +9,7 @@
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Montserrat:wght@700&display=swap" />
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; }
@@ -17,7 +17,7 @@
     --ink: #0a0a0a; --ink-2: #6b6b6b; --ink-3: #9a9a9a; --bg: #fafaf7;
     --accent: #5b3bff;
     --font: "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
-    --serif: "Instrument Serif", "Iowan Old Style", "Times New Roman", serif;
+    --serif: "Montserrat", "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
     --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
   }
   body {
@@ -45,12 +45,12 @@
   }
   h1 {
     font-family: var(--serif);
-    font-size: clamp(48px, 7vw, 84px);
-    font-weight: 400; letter-spacing: -0.012em;
-    line-height: 1.02; margin: 0 0 18px;
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 700; letter-spacing: -0.028em;
+    line-height: 1.05; margin: 0 0 18px;
     max-width: 760px;
   }
-  h1 em { font-style: italic; color: var(--accent); }
+  h1 em { font-style: normal; color: var(--accent); font-weight: 700; }
   p { color: var(--ink-2); font-size: 15.5px; max-width: 480px; line-height: 1.55; margin: 0 0 32px; }
   .home-btn {
     display: inline-flex; align-items: center; gap: 8px;

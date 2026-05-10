@@ -25,7 +25,7 @@
 <!-- Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" />
 
 <!-- Favicons -->
 <link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
@@ -57,7 +57,7 @@
     --shadow-2:   0 4px 16px -4px rgba(10,10,10,0.06), 0 1px 2px rgba(10,10,10,0.04);
     --shadow-3:   0 24px 48px -16px rgba(10,10,10,0.10), 0 2px 6px rgba(10,10,10,0.04);
     --font:       "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
-    --serif:      "Instrument Serif", "Iowan Old Style", "Apple Garamond", "Baskerville", "Times New Roman", serif;
+    --serif:      "Montserrat", "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
     --mono:       ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
   }
   body {
@@ -189,17 +189,17 @@
   .hero h1 {
     margin: 0 0 14px;
     font-family: var(--serif);
-    font-size: clamp(40px, 5.4vw, 64px);
-    letter-spacing: -0.01em;
-    line-height: 1.02;
-    font-weight: 400;
+    font-size: clamp(38px, 5.2vw, 60px);
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    font-weight: 700;
     text-align: center;
     color: var(--ink);
   }
   .hero h1 em {
-    font-style: italic;
+    font-style: normal;
     color: var(--accent);
-    font-feature-settings: "ss01" on;
+    font-weight: 700;
   }
   .hero .lede {
     color: var(--ink-2);
@@ -637,8 +637,8 @@
   .modal-close:hover { background: rgba(0,0,0,0.06); color: var(--ink); }
   .modal-card h3 {
     font-family: var(--serif);
-    font-size: 26px; font-weight: 400;
-    letter-spacing: -0.01em; line-height: 1.1;
+    font-size: 22px; font-weight: 700;
+    letter-spacing: -0.02em; line-height: 1.15;
     margin: 0 0 8px;
   }
   .modal-card p {
@@ -1081,9 +1081,9 @@
   }
   .sec-head h2 {
     font-family: var(--serif);
-    font-size: clamp(30px, 4.2vw, 48px);
-    font-weight: 400;
-    letter-spacing: -0.012em;
+    font-size: clamp(28px, 3.8vw, 42px);
+    font-weight: 700;
+    letter-spacing: -0.022em;
     line-height: 1.08;
     margin: 0 0 14px;
     color: var(--ink);
@@ -1132,9 +1132,9 @@
   }
   .card h3 {
     font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 400;
-    letter-spacing: -0.005em;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
     margin: 0 0 8px;
     color: var(--ink);
   }
@@ -1207,12 +1207,12 @@
 
   .use-card h3 {
     font-family: var(--serif);
-    font-size: 22px;
-    font-weight: 400;
-    letter-spacing: -0.005em;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.018em;
     margin: 0 0 8px;
     color: var(--ink);
-    line-height: 1.15;
+    line-height: 1.2;
   }
   .use-card p {
     color: var(--ink-2);
@@ -1336,9 +1336,9 @@
   .cta-card > * { position: relative; }
   .cta-card h2 {
     font-family: var(--serif);
-    font-size: clamp(28px, 3.6vw, 40px);
-    font-weight: 400;
-    letter-spacing: -0.01em;
+    font-size: clamp(24px, 3.4vw, 36px);
+    font-weight: 700;
+    letter-spacing: -0.022em;
     line-height: 1.1;
     margin: 0 0 10px;
     color: white;
