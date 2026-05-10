@@ -670,20 +670,33 @@
   .preview-list::-webkit-scrollbar { width: 6px; }
   .preview-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 3px; }
   .preview-row {
-    display: flex; justify-content: space-between; align-items: center;
-    font-size: 12px; padding: 6px 10px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: center;
+    font-size: 12px; padding: 6px 11px;
     background: linear-gradient(180deg, rgba(255,255,255,0.88) 0%, rgba(250,250,247,0.68) 100%);
     border: 1px solid rgba(255,255,255,0.5);
     border-radius: 6px;
     font-variant-numeric: tabular-nums;
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
   }
-  .preview-row .addr.is-ens { color: var(--ink); font-family: var(--font); font-weight: 500; }
-  .preview-row .addr { font-family: var(--mono); color: var(--ink-1); }
-  .preview-row .v { color: var(--ink); font-weight: 500; }
-  .preview-row .v .orig {
-    color: var(--ink-3); font-weight: 400; margin-left: 5px;
-    font-size: 10.5px; font-family: var(--mono);
+  .preview-row .addr {
+    font-family: var(--mono);
+    color: var(--ink-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .preview-row .addr.is-ens {
+    color: var(--ink); font-family: var(--font); font-weight: 500;
+  }
+  .preview-row .v {
+    color: var(--ink); font-weight: 500;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    min-width: 36px;
   }
   .preview-empty {
     font-size: 12px; color: var(--ink-3); padding: 8px 0; text-align: center;
@@ -834,14 +847,14 @@
         <div class="alloc-row">
           <span class="lbl">Allocation</span>
           <select id="alloc-mode">
-            <option value="total">By tokens held</option>
-            <option value="flat">Flat — same per wallet</option>
-            <option value="cap">Capped at max</option>
-            <option value="collections">By collections held</option>
+            <option value="total">Match holdings — N tokens = N</option>
+            <option value="flat">Same value for everyone</option>
+            <option value="cap">Capped — max N per wallet</option>
+            <option value="collections">One vote per collection held</option>
             <option value="sqrt">Square root (anti-whale)</option>
-            <option value="random">Random raffle</option>
-            <option value="budget">Pro-rata budget</option>
-            <option value="tier">Tiered</option>
+            <option value="random">Raffle — pick K winners</option>
+            <option value="budget">Distribute a fixed budget</option>
+            <option value="tier">Tiered — custom brackets</option>
           </select>
         </div>
         <div class="alloc-row" id="alloc-value-row" hidden>
@@ -1854,7 +1867,6 @@ function renderPreview(list) {
     el.appendChild(empty);
     return;
   }
-  const showOriginal = state.allocation.mode !== "total";
   const cache = state.snapshot.ensCache || (state.snapshot.ensCache = new Map());
   const frag = document.createDocumentFragment();
   for (const h of list) {
@@ -1867,12 +1879,6 @@ function renderPreview(list) {
     if (cached) { a.textContent = cached; a.title = h.address; a.classList.add("is-ens"); }
     else        { a.textContent = shortAddr(h.address); }
     const v = document.createElement("span"); v.className = "v"; v.textContent = fmt(h.count);
-    if (showOriginal && h.original !== h.count) {
-      const o = document.createElement("span"); o.className = "orig";
-      o.textContent = `was ${fmt(h.original)}`;
-      v.appendChild(document.createTextNode(" "));
-      v.appendChild(o);
-    }
     row.appendChild(a); row.appendChild(v);
     frag.appendChild(row);
   }
@@ -1967,13 +1973,13 @@ function syncAllocationUI() {
   hide(valRow); hide(tierRow);
 
   if (m === "flat") {
-    show(valRow); valLbl.textContent = "Per wallet"; valHint.textContent = "Same number for everyone"; valEl.value = a.value;
+    show(valRow); valLbl.textContent = "Value"; valHint.textContent = "Everyone gets exactly this number"; valEl.value = a.value;
   } else if (m === "cap") {
-    show(valRow); valLbl.textContent = "Cap"; valHint.textContent = "min(holdings, cap)"; valEl.value = a.value;
+    show(valRow); valLbl.textContent = "Maximum"; valHint.textContent = "Whichever is smaller — holdings or this"; valEl.value = a.value;
   } else if (m === "random") {
-    show(valRow); valLbl.textContent = "Pick K"; valHint.textContent = "Random K wallets, value 1 each"; valEl.value = a.value;
+    show(valRow); valLbl.textContent = "Winners"; valHint.textContent = "Random K wallets, each gets 1"; valEl.value = a.value;
   } else if (m === "budget") {
-    show(valRow); valLbl.textContent = "Total"; valHint.textContent = "Distributed pro-rata by holdings"; valEl.value = a.value;
+    show(valRow); valLbl.textContent = "Total"; valHint.textContent = "Distributed proportionally to holdings"; valEl.value = a.value;
   } else if (m === "tier") {
     show(tierRow);
   }
