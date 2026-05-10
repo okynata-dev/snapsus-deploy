@@ -3,9 +3,33 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Snapsus</title>
-<meta name="description" content="A precise list of every wallet that holds an NFT in your collection. Multi-chain. Built for builders." />
-<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><circle cx='32' cy='34' r='11' fill='none' stroke='white' stroke-width='3'/><rect x='24' y='17' width='16' height='5' rx='1.5' fill='white'/><circle cx='32' cy='34' r='3' fill='white'/></svg>" />
+<meta name="theme-color" content="#0a0a0a" />
+<meta name="color-scheme" content="light" />
+<title>Snapsus — receipt-grade holder snapshots</title>
+<meta name="description" content="Every wallet that ever held it. Multi-chain NFT holder snapshots, point-in-time, with eight allocation modes and CSV/JSON exports built for any drop." />
+
+<!-- Open Graph / Twitter -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Snapsus — receipt-grade holder snapshots" />
+<meta property="og:description" content="Every wallet that ever held it. Multi-chain. Time-travel snapshots. Built for builders." />
+<meta property="og:url" content="https://snapsus.com" />
+<meta property="og:image" content="https://snapsus.com/og.png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Snapsus — receipt-grade holder snapshots" />
+<meta name="twitter:description" content="Every wallet that ever held it. Multi-chain. Time-travel snapshots." />
+<meta name="twitter:image" content="https://snapsus.com/og.png" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" />
+
+<!-- Favicons -->
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230a0a0a'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
 <style>
   /* ───────── Tokens ───────── */
   *, *::before, *::after { box-sizing: border-box; }
@@ -33,6 +57,7 @@
     --shadow-2:   0 4px 16px -4px rgba(10,10,10,0.06), 0 1px 2px rgba(10,10,10,0.04);
     --shadow-3:   0 24px 48px -16px rgba(10,10,10,0.10), 0 2px 6px rgba(10,10,10,0.04);
     --font:       "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+    --serif:      "Instrument Serif", "Iowan Old Style", "Apple Garamond", "Baskerville", "Times New Roman", serif;
     --mono:       ui-monospace, "SF Mono", "JetBrains Mono", "IBM Plex Mono", Menlo, Consolas, monospace;
   }
   body {
@@ -102,31 +127,33 @@
     font-weight: 600; font-size: 15px; letter-spacing: -0.01em;
   }
   .brand-mark {
-    width: 22px; height: 22px; border-radius: 6px;
+    width: 24px; height: 24px; border-radius: 7px;
     background: var(--ink);
     position: relative; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
   }
-  .brand-mark::before {
-    content: ""; position: absolute;
-    inset: 5px;
-    border: 1.6px solid white; border-radius: 50%;
+  .brand-mark svg { display: block; width: 14px; height: 14px; }
+  .topbar-nav {
+    display: flex; align-items: center; gap: 22px;
+    font-size: 13px; color: var(--ink-2);
   }
-  .brand-mark::after {
-    content: ""; position: absolute;
-    top: 3px; left: 6px; right: 6px; height: 3px;
-    background: white; border-radius: 1px;
+  .topbar-nav a {
+    color: inherit; text-decoration: none;
+    transition: color .15s;
   }
-  .topbar-meta { display: flex; align-items: center; gap: 18px; font-size: 13px; color: var(--ink-2); }
-  .topbar-meta a { color: inherit; text-decoration: none; }
-  .topbar-meta a:hover { color: var(--ink); }
-  .docs-link {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 6px 10px; border-radius: var(--radius-sm);
-    border: 1px solid var(--line);
-    background: white;
-    transition: border-color .15s, color .15s;
+  .topbar-nav a:hover { color: var(--ink); }
+  .topbar-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 28px; height: 28px; border-radius: 7px;
+    color: var(--ink-2);
+    transition: background .15s, color .15s;
   }
-  .docs-link:hover { border-color: var(--ink-3); }
+  .topbar-icon:hover { background: rgba(0,0,0,0.05); color: var(--ink); }
+  @media (max-width: 600px) {
+    .topbar-nav { gap: 14px; font-size: 12px; }
+    .topbar-nav a:not(.topbar-icon) { display: none; }
+  }
 
   /* ───────── Stage ───────── */
   .stage {
@@ -154,18 +181,25 @@
   }
 
   .stage h1 {
-    margin: 0 0 12px;
-    font-size: clamp(28px, 3.6vw, 38px);
-    letter-spacing: -0.025em;
-    line-height: 1.08;
-    font-weight: 600;
+    margin: 0 0 14px;
+    font-family: var(--serif);
+    font-size: clamp(40px, 5.4vw, 64px);
+    letter-spacing: -0.01em;
+    line-height: 1.02;
+    font-weight: 400;
     text-align: center;
+    color: var(--ink);
+  }
+  .stage h1 em {
+    font-style: italic;
+    color: var(--accent);
+    font-feature-settings: "ss01" on;
   }
   .stage .lede {
     color: var(--ink-2);
-    margin: 0 auto 32px;
-    max-width: 520px;
-    font-size: 14.5px;
+    margin: 0 auto 36px;
+    max-width: 540px;
+    font-size: 15.5px;
     line-height: 1.55;
     text-align: center;
   }
@@ -764,17 +798,36 @@
 <header class="topbar">
   <div class="topbar-inner">
     <a class="brand" href="/">
-      <span class="brand-mark" aria-hidden="true"></span>
-      <span>Snapsus</span>
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none">
+          <g stroke="white" stroke-width="6" stroke-linecap="round">
+            <path d="M14 23 L14 14 L23 14"/>
+            <path d="M41 14 L50 14 L50 23"/>
+            <path d="M50 41 L50 50 L41 50"/>
+            <path d="M23 50 L14 50 L14 41"/>
+          </g>
+          <circle cx="32" cy="32" r="5" fill="white"/>
+        </svg>
+      </span>
+      <span class="brand-name">Snapsus</span>
     </a>
-    <div class="topbar-meta"></div>
+    <nav class="topbar-nav">
+      <a href="#how">How</a>
+      <a href="#use">Use cases</a>
+      <a href="#faq">FAQ</a>
+      <a href="https://github.com/okynata-dev/snapsus-deploy" target="_blank" rel="noopener" class="topbar-icon" aria-label="GitHub">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M12 .5a12 12 0 00-3.79 23.4c.6.11.82-.26.82-.58v-2.16c-3.34.73-4.04-1.41-4.04-1.41-.55-1.4-1.34-1.78-1.34-1.78-1.1-.75.08-.74.08-.74 1.21.09 1.85 1.24 1.85 1.24 1.08 1.85 2.83 1.32 3.51 1.01.11-.79.42-1.32.77-1.62-2.66-.3-5.46-1.33-5.46-5.93 0-1.31.47-2.39 1.24-3.23-.13-.31-.54-1.54.11-3.21 0 0 1.01-.32 3.31 1.23a11.5 11.5 0 016 0c2.3-1.55 3.31-1.23 3.31-1.23.65 1.67.24 2.9.12 3.21.77.84 1.23 1.92 1.23 3.23 0 4.61-2.81 5.62-5.49 5.92.43.37.81 1.1.81 2.22v3.29c0 .32.22.7.83.58A12 12 0 0012 .5z"/>
+        </svg>
+      </a>
+    </nav>
   </div>
 </header>
 
 <main class="stage">
   <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Multi-chain holder snapshots</span>
-  <h1>Every wallet that ever held it.</h1>
-  <p class="lede">Drop in a creator, ENS, or a contract. Pick a moment in time. Get every holder, ready for any drop.</p>
+  <h1>Every wallet that <em>ever</em> held it.</h1>
+  <p class="lede">Receipt-grade holder snapshots across Ethereum, Base, Polygon, Arbitrum and Optimism. Multiple creators, point-in-time, eight allocation modes — built for any drop.</p>
 
   <section class="platform" id="platform">
 

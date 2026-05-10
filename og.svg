@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0a0a"/>
+      <stop offset="100%" stop-color="#171225"/>
+    </linearGradient>
+    <radialGradient id="glow1" cx="0.85" cy="0.05" r="0.7">
+      <stop offset="0%" stop-color="#5b3bff" stop-opacity="0.45"/>
+      <stop offset="60%" stop-color="#5b3bff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow2" cx="0.05" cy="0.95" r="0.6">
+      <stop offset="0%" stop-color="#ffaa6e" stop-opacity="0.30"/>
+      <stop offset="60%" stop-color="#ffaa6e" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glow3" cx="0.5" cy="0.55" r="0.4">
+      <stop offset="0%" stop-color="#78c8ff" stop-opacity="0.20"/>
+      <stop offset="60%" stop-color="#78c8ff" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="grid" x="0" y="0" width="64" height="64" patternUnits="userSpaceOnUse">
+      <path d="M 64 0 L 0 0 0 64" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+    </pattern>
+    <filter id="noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0"/>
+    </filter>
+  </defs>
+
+  <!-- background layers -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#grid)"/>
+  <rect width="1200" height="630" fill="url(#glow1)"/>
+  <rect width="1200" height="630" fill="url(#glow2)"/>
+  <rect width="1200" height="630" fill="url(#glow3)"/>
+  <rect width="1200" height="630" fill="white" opacity="0.03" filter="url(#noise)"/>
+
+  <!-- viewfinder logo -->
+  <g transform="translate(80, 80)">
+    <rect width="68" height="68" rx="16" fill="#0a0a0a" stroke="rgba(255,255,255,0.18)"/>
+    <g stroke="white" stroke-width="3.6" stroke-linecap="round" fill="none" transform="translate(2, 2)">
+      <path d="M16 25 L16 16 L25 16"/>
+      <path d="M43 16 L52 16 L52 25"/>
+      <path d="M52 43 L52 52 L43 52"/>
+      <path d="M25 52 L16 52 L16 43"/>
+    </g>
+    <circle cx="36" cy="36" r="4" fill="white"/>
+    <text x="92" y="45" fill="rgba(255,255,255,0.92)" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="22" font-weight="600" letter-spacing="-0.01em">Snapsus</text>
+  </g>
+
+  <!-- main copy -->
+  <text x="80" y="320" fill="white" font-family="Inter, system-ui, -apple-system, sans-serif" font-size="32" font-weight="500" letter-spacing="0.08em" opacity="0.6">RECEIPT-GRADE HOLDER SNAPSHOTS</text>
+
+  <text x="80" y="430" fill="white" font-family="Iowan Old Style, Times New Roman, serif" font-size="108" font-weight="400" letter-spacing="-0.02em" font-style="normal">Every wallet that</text>
+  <text x="80" y="540" fill="white" font-family="Iowan Old Style, Times New Roman, serif" font-size="108" font-weight="400" letter-spacing="-0.02em">
+    <tspan font-style="italic" fill="#a78bff">ever</tspan>
+    <tspan> held it.</tspan>
+  </text>
+
+  <!-- chain badges -->
+  <g transform="translate(80, 575)" font-family="ui-monospace, Menlo, monospace" font-size="14" fill="rgba(255,255,255,0.55)" letter-spacing="0.08em">
+    <text x="0" y="0">ETHEREUM · BASE · POLYGON · ARBITRUM · OPTIMISM</text>
+  </g>
+
+  <!-- accent dot -->
+  <circle cx="1080" cy="80" r="6" fill="#a78bff"/>
+  <text x="1100" y="86" fill="rgba(255,255,255,0.7)" font-family="ui-monospace, Menlo, monospace" font-size="14" letter-spacing="0.05em">snapsus.com</text>
+</svg>
