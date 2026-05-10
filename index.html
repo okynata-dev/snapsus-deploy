@@ -1493,7 +1493,6 @@
 
 <main>
 <section class="hero">
-  <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Multi-chain holder snapshots</span>
   <h1>Every wallet that <em>ever</em> held it.</h1>
   <p class="lede">Receipt-grade holder snapshots across Ethereum, Base, Polygon, Arbitrum and Optimism. Multiple creators, point-in-time, eight allocation modes — built for any drop.</p>
 
@@ -3144,11 +3143,17 @@ function openShareModal(stage) {
 }
 function closeShareModal() { hide("#share-modal"); }
 
+/* Universal close: closes whichever .modal the trigger is inside.
+   This works for both #share-modal and #contact-modal. */
 document.querySelectorAll("[data-modal-close]").forEach(el => {
-  el.addEventListener("click", closeShareModal);
+  el.addEventListener("click", () => {
+    const modal = el.closest(".modal");
+    if (modal) modal.hidden = true;
+  });
 });
 document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !$("#share-modal").hidden) closeShareModal();
+  if (e.key !== "Escape") return;
+  document.querySelectorAll(".modal:not([hidden])").forEach(m => { m.hidden = true; });
 });
 
 $("#dl-share").addEventListener("click", async () => {
@@ -3290,11 +3295,6 @@ function showContactErr(msg) {
   el.textContent = msg;
   el.hidden = false;
 }
-
-/* Esc closes contact modal too */
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape" && !$("#contact-modal").hidden) hide("#contact-modal");
-});
 
 $("#share-copy").addEventListener("click", async () => {
   const btn = $("#share-copy");
