@@ -59,8 +59,8 @@ Origin checks block browser-side abuse, but anyone with `curl` can spoof the
 60/min for OpenSea), bind a KV namespace named `RL`:
 
 ```bash
-# Create the namespace once
-npx wrangler kv:namespace create snapsus_rl
+# Create the namespace once (wrangler v4+ syntax — older guides say kv:namespace, that's outdated)
+npx wrangler kv namespace create snapsus_rl
 # → returns an id like "abc123…"
 ```
 
