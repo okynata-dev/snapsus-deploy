@@ -500,9 +500,9 @@ const m = location.pathname.match(ID_RE);
 const id = m ? m[1] : "";
 
 if (!id) {
-  document.getElementById("loading").hidden = true;
-  document.getElementById("error-state").hidden = false;
-  $("#error-msg").textContent = "No snapshot ID in the URL.";
+  // Not a /s/<id> path — user landed on /share or /share.html directly.
+  // Bounce home rather than show a confusing "no ID" error.
+  location.replace("/");
 } else {
   loadSnap(id);
 }

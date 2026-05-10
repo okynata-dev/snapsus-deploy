@@ -1,3 +1,7 @@
 # Cloudflare Pages routing
 # Pretty share URLs: /s/ABC123 serves share.html (JS reads ID from pathname)
 /s/*    /share.html    200
+
+# Bare /share (no ID) — bounce home, this URL is not user-facing
+/share          /    302
+/share.html     /    302
