@@ -1676,7 +1676,7 @@
             <img src="https://cdn.simpleicons.org/opensea/white" width="14" height="14" alt="" aria-hidden="true">
           </span>
           <span>OpenSea CSV</span>
-          <span class="sub">wallet,number_of_tokens</span>
+          <span class="sub">Drop allowlist format</span>
         </button>
         <button class="export-btn" id="dl-csv-es">
           <span class="ico es">
@@ -3327,7 +3327,10 @@ $("#dl-json").addEventListener("click", () => {
 $("#dl-csv-os").addEventListener("click", () => {
   if (!state.snapshot) return;
   const list = computeAllocations();
-  const lines = ["wallet_address,number_of_tokens"];
+  /* Exact OpenSea allowlist header — drop the optional price column,
+     keep the two required columns spelled identically to their template
+     so the upload validator doesn't complain. */
+  const lines = ["Wallet address,Custom mint limit (optional)"];
   for (const h of list) lines.push(`${h.address},${h.count}`);
   downloadFile(snapshotFilename("opensea.csv"), lines.join("\n"), "text/csv;charset=utf-8");
   toast("OpenSea CSV downloaded", "success");
@@ -3524,7 +3527,7 @@ $("#share-copy").addEventListener("click", async () => {
 $("#copy-os").addEventListener("click", () => {
   if (!state.snapshot) return;
   const list = computeAllocations();
-  const lines = ["wallet_address,number_of_tokens"];
+  const lines = ["Wallet address,Custom mint limit (optional)"];
   for (const h of list) lines.push(`${h.address},${h.count}`);
   copyText(lines.join("\n"), "OpenSea CSV copied", "success");
 });
