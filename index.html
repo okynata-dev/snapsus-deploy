@@ -324,6 +324,76 @@
     padding: 1px 5px; border-radius: 3px;
   }
 
+  .suggest {
+    margin-top: 10px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 6px 18px -8px rgba(10,10,10,0.08);
+  }
+  .suggest-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 12px;
+    cursor: pointer;
+    border: 0; background: transparent;
+    width: 100%; text-align: left;
+    font: inherit;
+    transition: background .12s;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .suggest-row:last-child { border-bottom: 0; }
+  .suggest-row:hover, .suggest-row:focus { background: rgba(91,59,255,0.04); outline: none; }
+  .suggest-img {
+    width: 30px; height: 30px; border-radius: 6px;
+    background: var(--line-2); flex-shrink: 0;
+    object-fit: cover;
+  }
+  .suggest-meta { flex: 1; min-width: 0; }
+  .suggest-name {
+    font-size: 13.5px; font-weight: 600; color: var(--ink);
+    letter-spacing: -0.005em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .suggest-sub {
+    font-size: 11.5px; color: var(--ink-3);
+    font-family: var(--mono);
+    margin-top: 1px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .suggest-sub .chain-pill {
+    display: inline-block;
+    font-family: var(--font);
+    font-size: 10px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.06em;
+    padding: 1px 6px; border-radius: 3px;
+    background: rgba(91,59,255,0.10); color: var(--accent);
+  }
+  .suggest-arrow {
+    font-size: 14px; color: var(--ink-3); flex-shrink: 0;
+    transition: transform .15s, color .15s;
+  }
+  .suggest-row:hover .suggest-arrow { color: var(--accent); transform: translateX(2px); }
+  .suggest-empty {
+    padding: 10px 12px;
+    font-size: 12.5px; color: var(--ink-3);
+    text-align: center;
+  }
+
+  .hint-row {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: var(--ink-3);
+  }
+  .hint-link {
+    border: 0; background: transparent;
+    color: var(--accent); cursor: pointer;
+    font: inherit; font-size: inherit;
+    padding: 0;
+    border-bottom: 1px dotted rgba(91,59,255,0.4);
+  }
+  .hint-link:hover { border-bottom-color: var(--accent); }
+
   /* ───────── Identity ───────── */
   .identity {
     display: flex; align-items: center; gap: 11px;
@@ -1492,7 +1562,7 @@
       <p class="question">Who are we snapping?</p>
       <div class="input-wrap">
         <input id="who-input" type="text" autocomplete="off" spellcheck="false"
-               placeholder="Your contract or ENS" />
+               placeholder="Contract, ENS, or collection name" />
         <button id="who-btn" type="button">
           <span>Find</span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -1503,6 +1573,8 @@
       <div id="who-status" class="inline-status" hidden></div>
       <div id="who-error" class="inline-err" hidden></div>
       <div id="who-warn" class="warn-banner" hidden></div>
+      <div id="who-suggest" class="suggest" hidden></div>
+      <p class="hint-row">Paste a contract, ENS, or just type a collection name — like <button type="button" class="hint-link" data-suggest-seed="cryptopunks">cryptopunks</button> or <button type="button" class="hint-link" data-suggest-seed="bored ape">bored ape</button>.</p>
     </div>
 
     <!-- ─── Step 2 ─── -->
@@ -1905,6 +1977,7 @@
    ════════════════════════════════════════════════════════════════════ */
 const ALCHEMY_BASE = "/api/alchemy";
 const OPENSEA_BASE = "/api/opensea";
+const RESERVOIR_BASE = "/api/reservoir";
 
 const CHAINS = [
   { id: "ethereum", name: "Ethereum",  alchemy: "eth-mainnet",     opensea: "ethereum", llama: "ethereum",  short: "ETH",  cls: "chain-eth"  },
@@ -2445,6 +2518,154 @@ async function getOwnersAtBlock(chainId, contract, endBlock, standard, onProgres
 /* ════════════════════════════════════════════════════════════════════
    STEP 1
    ════════════════════════════════════════════════════════════════════ */
+/* ── COLLECTION NAME SEARCH ──
+   Free-text name → top matches from Reservoir's collection index, shown as
+   a clickable suggestion list below the input. Click a row → it pastes the
+   contract address into the input and runs the normal Find pipeline. */
+
+const CHAINS_FOR_SEARCH = CHAINS.map(c => c.id); // ethereum, base, polygon, arbitrum, optimism
+
+const isAddressLike = (s) => /^0x[a-fA-F0-9]{40}$/.test(s.trim());
+const isEnsLike = (s) => /\.eth$/i.test(s.trim());
+const looksLikeNameQuery = (s) => {
+  const t = s.trim();
+  if (t.length < 2) return false;
+  if (isAddressLike(t)) return false;
+  if (isEnsLike(t)) return false;
+  // Drop pure-hex partial inputs ("0xabc...") so we don't suggest while
+  // the user is mid-typing a contract address.
+  if (/^0x[a-fA-F0-9]*$/.test(t) && t.length > 3) return false;
+  return true;
+};
+
+async function searchCollectionsByName(query) {
+  // Hit all chains in parallel, dedupe by contract address, sort by chain rank
+  // (Ethereum first, then by token count when supplied by Reservoir).
+  const results = await Promise.all(CHAINS_FOR_SEARCH.map(async (chainId) => {
+    try {
+      const url = `${RESERVOIR_BASE}/search?name=${encodeURIComponent(query)}&chain=${chainId}&limit=6`;
+      const data = await fetchJson(url);
+      const arr = data && (data.collections || data.results) || [];
+      return arr.map(c => {
+        // Reservoir's response shape varies slightly between versions; cover both.
+        const collection = c.collection || c;
+        const contract = (collection.contract || collection.primaryContract || (collection.contracts && collection.contracts[0])) || "";
+        return {
+          chain: chainId,
+          name: collection.name || "Untitled",
+          image: collection.image || collection.imageUrl || "",
+          slug: collection.slug || "",
+          contract: String(contract).toLowerCase(),
+          tokenCount: Number(collection.tokenCount || collection.count || 0),
+          verified: !!collection.openseaVerificationStatus || !!collection.isVerified,
+        };
+      }).filter(c => c.contract && /^0x[a-f0-9]{40}$/i.test(c.contract));
+    } catch (e) {
+      // One chain erroring shouldn't kill the whole suggest dropdown.
+      return [];
+    }
+  }));
+
+  // Flatten + dedupe by (chain, contract)
+  const seen = new Set();
+  const out = [];
+  for (const arr of results) {
+    for (const r of arr) {
+      const key = `${r.chain}:${r.contract}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      out.push(r);
+    }
+  }
+  // Rank: verified first, then by tokenCount desc, then Ethereum first.
+  const chainRank = { ethereum: 0, base: 1, polygon: 2, arbitrum: 3, optimism: 4 };
+  out.sort((a, b) =>
+    (Number(b.verified) - Number(a.verified)) ||
+    (b.tokenCount - a.tokenCount) ||
+    ((chainRank[a.chain] ?? 99) - (chainRank[b.chain] ?? 99))
+  );
+  return out.slice(0, 6);
+}
+
+function renderSuggestions(items, query) {
+  const box = $("#who-suggest");
+  if (!items.length) {
+    box.innerHTML = `<div class="suggest-empty">No collections matched "${escapeHtml(query)}". Try a different spelling, or paste a contract address.</div>`;
+    show(box);
+    return;
+  }
+  const chainShort = { ethereum: "ETH", base: "BASE", polygon: "POLY", arbitrum: "ARB", optimism: "OP" };
+  box.innerHTML = items.map((it, i) => {
+    const supply = it.tokenCount ? `${Number(it.tokenCount).toLocaleString("en-US")} items` : "";
+    const verifiedDot = it.verified ? ` · verified` : "";
+    const img = it.image
+      ? `<img class="suggest-img" src="${escapeHtml(it.image)}" alt="" onerror="this.style.display='none'">`
+      : `<div class="suggest-img"></div>`;
+    return `
+      <button type="button" class="suggest-row" data-pick="${i}" tabindex="0">
+        ${img}
+        <div class="suggest-meta">
+          <div class="suggest-name">${escapeHtml(it.name)}</div>
+          <div class="suggest-sub">
+            <span class="chain-pill">${chainShort[it.chain] || it.chain.toUpperCase()}</span>
+            <span>${escapeHtml(supply)}${verifiedDot}</span>
+          </div>
+        </div>
+        <span class="suggest-arrow">→</span>
+      </button>`;
+  }).join("");
+  show(box);
+  // Wire row clicks
+  box.querySelectorAll(".suggest-row").forEach(row => {
+    row.addEventListener("click", () => {
+      const idx = parseInt(row.dataset.pick, 10);
+      const pick = items[idx];
+      if (!pick) return;
+      hide(box);
+      $("#who-input").value = pick.contract;
+      lastSearchInputLen = pick.contract.length;
+      $("#who-btn").click();
+    });
+  });
+}
+
+let nameSearchTimer = null;
+let nameSearchToken = 0; // race-condition guard for late-arriving fetches
+$("#who-input").addEventListener("input", () => {
+  const val = $("#who-input").value.trim();
+  if (!looksLikeNameQuery(val)) {
+    hide("#who-suggest");
+    return;
+  }
+  // Debounce typing
+  clearTimeout(nameSearchTimer);
+  const myToken = ++nameSearchToken;
+  nameSearchTimer = setTimeout(async () => {
+    try {
+      const results = await searchCollectionsByName(val);
+      if (myToken !== nameSearchToken) return; // a newer query started
+      renderSuggestions(results, val);
+    } catch {
+      // Silent — name search is opt-in nice-to-have, never block the user
+    }
+  }, 350);
+});
+
+// Seed hints — click "cryptopunks" or "bored ape" in the hint line to demo
+document.querySelectorAll("[data-suggest-seed]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    $("#who-input").value = btn.dataset.suggestSeed;
+    $("#who-input").focus();
+    $("#who-input").dispatchEvent(new Event("input"));
+  });
+});
+
+// Hide suggestions when user clicks outside the input/suggest area
+document.addEventListener("click", (e) => {
+  const within = e.target.closest("#step-who");
+  if (!within) hide("#who-suggest");
+});
+
 $("#who-input").addEventListener("keydown", e => { if (e.key === "Enter") $("#who-btn").click(); });
 
 /* If the user edits the input mid-search, kill the running search
@@ -2476,9 +2697,10 @@ $("#who-btn").addEventListener("click", async () => {
 
   clearError("#who-error");
   hide("#who-warn");
+  hide("#who-suggest");
   const raw = $("#who-input").value.trim();
   lastSearchInputLen = raw.length;
-  if (!raw) { setError("#who-error", "Paste a contract or ENS to begin."); return; }
+  if (!raw) { setError("#who-error", "Paste a contract, ENS, or collection name."); return; }
   $("#who-btn").disabled = true;
 
   try {
