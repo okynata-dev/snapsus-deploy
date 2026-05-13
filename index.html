@@ -2084,7 +2084,15 @@ async function fetchJson(url, opts, _attempt = 0) {
       try {
         const j = JSON.parse(raw);
         if (j && typeof j === "object") {
-          humanMsg = String(j.error || j.message || "").trim();
+          // Alchemy/OpenSea sometimes return {error: "string"}, sometimes
+          // {error: {code, message}}. Unwrap both shapes so we never end up
+          // with String({...}) === "[object Object]" in the UI.
+          let errVal = j.error || j.message || j.detail || "";
+          if (errVal && typeof errVal === "object") {
+            errVal = errVal.message || errVal.error || errVal.code ||
+                     JSON.stringify(errVal).slice(0, 140);
+          }
+          humanMsg = String(errVal).trim();
           retryAfter = Number(j.retry_after) || 0;
         }
       } catch { /* not JSON — fall through */ }
@@ -2864,11 +2872,17 @@ $("#who-btn").addEventListener("click", async () => {
 });
 
 function showPartialErrors(errors) {
+  // We only get here AFTER discovery already found at least some collections
+  // (the no-results path throws before this). If we got results, partial
+  // chain errors are technical noise — the user already has what they came
+  // for. Stash the raw errors in state for any future debug surface, but
+  // don't bother the user with a warning banner.
   const banner = $("#who-warn");
-  if (!errors || !errors.length) { hide(banner); return; }
-  const sample = errors.slice(0, 3).map(e => `<code>${escapeHtml(e.chain)}/${escapeHtml(e.op)}</code>: ${escapeHtml(e.msg).slice(0,140)}`).join("<br/>");
-  banner.innerHTML = `${errors.length} chain${errors.length === 1 ? "" : "s"} had errors during discovery:<br/>${sample}`;
-  show(banner);
+  hide(banner);
+  if (errors && errors.length) {
+    // eslint-disable-next-line no-console
+    console.info("[snapsus] partial discovery errors (results still found):", errors);
+  }
 }
 
 /* ════════════════════════════════════════════════════════════════════
