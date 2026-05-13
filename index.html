@@ -380,20 +380,6 @@
     text-align: center;
   }
 
-  .hint-row {
-    margin: 10px 0 0;
-    font-size: 12px;
-    color: var(--ink-3);
-  }
-  .hint-link {
-    border: 0; background: transparent;
-    color: var(--accent); cursor: pointer;
-    font: inherit; font-size: inherit;
-    padding: 0;
-    border-bottom: 1px dotted rgba(91,59,255,0.4);
-  }
-  .hint-link:hover { border-bottom-color: var(--accent); }
-
   /* ───────── Identity ───────── */
   .identity {
     display: flex; align-items: center; gap: 11px;
@@ -1574,7 +1560,6 @@
       <div id="who-error" class="inline-err" hidden></div>
       <div id="who-warn" class="warn-banner" hidden></div>
       <div id="who-suggest" class="suggest" hidden></div>
-      <p class="hint-row">Paste a contract, ENS, or just type a collection name — like <button type="button" class="hint-link" data-suggest-seed="cryptopunks">cryptopunks</button> or <button type="button" class="hint-link" data-suggest-seed="bored ape">bored ape</button>.</p>
     </div>
 
     <!-- ─── Step 2 ─── -->
@@ -2652,15 +2637,6 @@ $("#who-input").addEventListener("input", () => {
       // Silent — name search is opt-in nice-to-have, never block the user
     }
   }, 350);
-});
-
-// Seed hints — click "cryptopunks" or "bored ape" in the hint line to demo
-document.querySelectorAll("[data-suggest-seed]").forEach(btn => {
-  btn.addEventListener("click", () => {
-    $("#who-input").value = btn.dataset.suggestSeed;
-    $("#who-input").focus();
-    $("#who-input").dispatchEvent(new Event("input"));
-  });
 });
 
 // Hide suggestions when user clicks outside the input/suggest area

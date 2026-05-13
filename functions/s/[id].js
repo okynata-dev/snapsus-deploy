@@ -373,7 +373,13 @@ const HTML = `<!doctype html>
 
   .cta-take {
     text-align: center;
-    margin-top: 28px;
+    margin-top: 36px;
+    padding-top: 28px;
+    border-top: 1px solid var(--line-2);
+  }
+  .cta-take .cta-hint {
+    color: var(--ink-3); font-size: 13px;
+    margin: 0 0 12px; line-height: 1.5;
   }
   .cta-take a {
     display: inline-flex; align-items: center; gap: 8px;
@@ -407,7 +413,7 @@ const HTML = `<!doctype html>
       </span>
       <span>Snapsus</span>
     </a>
-    <a class="cta" href="/">Take your own snapshot →</a>
+    <a class="cta" href="/">Snap your own drop →</a>
   </div>
 </header>
 
@@ -479,8 +485,9 @@ const HTML = `<!doctype html>
     </div>
 
     <div class="cta-take">
+      <p class="cta-hint">Running a drop yourself? Generate a list like this for your own collection.</p>
       <a href="/">
-        Take your own snapshot
+        Snap your own drop
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
@@ -676,16 +683,16 @@ function showResult(hit, address, originalInput) {
         <strong>\${escapeHtml(ensOrAddr)}</strong> doesn't appear in this snapshot.
       </div>
       <div class="result-actions">
-        <a class="result-action" href="/">
-          Take your own snapshot
+        <button class="result-action" type="button" id="try-another">
+          Try another wallet
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        </button>
       </div>
     \`;
   }
   result.hidden = false;
 
-  /* Wire copy-link button if present */
+  /* Wire copy-link button if present (positive result) */
   const copyBtn = document.getElementById("copy-link");
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
@@ -694,6 +701,19 @@ function showResult(hit, address, originalInput) {
         copyBtn.textContent = "Copied ✓";
         setTimeout(() => copyBtn.innerHTML = \`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/></svg>Copy link\`, 1500);
       } catch {}
+    });
+  }
+
+  /* Wire try-another button if present (negative result) — clear input,
+     refocus, and hide the result card so the user can check a different
+     wallet without scrolling around. */
+  const tryAnother = document.getElementById("try-another");
+  if (tryAnother) {
+    tryAnother.addEventListener("click", () => {
+      const inp = document.getElementById("addr");
+      if (inp) { inp.value = ""; inp.focus(); }
+      const res = document.getElementById("result");
+      if (res) res.hidden = true;
     });
   }
 }
