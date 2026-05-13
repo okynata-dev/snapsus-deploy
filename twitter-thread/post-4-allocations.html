@@ -1,0 +1,67 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap">
+<style>
+  html, body { margin:0; padding:0; }
+  body {
+    width:1600px; height:900px;
+    background:#0a0a0a; color:white;
+    font-family:"Inter",sans-serif;
+    display:flex; flex-direction:column;
+    justify-content:center;
+    padding: 0 96px;
+    overflow:hidden; position:relative;
+  }
+  body::before {
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(60vmax 50vmax at 90% 5%, rgba(91,59,255,0.18), transparent 55%);
+    pointer-events:none;
+  }
+  .top {
+    position:relative;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:18px; letter-spacing:0.18em; text-transform:uppercase;
+    color:#9a9a9a; margin-bottom:24px;
+  }
+  h2 {
+    position:relative;
+    font-family:"Montserrat",sans-serif;
+    font-weight:800; letter-spacing:-0.03em;
+    font-size:88px; line-height:1.0; margin:0 0 56px;
+  }
+  h2 em { color:#5b3bff; font-style:normal; }
+  .grid {
+    position:relative;
+    display:grid; grid-template-columns: repeat(2, 1fr);
+    gap: 18px 56px;
+    font-size:30px; letter-spacing:-0.01em;
+  }
+  .mode {
+    display:flex; align-items:baseline; gap:18px;
+    padding:14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .mode .num {
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    color:#5b3bff; font-size:16px; min-width:32px;
+  }
+  .mode .name { font-weight:500; }
+  .mode .name b { font-weight:700; }
+  .mode .sub { color:#6b6b6b; font-size:18px; margin-left:auto; font-family:ui-monospace,"SF Mono",Menlo,monospace; letter-spacing:0.02em; }
+</style></head><body>
+  <div class="top">Allocation</div>
+  <h2>Eight ways to <em>split</em> a list.</h2>
+  <div class="grid">
+    <div class="mode"><span class="num">01</span><span class="name"><b>Match holdings</b> — N tokens = N</span></div>
+    <div class="mode"><span class="num">05</span><span class="name"><b>Square root</b> — anti-whale curve</span></div>
+    <div class="mode"><span class="num">02</span><span class="name"><b>Flat</b> — same value for everyone</span></div>
+    <div class="mode"><span class="num">06</span><span class="name"><b>Raffle</b> — pick K winners</span></div>
+    <div class="mode"><span class="num">03</span><span class="name"><b>Capped</b> — max N per wallet</span></div>
+    <div class="mode"><span class="num">07</span><span class="name"><b>Budget</b> — pro-rata against a total</span></div>
+    <div class="mode"><span class="num">04</span><span class="name"><b>Per-collection</b> — one vote each</span></div>
+    <div class="mode"><span class="num">08</span><span class="name"><b>Tiered</b> — custom brackets</span></div>
+  </div>
+</body></html>

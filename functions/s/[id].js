@@ -1,4 +1,17 @@
-<!doctype html>
+/**
+ * Snapsus — share page served as a Pages Function instead of share.html.
+ *
+ * Why a Function: Cloudflare Pages auto-strips ".html" extensions, redirecting
+ * /share.html → /share with HTTP 308. That redirect cascades into any internal
+ * _redirects rewrite (/s/* → /share.html 200) and breaks every share link.
+ * Serving the HTML directly from a Function bypasses the file-based handler
+ * entirely, so no strip-extension is applied.
+ *
+ * The HTML is the full former share.html, inlined as a template literal. JS
+ * inside reads the ID from location.pathname as before.
+ */
+
+const HTML = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -487,15 +500,15 @@ const $ = (s) => document.querySelector(s);
 const fmt = (n) => Number(n).toLocaleString("en-US");
 const shortAddr = (a) => a ? a.slice(0, 6) + "…" + a.slice(-4) : "";
 const isAddress = (s) => /^0x[a-fA-F0-9]{40}$/.test(s.trim());
-const isENS = (s) => /\.eth$/i.test(s.trim());
+const isENS = (s) => /\\.eth$/i.test(s.trim());
 function escapeHtml(s) {
-  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\\"":"&quot;","'":"&#39;"}[c]));
 }
 
 document.getElementById("y").textContent = new Date().getFullYear();
 
 /* ── Read ID from URL (rewritten to /share.html via _redirects) ── */
-const ID_RE = /^\/s\/([A-HJ-NP-Z2-9]{8})$/;
+const ID_RE = /^\\/s\\/([A-HJ-NP-Z2-9]{8})$/;
 const m = location.pathname.match(ID_RE);
 const id = m ? m[1] : "";
 
@@ -511,10 +524,10 @@ let snap = null; // global snapshot record after load
 
 async function loadSnap(id) {
   try {
-    const r = await fetch(`/api/snap/${id}`);
+    const r = await fetch(\`/api/snap/\${id}\`);
     if (r.status === 404) throw new Error("Snapshot not found or expired.");
     if (r.status === 503) throw new Error("Sharing is not configured on this deployment.");
-    if (!r.ok) throw new Error(`Failed to load (${r.status}).`);
+    if (!r.ok) throw new Error(\`Failed to load (\${r.status}).\`);
     snap = await r.json();
     renderSnap(snap);
   } catch (e) {
@@ -558,7 +571,7 @@ function renderSnap(s) {
   if (Array.isArray(s.sources) && s.sources.length) {
     srcRow.innerHTML = s.sources.slice(0, 6).map(src => {
       const name = src.ens || (src.kind === "contract" ? "Contract" : "Wallet");
-      return `<span class="src-chip ${src.kind === "contract" ? "contract" : ""}"><strong>${escapeHtml(name)}</strong><span class="addr">${shortAddr(src.address || "")}</span></span>`;
+      return \`<span class="src-chip \${src.kind === "contract" ? "contract" : ""}"><strong>\${escapeHtml(name)}</strong><span class="addr">\${shortAddr(src.address || "")}</span></span>\`;
     }).join("");
     srcRow.hidden = false;
   }
@@ -567,9 +580,9 @@ function renderSnap(s) {
   const colList = $("#col-list");
   if (Array.isArray(s.collections) && s.collections.length) {
     const visible = s.collections.slice(0, 8);
-    let html = visible.map(c => `<span class="col-tag">${escapeHtml(c.name || "Untitled")}</span>`).join("");
+    let html = visible.map(c => \`<span class="col-tag">\${escapeHtml(c.name || "Untitled")}</span>\`).join("");
     if (s.collections.length > visible.length) {
-      html += `<span class="col-more">+${s.collections.length - visible.length} more</span>`;
+      html += \`<span class="col-more">+\${s.collections.length - visible.length} more</span>\`;
     }
     colList.innerHTML = html;
     colList.hidden = false;
@@ -593,12 +606,12 @@ $("#check-form").addEventListener("submit", async (e) => {
   let address = "";
   try {
     if (isENS(raw)) {
-      $("#check-status").innerHTML = `<span class="spinner"></span><span>Resolving ${escapeHtml(raw)}…</span>`;
+      $("#check-status").innerHTML = \`<span class="spinner"></span><span>Resolving \${escapeHtml(raw)}…</span>\`;
       $("#check-status").hidden = false;
-      const r = await fetch(`https://api.ensideas.com/ens/resolve/${encodeURIComponent(raw)}`);
+      const r = await fetch(\`https://api.ensideas.com/ens/resolve/\${encodeURIComponent(raw)}\`);
       if (!r.ok) throw new Error("ENS lookup failed.");
       const d = await r.json();
-      if (!d || !d.address) throw new Error(`Couldn't resolve ${raw}.`);
+      if (!d || !d.address) throw new Error(\`Couldn't resolve \${raw}.\`);
       address = String(d.address).toLowerCase();
     } else if (isAddress(raw)) {
       address = raw.toLowerCase();
@@ -630,18 +643,18 @@ function showResult(hit, address, originalInput) {
   if (hit) {
     const count = hit[1];
     const ensOrAddr = isENS(originalInput) ? originalInput.toLowerCase() : shortAddr(address);
-    const tweet = encodeURIComponent(`I'm on the list ✓ — checked via Snapsus.\n${url}`);
+    const tweet = encodeURIComponent(\`I'm on the list ✓ — checked via Snapsus.\\n\${url}\`);
     result.className = "result yes";
-    result.innerHTML = `
+    result.innerHTML = \`
       <div class="result-head">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         You're on the list.
       </div>
       <div class="result-body">
-        <strong>${escapeHtml(ensOrAddr)}</strong> · ${fmt(count)} ${allocLabel.toLowerCase()}
+        <strong>\${escapeHtml(ensOrAddr)}</strong> · \${fmt(count)} \${allocLabel.toLowerCase()}
       </div>
       <div class="result-actions">
-        <a class="result-action" href="https://twitter.com/intent/tweet?text=${tweet}" target="_blank" rel="noopener">
+        <a class="result-action" href="https://twitter.com/intent/tweet?text=\${tweet}" target="_blank" rel="noopener">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2H21l-6.547 7.49L22 22h-6.812l-4.39-6.13L5.78 22H3l7.005-8.013L2 2h6.954l3.97 5.57L18.244 2zm-1.197 18h1.83L7.04 4H5.077l11.97 16z"/></svg>
           Share on X
         </a>
@@ -650,17 +663,17 @@ function showResult(hit, address, originalInput) {
           Copy link
         </button>
       </div>
-    `;
+    \`;
   } else {
     const ensOrAddr = isENS(originalInput) ? originalInput.toLowerCase() : shortAddr(address);
     result.className = "result no";
-    result.innerHTML = `
+    result.innerHTML = \`
       <div class="result-head">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 9l-6 6M9 9l6 6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         Not on this list.
       </div>
       <div class="result-body">
-        <strong>${escapeHtml(ensOrAddr)}</strong> doesn't appear in this snapshot.
+        <strong>\${escapeHtml(ensOrAddr)}</strong> doesn't appear in this snapshot.
       </div>
       <div class="result-actions">
         <a class="result-action" href="/">
@@ -668,7 +681,7 @@ function showResult(hit, address, originalInput) {
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
         </a>
       </div>
-    `;
+    \`;
   }
   result.hidden = false;
 
@@ -679,7 +692,7 @@ function showResult(hit, address, originalInput) {
       try {
         await navigator.clipboard.writeText(location.href);
         copyBtn.textContent = "Copied ✓";
-        setTimeout(() => copyBtn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/></svg>Copy link`, 1500);
+        setTimeout(() => copyBtn.innerHTML = \`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1M14 11a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/></svg>Copy link\`, 1500);
       } catch {}
     });
   }
@@ -687,3 +700,12 @@ function showResult(hit, address, originalInput) {
 </script>
 </body>
 </html>
+`;
+
+export const onRequest = (ctx) => new Response(HTML, {
+  status: 200,
+  headers: {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "public, max-age=300, s-maxage=3600",
+  },
+});

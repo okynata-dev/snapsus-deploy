@@ -1,0 +1,57 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Montserrat:wght@700;800&display=swap">
+<style>
+  html, body { margin:0; padding:0; }
+  body {
+    width:1600px; height:900px;
+    background:#0a0a0a; color:white;
+    font-family:"Inter",sans-serif;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    overflow:hidden; position:relative;
+  }
+  body::before {
+    content:""; position:absolute; inset:0;
+    background:
+      radial-gradient(60vmax 50vmax at 50% 50%, rgba(91,59,255,0.16), transparent 60%);
+    pointer-events:none;
+  }
+  .mark {
+    position:relative;
+    width:140px; height:140px; border-radius:32px;
+    background:transparent; border:1px solid rgba(255,255,255,0.12);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:56px;
+  }
+  .mark svg { width:80px; height:80px; }
+  .name {
+    position:relative;
+    font-family:"Montserrat",sans-serif;
+    font-weight:800; letter-spacing:-0.03em;
+    font-size:96px;
+  }
+  .url {
+    position:relative;
+    margin-top:24px;
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:24px;
+    color:#9a9a9a; letter-spacing:0.05em;
+  }
+</style></head><body>
+  <div class="mark">
+    <svg viewBox="0 0 64 64" fill="none">
+      <g stroke="white" stroke-width="4" stroke-linecap="round">
+        <path d="M14 23 L14 14 L23 14"/>
+        <path d="M41 14 L50 14 L50 23"/>
+        <path d="M50 41 L50 50 L41 50"/>
+        <path d="M23 50 L14 50 L14 41"/>
+      </g>
+      <circle cx="32" cy="32" r="3.5" fill="white"/>
+    </svg>
+  </div>
+  <div class="name">Snapsus</div>
+  <div class="url">snapsus.com</div>
+</body></html>

@@ -1,0 +1,74 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Montserrat:wght@700;800&display=swap">
+<style>
+  html, body { margin:0; padding:0; }
+  body {
+    width:1600px; height:900px;
+    background:#fafaf7; color:#0a0a0a;
+    font-family:"Inter",sans-serif;
+    display:grid; grid-template-columns:1fr 1fr;
+    overflow:hidden;
+  }
+  .col {
+    padding:80px 72px;
+    display:flex; flex-direction:column;
+    justify-content:center;
+  }
+  .col.before { background:#efedea; color:#6b6b6b; }
+  .col.after { background:#fafaf7; }
+  .col.after::before {
+    content:""; position:absolute; right:0; top:0; bottom:0; width:50%;
+    background:
+      radial-gradient(50vmax 40vmax at 80% 10%, rgba(91,59,255,0.10), transparent 55%);
+    pointer-events:none;
+  }
+  .kicker {
+    font-family:ui-monospace,"SF Mono",Menlo,monospace;
+    font-size:16px; letter-spacing:0.15em;
+    text-transform:uppercase;
+    margin-bottom:28px;
+    color:#9a9a9a;
+  }
+  h2 {
+    font-family:"Montserrat",sans-serif;
+    font-weight:800; letter-spacing:-0.03em;
+    font-size:80px; line-height:1.0;
+    margin:0 0 36px;
+  }
+  .after h2 em { color:#5b3bff; font-style:normal; }
+  ul { list-style:none; margin:0; padding:0; font-size:24px; line-height:1.7; }
+  ul.before li::before {
+    content:"× "; color:#c53030; font-weight:600; margin-right:4px;
+  }
+  ul.after li::before {
+    content:"→ "; color:#5b3bff; font-weight:600; margin-right:6px;
+  }
+  .after { position:relative; }
+  .after > * { position:relative; }
+</style></head><body>
+  <div class="col before">
+    <div class="kicker">Before</div>
+    <h2>Dune. Sheets. Hope.</h2>
+    <ul class="before">
+      <li>Write a SQL query for each chain</li>
+      <li>Manually dedupe across CSVs</li>
+      <li>Forget Base. Run it again.</li>
+      <li>Reformat for OpenSea allowlist</li>
+      <li>2 hours later — ship</li>
+    </ul>
+  </div>
+  <div class="col after">
+    <div class="kicker">After</div>
+    <h2>Paste. <em>Get list.</em></h2>
+    <ul class="after">
+      <li>Paste a wallet, contract, or ENS</li>
+      <li>5 chains scanned in parallel</li>
+      <li>Dedup automatic across sources</li>
+      <li>OpenSea CSV — drop-in format</li>
+      <li>30 seconds — ship</li>
+    </ul>
+  </div>
+</body></html>

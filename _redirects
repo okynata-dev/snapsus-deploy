@@ -1,9 +1,9 @@
 # Cloudflare Pages routing
-# Pretty share URLs: /s/ABC123 serves share.html (JS reads ID from pathname)
-/s/*    /share.html    200
-
-# Bare /share (no ID) — bounce home, this URL is not user-facing.
-# Note: do NOT redirect /share.html here — Cloudflare applies _redirects after
-# the /s/* rewrite, so a /share.html → / rule kills every /s/<id> link.
-# The JS inside share.html already redirects to / when no ID is present.
+#
+# /s/<id> share links are now handled by functions/s/[id].js — see comment
+# inside that file for why we use a Function instead of an HTML rewrite
+# (TL;DR: Cloudflare strips .html and breaks rewrites that target HTML).
+#
+# /share (bare, no ID) bounces home, since the only legit share URLs end
+# in an 8-char ID like /s/ABC12345.
 /share          /    302
