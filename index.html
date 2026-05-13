@@ -2658,9 +2658,11 @@ $("#who-input").addEventListener("input", () => {
   }, 350);
 });
 
-// Hide suggestions when user clicks outside the input/suggest area
+// Hide suggestions when user clicks outside the input/suggest area.
+// Identity chips live in step-pick but interacting with them (e.g. the
+// X to remove a duplicate) shouldn't wipe an in-progress name search.
 document.addEventListener("click", (e) => {
-  const within = e.target.closest("#step-who");
+  const within = e.target.closest("#step-who") || e.target.closest(".id-chip");
   if (!within) hide("#who-suggest");
 });
 
@@ -2695,10 +2697,37 @@ $("#who-btn").addEventListener("click", async () => {
 
   clearError("#who-error");
   hide("#who-warn");
-  hide("#who-suggest");
   const raw = $("#who-input").value.trim();
   lastSearchInputLen = raw.length;
   if (!raw) { setError("#who-error", "Paste a contract, ENS, or collection name."); return; }
+
+  // Name queries: Find drives the collection-name suggestion list rather
+  // than throwing "that's not an address" — the dropdown below the input
+  // IS the search result for names.
+  if (looksLikeNameQuery(raw)) {
+    clearTimeout(nameSearchTimer);
+    nameSearchToken++;
+    $("#who-btn").disabled = true;
+    try {
+      setStatus("#who-status", `Searching collections matching "${escapeHtml(raw)}"…`);
+      const results = await searchCollectionsByName(raw);
+      clearStatus("#who-status");
+      if (!results.length) {
+        hide("#who-suggest");
+        setError("#who-error", `No collections matched "${escapeHtmlSoft(raw)}". Try a different spelling, or paste a contract address.`);
+      } else {
+        renderSuggestions(results, raw);
+      }
+    } catch (e) {
+      clearStatus("#who-status");
+      setError("#who-error", escapeHtmlSoft(`Search failed: ${e.message || e}`));
+    } finally {
+      $("#who-btn").disabled = false;
+    }
+    return;
+  }
+
+  hide("#who-suggest");
   $("#who-btn").disabled = true;
 
   try {
@@ -2948,6 +2977,10 @@ function removeIdentity(idx) {
   state.picked = state.collections.filter(c => c.selected);
   renderIdentities();
   renderCollections();
+  // Any inline "Already added: …" / resolve error is keyed to the prior
+  // set of identities. After a removal those references can be stale,
+  // so drop the message and let the next action surface a fresh one.
+  clearError("#who-error");
   if (!state.collections.length) {
     goToStep("who");
     $("#who-input").focus();
