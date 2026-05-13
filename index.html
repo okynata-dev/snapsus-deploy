@@ -2106,96 +2106,102 @@ async function blockAtTimestamp(chainId, unixTs) {
    the canonical "is this their collection" signal, much cleaner than
    parsing on-chain transactions.
    ════════════════════════════════════════════════════════════════════ */
-async function findCreatorCollectionsOpenSea(chainOSSlug, address) {
-  // 1a. Walk through NFTs owned on this chain, collect unique collection slugs
-  //     plus the token_standard hint per collection.
-  const slugs = new Set();
-  const slugStandard = new Map();
-  let next = "", pages = 0;
-  do {
-    let url = `${OPENSEA_BASE}/chain/${chainOSSlug}/account/${address}/nfts?limit=200`;
-    if (next) url += `&next=${encodeURIComponent(next)}`;
-    const data = await fetchJson(url);
-    for (const nft of (data.nfts || [])) {
-      if (!nft.collection) continue;
-      slugs.add(nft.collection);
-      if (nft.token_standard && !slugStandard.has(nft.collection)) {
-        slugStandard.set(nft.collection, String(nft.token_standard).toUpperCase());
-      }
-    }
-    next = data.next || "";
-    if (++pages > 12) break; // 2400 NFTs cap
-  } while (next);
+/* OpenSea creator-username lookup — uses OpenSea's own reverse index of
+   "creator → collections" instead of trying to derive it ourselves.
 
-  // 1b. Catch OpenSea Drops where the creator never minted to themselves.
-  //     Look up the account's username, then list collections by creator_username
-  //     for this chain. Each path is best-effort — failures don't break us.
+   How OpenSea actually models this: every wallet that interacts with their
+   site gets an account. If they registered as a creator, the account has
+   a username, and OpenSea maintains a reverse index `creator_username →
+   collections[]`. We use that index directly.
+
+   Cost: 1 accounts call + ~1-3 collections-search calls per chain (paginated
+   only if the creator has >100 collections per chain, which almost never
+   happens). vs. the old flow which paginated through every NFT the wallet
+   owned, then fetched each collection's metadata to check the owner field.
+
+   For Vitalik-style wallets this returns [] in ~2 calls and bails fast.
+   For real creators it returns the full list in ~3-6 calls. */
+async function findCreatorByOpenSeaUsername(address) {
+  // 1. Resolve address → OpenSea username.
+  let username;
   try {
     const acct = await fetchJson(`${OPENSEA_BASE}/accounts/${address}`);
-    const uname = acct && acct.username;
-    if (uname) {
-      let cnext = "", cpages = 0;
-      do {
-        let curl = `${OPENSEA_BASE}/collections?creator_username=${encodeURIComponent(uname)}&chain=${chainOSSlug}&limit=100`;
-        if (cnext) curl += `&next=${encodeURIComponent(cnext)}`;
-        const cdata = await fetchJson(curl);
-        for (const col of (cdata.collections || [])) {
-          if (col.collection) slugs.add(col.collection);
-        }
-        cnext = cdata.next || "";
-        if (++cpages > 5) break;
-      } while (cnext);
-    }
-  } catch { /* creator-username path unavailable; rely on owned-NFT path */ }
+    username = (acct && acct.username) || "";
+  } catch {
+    // Address not indexed by OpenSea at all — nothing we can do here.
+    return [];
+  }
+  if (!username) return [];
 
-  if (!slugs.size) return [];
+  // 2. For each chain, ask OpenSea: "what collections has this creator made?"
+  //    `owner === address` is the authoritative flag — creator_username may
+  //    include collabs/editors, owner filters to true creators only.
+  const found = [];
+  const seen = new Set();
+  await Promise.all(CHAINS.map(async (c) => {
+    let next = "", pages = 0;
+    do {
+      let url = `${OPENSEA_BASE}/collections?creator_username=${encodeURIComponent(username)}&chain=${c.opensea}&limit=100`;
+      if (next) url += `&next=${encodeURIComponent(next)}`;
+      let data;
+      try { data = await fetchJson(url); } catch { break; }
+      for (const col of (data.collections || [])) {
+        const slug = col.collection;
+        if (!slug || seen.has(slug)) continue;
+        const owner = (col.owner || "").toLowerCase();
+        if (owner && owner !== address) continue;
 
-  // 2. For each unique collection, fetch its full record. We only keep
-  //    the ones whose `owner` matches our wallet — that's how OpenSea
-  //    flags a collection as "created by" someone.
-  //
-  //    Concurrency dropped from 4→2 to play nicer with OpenSea rate limits.
-  //    The Worker now retries 429s and serves stale cache on top of that,
-  //    so being patient here doesn't actually make the user wait longer —
-  //    it just stops us from starting fights we don't need to fight.
-  const slugList = [...slugs];
-  const out = [];
-  const concurrency = 2;
-  let cur = 0;
-  async function w() {
-    while (cur < slugList.length) {
-      const i = cur++;
-      const slug = slugList[i];
-      try {
-        const c = await fetchJson(`${OPENSEA_BASE}/collections/${encodeURIComponent(slug)}`);
-        const owner = (c && c.owner || "").toLowerCase();
-        if (!owner || owner !== address) continue;
-
-        // Pick the contract entry on the chain we're querying
-        const contracts = c.contracts || [];
-        const match = contracts.find(x => (x.chain || "").toLowerCase() === chainOSSlug)
-                   || contracts[0];
+        const contracts = col.contracts || [];
+        const match = contracts.find(x => (x.chain || "").toLowerCase() === c.opensea) || contracts[0];
         if (!match || !match.address) continue;
-
-        const std = slugStandard.get(slug) || "ERC721";
-        out.push({
+        seen.add(slug);
+        found.push({
           contract: (match.address || "").toLowerCase(),
-          chain: (chainByOpenSea(chainOSSlug) || {}).id,
-          name: c.name || "Untitled",
-          image: c.image_url || c.banner_image_url || "",
-          standard: std === "ERC1155" ? "ERC1155" : "ERC721",
-          supply: Number(c.total_supply) || 0,
+          chain: c.id,
+          name: col.name || "Untitled",
+          image: col.image_url || col.banner_image_url || "",
+          // Standard and supply aren't in the collections-list response —
+          // they get filled in by getContractMetadata when the user clicks
+          // Take Snapshot, so discovery itself stays fast.
+          standard: "ERC721",
+          supply: 0,
           slug,
           deployer: "",
           osCreator: address,
           deployedAt: 0,
-          source: "opensea",
+          source: "opensea-creator",
         });
-      } catch { /* skip the one slug that errored */ }
+      }
+      next = data.next || "";
+      if (++pages >= 3) break; // 300 collections per chain — sane cap
+    } while (next);
+  }));
+  return found;
+}
+
+/* Per-collection metadata enrichment — fills in standard, supply, deployedBlock
+   for results that came from the OpenSea creator-username path (which doesn't
+   include those fields in its list response). Concurrency=4 against Alchemy
+   (which has 25 req/s headroom). */
+async function enrichCollectionMetadata(collections) {
+  if (!collections.length) return;
+  let cur = 0;
+  async function w() {
+    while (cur < collections.length) {
+      const i = cur++;
+      const c = collections[i];
+      // Skip if already enriched (Alchemy primary path already has these)
+      if (c.standard && c.supply && c.deployedAt) continue;
+      const m = await getContractMetadata(c.chain, c.contract);
+      if (m) {
+        c.standard = m.standard || c.standard;
+        c.supply = m.supply || c.supply;
+        c.deployedAt = m.deployedAt || c.deployedAt;
+        c.deployer = m.deployer || c.deployer;
+      }
     }
   }
-  await Promise.all(Array.from({ length: concurrency }, w));
-  return out;
+  await Promise.all(Array.from({ length: 4 }, w));
 }
 
 /* ════════════════════════════════════════════════════════════════════
@@ -2477,56 +2483,53 @@ $("#who-btn").addEventListener("click", async () => {
     /* CASE 2: Address is a wallet/creator — discover their collections */
     if (!ensName) { try { const rev = await reverseENS(address); ensName = rev.name; avatar = avatar || rev.avatar; } catch {} }
 
-    setStatus("#who-status", `Scanning ${CHAINS.length} chains for collections by this wallet…`);
+    setStatus("#who-status", `Looking up creator profile on OpenSea…`);
 
     const apiErrors = [];
     const found = [];
     const seen = new Set();
 
-    /* PRIMARY — Alchemy-first creator discovery. One paginated call per chain
-       returns every contract the wallet holds tokens of, WITH OpenSea creator
-       metadata pre-attached. Filter to where creator/deployer === wallet. */
-    const alchPerChain = await Promise.all(CHAINS.map(async (c) => {
-      try { return await findCreatorCollectionsAlchemy(c.id, address); }
-      catch (e) {
-        apiErrors.push({ chain: c.id, op: "alchemy.creator", msg: e.message || String(e) });
-        return [];
-      }
-    }));
-    let totalScanned = 0;
-    for (const arr of alchPerChain) {
-      totalScanned += (arr.scanned || 0);
-      for (const item of arr) {
+    /* PRIMARY — OpenSea's own creator → collections reverse index.
+       2-6 fast API calls. Returns [] near-instantly for non-creators (Vitalik,
+       collectors, etc.) so we don't waste time on the heavier fallbacks. */
+    try {
+      const osResults = await findCreatorByOpenSeaUsername(address);
+      for (const item of osResults) {
         if (item && item.contract && !seen.has(item.contract)) {
           seen.add(item.contract);
           found.push(item);
         }
       }
+    } catch (e) {
+      apiErrors.push({ chain: "all", op: "opensea.creator", msg: e.message || String(e) });
     }
 
-    /* Bail-out heuristic: a wallet that holds 200+ distinct contracts across
-       chains is almost certainly an active collector, NOT a creator EOA. The
-       expensive fallbacks (deploy-history scan, OpenSea username search) are
-       designed for thin deployer wallets — running them on a Vitalik-tier
-       collector wallet hangs for 30+ seconds and finds nothing. So if we
-       scanned a lot but matched nothing, just tell the user. */
-    const heavyHolder = totalScanned >= 200;
-
-    if (!found.length && heavyHolder) {
-      throw new Error(
-        `This wallet holds ${totalScanned}+ collections but isn't flagged as creator on any of them. ` +
-        `That usually means it's a collector wallet, not a creator. ` +
-        `Paste a specific contract address instead, or try the creator's deployer wallet.`
-      );
+    /* FALLBACK A — Alchemy holdings scan. Catches creators not registered as
+       OpenSea users (no username) but who still hold tokens of their own
+       collections, where openSeaMetadata.creatorAddress matches. */
+    if (!found.length) {
+      setStatus("#who-status", `Not in OpenSea creator index. Scanning Alchemy…`);
+      const alchPerChain = await Promise.all(CHAINS.map(async (c) => {
+        try { return await findCreatorCollectionsAlchemy(c.id, address); }
+        catch (e) {
+          apiErrors.push({ chain: c.id, op: "alchemy.creator", msg: e.message || String(e) });
+          return [];
+        }
+      }));
+      for (const arr of alchPerChain) {
+        for (const item of arr) {
+          if (item && item.contract && !seen.has(item.contract)) {
+            seen.add(item.contract);
+            found.push(item);
+          }
+        }
+      }
     }
 
-    setStatus("#who-status", `Found ${found.length} collection${found.length === 1 ? "" : "s"}…`);
-
-    // Fallback A: Direct EOA deploys for creators who deployed but never
-    // minted to themselves. Only worth it for thin wallets — skip when we
-    // already know the wallet is a heavy collector.
-    if (!found.length && !heavyHolder) {
-      setStatus("#who-status", `Checking direct deployments…`);
+    /* FALLBACK B — Direct EOA deploys. Catches creators who deployed via
+       their own wallet and never minted to themselves (rare). */
+    if (!found.length) {
+      setStatus("#who-status", `Checking direct on-chain deployments…`);
       const direct = await Promise.all(CHAINS.map(async (c) => {
         const list = await findCreatedContractsOnChain(c.id, address)
           .catch(e => { apiErrors.push({ chain: c.id, op: "alchemy.deploys", msg: e.message || String(e) }); return []; });
@@ -2542,26 +2545,13 @@ $("#who-btn").addEventListener("click", async () => {
       }
     }
 
-    // Fallback B: OpenSea creator_username search — catches OpenSea Drops
-    // factory-deployed without selfmint. Wrap in a hard timeout: this is
-    // the slowest path and most likely to hang on rate limit + retry inside
-    // the worker. 8s per chain is the global cap.
-    if (!found.length && !heavyHolder) {
-      setStatus("#who-status", `Asking OpenSea for factory-deployed collections…`);
-      const withTimeout = (p, ms, label) => Promise.race([
-        p,
-        new Promise((_, rej) => setTimeout(() => rej(new Error(`${label} timed out after ${ms/1000}s`)), ms))
-      ]);
-      const owned = await Promise.all(CHAINS.map(async (c) => {
-        try { return await withTimeout(findCreatorCollectionsOpenSea(c.opensea, address), 8000, `opensea/${c.id}`); }
-        catch (e) {
-          apiErrors.push({ chain: c.id, op: "opensea", msg: e.message || String(e) });
-          return [];
-        }
-      }));
-      for (const arr of owned) for (const m of arr) {
-        if (!seen.has(m.contract)) { seen.add(m.contract); found.push(m); }
-      }
+    /* Backfill missing metadata (standard/supply/deployedAt) for results
+       that came from OpenSea — its list response doesn't include those.
+       Runs in parallel against Alchemy (25 req/s budget) so even 30
+       collections enrich in 1-2 seconds. */
+    if (found.length) {
+      setStatus("#who-status", `Enriching ${found.length} collection${found.length === 1 ? "" : "s"}…`);
+      await enrichCollectionMetadata(found);
     }
 
     if (!found.length) {
