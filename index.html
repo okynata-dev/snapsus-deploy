@@ -161,13 +161,19 @@
   }
 
   /* ───────── Hero ─────────
-     min-height was 100vh — meant well on a phone but on a 1200px+ desktop
-     it produced a hero with the content centered inside hundreds of pixels
-     of empty space above and below. Now: hero is just tall enough to feel
-     spacious (≈600px on tall windows, content-height on short ones), and
-     the platform card sits right under the lede instead of floating. */
+     Two competing needs:
+       (a) on desktop, hero should fill the viewport so the next section
+           ("USE CASES") isn't peeking through at the bottom of fold,
+       (b) but the heading + subtitle + form should sit as one tight stack
+           near the top — NOT vertically centered, because that produced
+           a huge empty gap above and below on tall windows.
+
+     Solution: min-height fills viewport, flex-start glues content to top
+     padding, the empty space lives below the form (where it belongs — it's
+     called "white space", not "in-content gap"). Mobile collapses to
+     content height since the viewport is already tight there. */
   .hero {
-    min-height: 560px;
+    min-height: calc(100vh - 57px);
     display: flex; flex-direction: column;
     align-items: center; justify-content: flex-start;
     padding: 96px 22px 80px;
