@@ -2,6 +2,8 @@
 # Pretty share URLs: /s/ABC123 serves share.html (JS reads ID from pathname)
 /s/*    /share.html    200
 
-# Bare /share (no ID) — bounce home, this URL is not user-facing
+# Bare /share (no ID) — bounce home, this URL is not user-facing.
+# Note: do NOT redirect /share.html here — Cloudflare applies _redirects after
+# the /s/* rewrite, so a /share.html → / rule kills every /s/<id> link.
+# The JS inside share.html already redirects to / when no ID is present.
 /share          /    302
-/share.html     /    302
