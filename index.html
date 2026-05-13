@@ -1655,7 +1655,6 @@
         </div>
         <div class="alloc-row">
           <span class="lbl">Exclude</span>
-          <label class="alloc-check"><input type="checkbox" id="alloc-no-contracts"> Smart contracts</label>
           <button type="button" class="alloc-btn" id="alloc-excl-toggle">Custom list…</button>
         </div>
         <div class="alloc-row" id="alloc-excl-row" hidden>
@@ -1788,8 +1787,8 @@
       <p>Factory-deployed collections are picked up by a secondary pass: we list contracts your wallet appears in, then check whether you're the OpenSea-indexed creator or contract deployer for each. Coverage isn't perfect — if anything's missing, paste the contract address directly.</p>
     </details>
     <details class="faq-item">
-      <summary>How are smart contracts excluded?</summary>
-      <p>Toggling "Exclude smart contracts" runs an <code>eth_getCode</code> batch over every holder on Ethereum. Anything with bytecode (Conduit, Blur Pool, gem.xyz, safes, vaults, routers) drops from the list.</p>
+      <summary>What contracts get filtered out automatically?</summary>
+      <p>A built-in blacklist removes known marketplace and protocol contracts that hold NFTs but aren't real holders — Seaport/Conduit, Blur Pool, X2Y2, LooksRare, NFTX, gem.xyz, burn addresses, and similar. These would otherwise eat your airdrop while the actual holders (who just listed their NFT on Blur, etc.) get nothing. Multi-sig wallets (Safe, Argent) are <em>kept</em> — they're real owners.</p>
     </details>
     <details class="faq-item">
       <summary>Does it cost anything?</summary>
@@ -2005,7 +2004,6 @@ const state = {
     value: 1,
     minTokens: 1,
     tiers: "1-3:1, 4-10:2, 11+:3",
-    excludeContracts: false,
     excludeList: "",
   },
 };
@@ -3131,27 +3129,64 @@ function parseExcludeList(text) {
   return out;
 }
 
-/* Detect smart contracts via eth_getCode batch on Ethereum mainnet.
-   Limitation: only checks ETH — addresses that are contracts on L2s only
-   may slip through. Sufficient for marketplace/router exclusion. */
-async function detectContracts(addresses) {
-  const set = new Set();
-  if (!addresses.length) return set;
-  const CHUNK = 100;
-  for (let i = 0; i < addresses.length; i += CHUNK) {
-    const chunk = addresses.slice(i, i + CHUNK);
-    const calls = chunk.map(a => ({ method: "eth_getCode", params: [a, "latest"] }));
-    let res;
-    try { res = await rpcBatch("ethereum", calls); } catch { continue; }
-    if (!Array.isArray(res)) continue;
-    // Result order matches request order by id, but be defensive
-    const byId = new Map(res.map(r => [r.id, r.result]));
-    for (let j = 0; j < chunk.length; j++) {
-      const code = byId.get(j);
-      if (code && code !== "0x" && code !== "0x0") set.add(chunk[j]);
-    }
-  }
-  return set;
+/* Hardcoded blacklist of marketplace/protocol contracts that should never
+   be treated as real holders. Airdropping ERC-20s here = funds lost forever
+   (the contract has no way to forward them to whoever actually listed/staked
+   the NFT). Addresses are deterministic via CREATE2 across most chains we
+   support, so one Set covers Ethereum + Base + Polygon + Arbitrum + Optimism.
+
+   Multi-sig wallets (Safe, Argent) and EOA holders are intentionally NOT
+   on this list — they're real owners that just happen to have code attached.
+
+   Add new addresses as you find them — keep all entries lowercased. */
+const PROTOCOL_DUST_ADDRESSES = new Set([
+  // Burn / null
+  "0x0000000000000000000000000000000000000000",
+  "0x000000000000000000000000000000000000dead",
+  "0xdead000000000000000042069420694206942069",
+
+  // OpenSea Seaport (every version we see in the wild)
+  "0x00000000006c3852cbef3e08e8df289169ede581", // Seaport 1.1
+  "0x00000000000001ad428e4906ae43d8f9852d0dd6", // Seaport 1.4
+  "0x00000000000000adc04c56bf30ac9d3c0aaf14dc", // Seaport 1.5
+  "0x0000000000000068f116a894984e2db1123eb395", // Seaport 1.6
+  "0x1e0049783f008a0085193e00003d00cd54003c71", // OpenSea Conduit
+  "0x00000000f9490004c11cef243f5400493c00ad63", // OpenSea Conduit Controller
+
+  // Blur
+  "0x000000000000ad05ccc4f10045630fb830b95127", // Blur Exchange
+  "0x0000000000a39bb272e79075ade125fd351887ac", // Blur Pool (holds listed NFTs)
+  "0x39da41747a83aee658334415666f3ef92dd0d541", // Blur Marketplace
+
+  // X2Y2
+  "0x74312363e45dcaba76c59ec49a7aa8a65a67eed3", // X2Y2 Exchange
+
+  // LooksRare
+  "0x59728544b08ab483533076417fbbb2fd0b17ce3a", // LooksRare V1 Exchange
+  "0x0000000000e655fae4d56241588680f86e3b2377", // LooksRare V2 Router
+
+  // Rarible
+  "0x9757f2d2b135150bbeb65308d4a91804107cd8d6", // Rarible Exchange
+
+  // Aggregators
+  "0x83c8f28c26bf6aaca652df1dbbe0e1b56f8baba2", // Gem.xyz
+  "0x0a267cf51ef038fc00e71801f5a524aec06e4f07", // Genie (now Uniswap NFT)
+  "0x39ce0d7e7e0ff5c33eb3fd33ed6e6c8b75d92dec", // Reservoir router
+
+  // NFTX (NFT AMM vaults factory + core)
+  "0xbe86f647b167567525ccaafcd6f881f1ee558216", // NFTX Vault Factory
+  "0x6e91b9c75f3c4d40bb1e69bf5b5da37800ddf0a4", // NFTX Marketplace Zap
+
+  // Sudoswap (NFT AMM)
+  "0xb16c1342e617a5b6e4b631eb114483fdb289c0a4", // Sudoswap LSSVMPairFactory
+
+  // NFT lending (collateral lives in the contract)
+  "0xf896527c49b44aab3cf22ae356fa3af8e331f280", // NFTfi
+  "0x70b97a0da65c15dfb0ffa02aee6fa36e507c2762", // BendDAO LendPool
+]);
+
+function isProtocolDust(addr) {
+  return PROTOCOL_DUST_ADDRESSES.has(String(addr || "").toLowerCase());
 }
 
 function allocationLabel() {
@@ -3169,7 +3204,10 @@ function computeAllocations() {
   const minT = Math.max(1, Number(a.minTokens) || 1);
   const v = Math.max(1, Math.min(1_000_000, Number(a.value) || 1));
   const exclude = parseExcludeList(a.excludeList);
-  const contracts = a.excludeContracts ? (s.contracts || new Set()) : new Set();
+  // Protocol-dust filter is always on. Marketplace/aggregator/pool contracts
+  // are not real holders — airdropping to them burns funds. See
+  // PROTOCOL_DUST_ADDRESSES above.
+  const contracts = PROTOCOL_DUST_ADDRESSES;
 
   let collMap = null;
   if (a.mode === "collections") {
@@ -3262,7 +3300,6 @@ function renderPreview(list) {
     hint.className = "hint";
     const a = state.allocation;
     if (a.minTokens > 1) hint.textContent = `Try lowering Min tokens (now ${a.minTokens}).`;
-    else if (a.excludeContracts) hint.textContent = "Try unchecking Exclude smart contracts.";
     else if ((a.excludeList || "").trim()) hint.textContent = "Try clearing the custom exclude list.";
     else if (a.mode === "tier") hint.textContent = "Tier brackets may not cover any holdings — adjust tiers.";
     else hint.textContent = "Loosen the allocation filters and try again.";
@@ -3435,24 +3472,6 @@ $("#alloc-excl").addEventListener("input", (e) => {
   state.allocation.excludeList = e.target.value;
   if (state.snapshot) renderExport();
 });
-$("#alloc-no-contracts").addEventListener("change", async (e) => {
-  state.allocation.excludeContracts = e.target.checked;
-  if (e.target.checked && state.snapshot && !state.snapshot.contracts) {
-    e.target.disabled = true;
-    toast("Detecting smart contracts…");
-    try {
-      const addrs = state.snapshot.merged.map(h => h.address);
-      state.snapshot.contracts = await detectContracts(addrs);
-      toast(`Found ${state.snapshot.contracts.size} contract addresses`);
-    } catch {
-      state.snapshot.contracts = new Set();
-      toast("Contract detection failed");
-    }
-    e.target.disabled = false;
-  }
-  if (state.snapshot) renderExport();
-});
-
 function downloadFile(filename, content, type = "text/plain") {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);
@@ -3489,7 +3508,8 @@ $("#dl-json").addEventListener("click", () => {
       value: ["flat","cap","random","budget"].includes(a.mode) ? a.value : null,
       tiers: a.mode === "tier" ? parseTiers(a.tiers) : null,
       min_tokens: a.minTokens,
-      exclude_contracts: a.excludeContracts,
+      // Protocol dust is always filtered — note for downstream consumers
+      protocol_dust_filtered: true,
       exclude_list: [...parseExcludeList(a.excludeList)],
     },
     collections: s.perCollection.map(c => ({ contract: c.contract, name: c.name, standard: c.standard, chain: c.chain, total_tokens: c.totalTokens, holders: c.owners.length, source: c.source })),
@@ -3726,14 +3746,13 @@ $("#restart").addEventListener("click", () => {
   state.allocation = {
     mode: "total", value: 1, minTokens: 1,
     tiers: "1-3:1, 4-10:2, 11+:3",
-    excludeContracts: false, excludeList: "",
+    excludeList: "",
   };
   $("#alloc-mode").value = "total";
   $("#alloc-min").value = "1";
   $("#alloc-value").value = "1";
   $("#alloc-tiers").value = "1-3:1, 4-10:2, 11+:3";
   $("#alloc-excl").value = "";
-  $("#alloc-no-contracts").checked = false;
   hide("#alloc-excl-row"); hide("#preview");
   syncAllocationUI();
   $("#who-input").value = "";
