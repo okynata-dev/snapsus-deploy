@@ -2257,6 +2257,61 @@ async function getContractMetadata(chainId, contract) {
   } catch { return null; }
 }
 
+/* PRIMARY creator-discovery path (Alchemy-first).
+   One paginated call per chain replaces ~35 OpenSea slug-metadata fetches.
+
+   How it works: getContractsForOwner returns every contract the wallet
+   currently holds tokens of, with full metadata when withMetadata=true.
+   Alchemy already caches openSeaMetadata.creatorAddress, so we read OpenSea's
+   creator field WITHOUT making an OpenSea call. Then we filter to contracts
+   where the wallet is the OpenSea-registered creator OR the EOA deployer.
+
+   Rate-limit math:
+     - Alchemy free tier:  25 req/s = 1,500/min
+     - OpenSea free tier:   4 req/s =   240/min (and we share that pool
+                                                 across every concurrent user)
+   So this is ~6× more throughput AND ~10× fewer calls per search.
+
+   Limitation: wallet must hold ≥1 token from the collection. Creators who
+   deployed-and-never-minted-to-self are caught by Fallback A (direct EOA
+   deploys via alchemy_getAssetTransfers) and Fallback B (OpenSea creator
+   username search). */
+async function findCreatorCollectionsAlchemy(chainId, address) {
+  const out = [];
+  let pageKey = null; let pages = 0;
+  do {
+    let url = `${alchemyNftUrl(chainId)}/getContractsForOwner?owner=${address}&withMetadata=true&pageSize=100`;
+    if (pageKey) url += `&pageKey=${encodeURIComponent(pageKey)}`;
+    const data = await fetchJson(url);
+    for (const c of (data.contracts || [])) {
+      const contractAddr = (c.address || "").toLowerCase();
+      if (!contractAddr) continue;
+      const tokenType = (c.tokenType || "").toUpperCase();
+      if (!["ERC721", "ERC1155"].includes(tokenType)) continue;
+      const os = c.openSeaMetadata || {};
+      const osCreator = (os.creatorAddress || "").toLowerCase();
+      const deployer  = (c.contractDeployer || "").toLowerCase();
+      if (osCreator !== address && deployer !== address) continue;
+      out.push({
+        contract: contractAddr,
+        chain: chainId,
+        name: c.name || os.collectionName || "Untitled",
+        image: os.imageUrl || os.bannerImageUrl || (c.image && c.image.cachedUrl) || "",
+        standard: tokenType,
+        supply: Number(c.totalSupply) || 0,
+        slug: os.collectionSlug || "",
+        deployer,
+        osCreator,
+        deployedAt: Number(c.deployedBlockNumber) || 0,
+        source: "alchemy",
+      });
+    }
+    pageKey = data.pageKey || null;
+    if (++pages > 10) break; // cap at 1000 contracts per chain
+  } while (pageKey);
+  return out;
+}
+
 /* Contracts where the wallet currently holds NFTs (catches factory-deployed
    contracts: Manifold, Foundation, Zora etc., where the artist signed but the
    factory was the actual deployer). */
@@ -2413,20 +2468,26 @@ $("#who-btn").addEventListener("click", async () => {
     /* CASE 2: Address is a wallet/creator — discover their collections */
     if (!ensName) { try { const rev = await reverseENS(address); ensName = rev.name; avatar = avatar || rev.avatar; } catch {} }
 
-    setStatus("#who-status", `Asking OpenSea for collections by this wallet…`);
+    setStatus("#who-status", `Scanning ${CHAINS.length} chains for collections by this wallet…`);
 
     const apiErrors = [];
     const found = [];
     const seen = new Set();
 
-    const osPerChain = await Promise.all(CHAINS.map(async (c) => {
-      try { return await findCreatorCollectionsOpenSea(c.opensea, address); }
+    /* PRIMARY — Alchemy-first creator discovery. One paginated call per chain
+       returns every contract the wallet holds tokens of, WITH OpenSea creator
+       metadata pre-attached. Filter to where creator/deployer === wallet.
+       Replaces ~35 OpenSea calls with ~5 Alchemy calls (6× higher rate limit
+       too), and is the difference between "two users at once" and "lots of
+       users at once". */
+    const alchPerChain = await Promise.all(CHAINS.map(async (c) => {
+      try { return await findCreatorCollectionsAlchemy(c.id, address); }
       catch (e) {
-        apiErrors.push({ chain: c.id, op: "opensea", msg: e.message || String(e) });
+        apiErrors.push({ chain: c.id, op: "alchemy.creator", msg: e.message || String(e) });
         return [];
       }
     }));
-    for (const arr of osPerChain) {
+    for (const arr of alchPerChain) {
       for (const item of arr) {
         if (item && item.contract && !seen.has(item.contract)) {
           seen.add(item.contract);
@@ -2436,9 +2497,11 @@ $("#who-btn").addEventListener("click", async () => {
     }
     setStatus("#who-status", `Found ${found.length} collection${found.length === 1 ? "" : "s"}…`);
 
-    // Fallback A: Direct external deploys (creator's own EOA → contract)
-    if (!found.length && !apiErrors.length) {
-      setStatus("#who-status", `Nothing in OpenSea index. Checking direct deployments…`);
+    // Fallback A: Direct EOA deploys (creator's own wallet → contract) for
+    // creators who deployed but never minted to themselves, so the primary
+    // path's "wallet must hold a token" requirement misses them.
+    if (!found.length) {
+      setStatus("#who-status", `Checking direct deployments…`);
       const direct = await Promise.all(CHAINS.map(async (c) => {
         const list = await findCreatedContractsOnChain(c.id, address)
           .catch(e => { apiErrors.push({ chain: c.id, op: "alchemy.deploys", msg: e.message || String(e) }); return []; });
@@ -2454,28 +2517,19 @@ $("#who-btn").addEventListener("click", async () => {
       }
     }
 
-    // Fallback B: Factory-deployed collections (Manifold, Foundation, Zora, etc.)
-    // — wallet appears as openSeaMetadata.creatorAddress but isn't the EOA deployer.
-    // Runs whenever OpenSea didn't find anything — including when OpenSea errored
-    // (e.g. rate-limited), because Alchemy is an entirely separate API and may
-    // still succeed. This is what saves the day when OpenSea is being moody.
+    // Fallback B: OpenSea creator_username search. Last resort — catches
+    // OpenSea Drops where the creator was registered via a factory contract
+    // AND never holds a token of the resulting collection. Slowest and the
+    // most rate-limit-prone path, so we only invoke it when the two Alchemy
+    // paths above returned nothing.
     if (!found.length) {
-      setStatus("#who-status", `Checking factory-deployed collections…`);
+      setStatus("#who-status", `Asking OpenSea for factory-deployed collections…`);
       const owned = await Promise.all(CHAINS.map(async (c) => {
-        const list = (await findOwnedContractsOnChain(c.id, address)
-          .catch(e => { apiErrors.push({ chain: c.id, op: "alchemy.owned", msg: e.message || String(e) }); return []; })).slice(0, 100);
-        const out = [];
-        // Concurrency-4 metadata fetch
-        let cur = 0;
-        async function w() {
-          while (cur < list.length) {
-            const i = cur++;
-            const m = await getContractMetadata(c.id, list[i].contract);
-            if (m && (m.osCreator === address || m.deployer === address)) out.push(m);
-          }
+        try { return await findCreatorCollectionsOpenSea(c.opensea, address); }
+        catch (e) {
+          apiErrors.push({ chain: c.id, op: "opensea", msg: e.message || String(e) });
+          return [];
         }
-        await Promise.all(Array.from({ length: 4 }, w));
-        return out;
       }));
       for (const arr of owned) for (const m of arr) {
         if (!seen.has(m.contract)) { seen.add(m.contract); found.push(m); }
@@ -2490,7 +2544,7 @@ $("#who-btn").addEventListener("click", async () => {
           /rate.?limit|HTTP 429|429/i.test(e.msg || ""));
         if (allRateLimit) {
           throw new Error(
-            "OpenSea is rate-limiting us across every chain right now. " +
+            "Upstream APIs are rate-limiting us across every chain right now. " +
             "Wait 10-20 seconds and hit Find again — usually clears up fast."
           );
         }
