@@ -2153,9 +2153,14 @@ async function findCreatorCollectionsOpenSea(chainOSSlug, address) {
   // 2. For each unique collection, fetch its full record. We only keep
   //    the ones whose `owner` matches our wallet — that's how OpenSea
   //    flags a collection as "created by" someone.
+  //
+  //    Concurrency dropped from 4→2 to play nicer with OpenSea rate limits.
+  //    The Worker now retries 429s and serves stale cache on top of that,
+  //    so being patient here doesn't actually make the user wait longer —
+  //    it just stops us from starting fights we don't need to fight.
   const slugList = [...slugs];
   const out = [];
-  const concurrency = 4;
+  const concurrency = 2;
   let cur = 0;
   async function w() {
     while (cur < slugList.length) {
