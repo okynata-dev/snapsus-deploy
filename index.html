@@ -1989,8 +1989,25 @@ function escapeHtmlSoft(s) {
 /* ════════════════════════════════════════════════════════════════════
    FETCH HELPERS
    ════════════════════════════════════════════════════════════════════ */
+/* Module-level controller for the in-flight discovery search. Allows the
+   input listener below to cancel every fetch in the pipeline the instant
+   the user edits the address — no more "kill ongoing search" gymnastics. */
+let activeSearchController = null;
+
 async function fetchJson(url, opts, _attempt = 0) {
-  const r = await fetch(url, opts);
+  // If a search is in progress, attach its abort signal to every fetch so
+  // we can kill the whole pipeline atomically. Caller-provided opts.signal
+  // wins if explicitly passed.
+  const merged = { ...(opts || {}) };
+  if (!merged.signal && activeSearchController) {
+    merged.signal = activeSearchController.signal;
+  }
+  let r;
+  try { r = await fetch(url, merged); }
+  catch (e) {
+    if (e && e.name === "AbortError") { const err = new Error("aborted"); err.aborted = true; throw err; }
+    throw e;
+  }
   if (!r.ok) {
     // Read body once, decode any JSON {error, retry_after} into a clean string.
     let raw = "";
@@ -2429,10 +2446,38 @@ async function getOwnersAtBlock(chainId, contract, endBlock, standard, onProgres
    STEP 1
    ════════════════════════════════════════════════════════════════════ */
 $("#who-input").addEventListener("keydown", e => { if (e.key === "Enter") $("#who-btn").click(); });
+
+/* If the user edits the input mid-search, kill the running search
+   immediately so they can try a different address without waiting.
+   We use length-decreased as the cancel trigger: appending characters
+   probably means "I'm still typing the same address", but deleting one
+   means "I want to start over". */
+let lastSearchInputLen = 0;
+$("#who-input").addEventListener("input", () => {
+  const len = $("#who-input").value.trim().length;
+  if (activeSearchController && len < lastSearchInputLen) {
+    activeSearchController.abort();
+    activeSearchController = null;
+    clearStatus("#who-status");
+    clearError("#who-error");
+    $("#who-btn").disabled = false;
+  }
+  lastSearchInputLen = len;
+});
+
 $("#who-btn").addEventListener("click", async () => {
+  // Cancel any previous in-flight search (e.g. user clicked Find a second
+  // time before the first finished).
+  if (activeSearchController) { activeSearchController.abort(); }
+  activeSearchController = new AbortController();
+  const mySearch = activeSearchController; // capture so we don't null out
+                                            // a *later* search's controller
+                                            // when this one finishes.
+
   clearError("#who-error");
   hide("#who-warn");
   const raw = $("#who-input").value.trim();
+  lastSearchInputLen = raw.length;
   if (!raw) { setError("#who-error", "Paste a contract or ENS to begin."); return; }
   $("#who-btn").disabled = true;
 
@@ -2591,9 +2636,18 @@ $("#who-btn").addEventListener("click", async () => {
     $("#pick-next").disabled = !state.picked.length;
     goToStep("pick");
   } catch (e) {
+    // User cancelled by editing the input — silently bail, no error UI
+    if (e && (e.aborted || e.name === "AbortError")) {
+      return;
+    }
     clearStatus("#who-status");
     setError("#who-error", escapeHtmlSoft(e.message || String(e)));
     $("#who-btn").disabled = false;
+  } finally {
+    // Only clear the controller if this search owned it. A newer click
+    // would have replaced activeSearchController with its own — we must
+    // not stomp on that.
+    if (activeSearchController === mySearch) activeSearchController = null;
   }
 });
 
