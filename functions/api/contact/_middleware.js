@@ -38,6 +38,25 @@ const MAX_MESSAGE = 5000;
 const MAX_SUBJECT = 120;
 const MAX_EMAIL   = 254;
 
+/* In-memory burst tracker — atomic within this Worker instance. Caps drive-by
+   spam at 2 submits per 10s per IP. Distributed instances each enforce their
+   own copy, but the strict KV per-hour limit catches the rest. */
+const burstHits = new Map();
+function checkContactBurst(ip) {
+  const now = Date.now();
+  const cutoff = now - 10_000;
+  let hits = (burstHits.get(ip) || []).filter(t => t > cutoff);
+  if (hits.length >= 2) return false;
+  hits.push(now);
+  burstHits.set(ip, hits);
+  if (burstHits.size > 512) {
+    for (const [k, v] of burstHits) {
+      if (!v.length || v[v.length - 1] < cutoff) burstHits.delete(k);
+    }
+  }
+  return true;
+}
+
 function originAllowed(request) {
   const origin = request.headers.get("origin") || request.headers.get("referer") || "";
   if (!origin) return false;
@@ -72,16 +91,28 @@ export const onRequest = async (ctx) => {
     }, 503);
   }
 
-  /* ── Rate limit (3/hr via KV) ── */
+  /* ── Rate limit (3/hr KV + atomic in-instance burst) ── */
+  const ip = request.headers.get("cf-connecting-ip") || "anon";
+
+  // Layer 1 — in-memory burst: max 2 submits per 10s per IP, atomic within
+  // this Worker instance. Stops drive-by spam bots that fire 50 forms in 1s.
+  if (!checkContactBurst(ip)) {
+    return json({ error: "Slow down — give it a few seconds between messages." }, 429);
+  }
+
   if (env.RL) {
-    const ip = request.headers.get("cf-connecting-ip") || "anon";
     const hour = Math.floor(Date.now() / 3_600_000);
     const key = `rl:contact:${ip}:${hour}`;
     let cur;
-    try { cur = parseInt((await env.RL.get(key, { cacheTtl: 60 })) || "0", 10); }
+    try { cur = parseInt((await env.RL.get(key, { cacheTtl: 0 })) || "0", 10); }
     catch { cur = 0; }
     if (cur >= RATE_LIMIT_PER_HOUR) {
       return json({ error: "Too many submissions — try again in an hour." }, 429);
+    }
+    // Probabilistic rejection at >70% of limit to flatten burst load.
+    const ratio = cur / RATE_LIMIT_PER_HOUR;
+    if (ratio >= 0.7 && Math.random() < (ratio - 0.7) * 2) {
+      return json({ error: "Approaching submission limit — please wait." }, 429);
     }
     ctx.waitUntil(env.RL.put(key, String(cur + 1), { expirationTtl: 3700 }).catch(() => {}));
   }

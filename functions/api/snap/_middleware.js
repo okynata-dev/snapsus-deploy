@@ -35,18 +35,65 @@ function originAllowed(request) {
   } catch { return false; }
 }
 
+/* In-memory burst tracker (per Worker instance).
+   Worker JS is single-threaded inside one instance → this Map is *atomic* for
+   bursts that hit the same instance. Cloudflare spreads load across many
+   instances per region, so a determined burst can still get through ~10×
+   what the KV counter allows, but that's down from "unlimited" to "minor". */
+const recentHits = new Map(); // ip -> array of timestamps (ms)
+const BURST_WINDOW_MS = 5_000;  // 5-second sliding window for burst check
+const BURST_LIMIT     = 3;      // max 3 requests per 5 sec per IP per instance
+
+function checkBurst(ip) {
+  const now = Date.now();
+  const cutoff = now - BURST_WINDOW_MS;
+  let hits = recentHits.get(ip) || [];
+  // Prune old entries
+  hits = hits.filter(t => t > cutoff);
+  if (hits.length >= BURST_LIMIT) {
+    return { ok: false, hitsInWindow: hits.length };
+  }
+  hits.push(now);
+  recentHits.set(ip, hits);
+  // Opportunistic cleanup so Map doesn't grow forever
+  if (recentHits.size > 1024) {
+    for (const [k, v] of recentHits) {
+      if (!v.length || v[v.length - 1] < cutoff) recentHits.delete(k);
+    }
+  }
+  return { ok: true };
+}
+
 async function rateLimit(env, request, ctx, kind, limit) {
-  if (!env || !env.RL) return { ok: true };
   const ip = request.headers.get("cf-connecting-ip") || "anon";
+
+  // Layer 1 — atomic in-memory burst check (this Worker instance).
+  const burst = checkBurst(ip);
+  if (!burst.ok) return { ok: false, retry: 5, reason: "burst" };
+
+  if (!env || !env.RL) return { ok: true };
+
+  // Layer 2 — KV per-minute counter (distributed view). cacheTtl: 0 forces a
+  // fresh read so we see writes from concurrent instances within the same
+  // minute. Race window still exists but is reduced from 30s to ~1ms.
   const minute = Math.floor(Date.now() / 60_000);
   const key = `rl:snap:${kind}:${ip}:${minute}`;
   let cur;
-  try { cur = parseInt((await env.RL.get(key, { cacheTtl: 30 })) || "0", 10); }
+  try { cur = parseInt((await env.RL.get(key, { cacheTtl: 0 })) || "0", 10); }
   catch { return { ok: true }; }
   if (cur >= limit) {
     const retry = 60 - (Math.floor(Date.now() / 1000) % 60);
-    return { ok: false, retry };
+    return { ok: false, retry, reason: "minute" };
   }
+
+  // Layer 3 — probabilistic rejection as we approach the limit. With 5/min
+  // budget, hits 4 and 5 get random reject chance to flatten burst load.
+  const ratio = cur / limit;
+  if (ratio >= 0.7 && Math.random() < (ratio - 0.7) * 2) {
+    const retry = 60 - (Math.floor(Date.now() / 1000) % 60);
+    return { ok: false, retry, reason: "approach" };
+  }
+
   ctx.waitUntil(env.RL.put(key, String(cur + 1), { expirationTtl: 90 }).catch(() => {}));
   return { ok: true };
 }
