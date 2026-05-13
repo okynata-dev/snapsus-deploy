@@ -47,9 +47,10 @@ const RATE_LIMIT_PER_MIN = 240;
 
 /* GET cache TTLs by NFT v3 method (rough heuristic). */
 const CACHE_TTL = {
-  "getContractMetadata":   3600,   // collection metadata barely changes
-  "getContractsForOwner":  300,    // wallet's holdings shift on transfer
-  "getOwnersForContract":  180,    // shifts on every secondary trade
+  "getContractMetadata":     3600,   // collection metadata barely changes
+  "getContractsForOwner":    300,    // wallet's holdings shift on transfer
+  "getOwnersForContract":    180,    // shifts on every secondary trade
+  "searchContractMetadata":  3600,   // name → contracts mapping is very stable
 };
 const CACHE_TTL_DEFAULT = 300;
 

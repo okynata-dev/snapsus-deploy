@@ -1977,7 +1977,6 @@
    ════════════════════════════════════════════════════════════════════ */
 const ALCHEMY_BASE = "/api/alchemy";
 const OPENSEA_BASE = "/api/opensea";
-const RESERVOIR_BASE = "/api/reservoir";
 
 const CHAINS = [
   { id: "ethereum", name: "Ethereum",  alchemy: "eth-mainnet",     opensea: "ethereum", llama: "ethereum",  short: "ETH",  cls: "chain-eth"  },
@@ -2539,27 +2538,33 @@ const looksLikeNameQuery = (s) => {
 };
 
 async function searchCollectionsByName(query) {
-  // Hit all chains in parallel, dedupe by contract address, sort by chain rank
-  // (Ethereum first, then by token count when supplied by Reservoir).
+  // Use Alchemy's searchContractMetadata — it's a fuzzy name → contracts
+  // index, available on every chain we support, and uses the API key we
+  // already pay for. No second vendor to onboard.
+  //
+  // Hit all chains in parallel, dedupe by contract address, sort by chain
+  // rank (Ethereum first) and supply size.
   const results = await Promise.all(CHAINS_FOR_SEARCH.map(async (chainId) => {
     try {
-      const url = `${RESERVOIR_BASE}/search?name=${encodeURIComponent(query)}&chain=${chainId}&limit=6`;
+      const url = `${alchemyNftUrl(chainId)}/searchContractMetadata?query=${encodeURIComponent(query)}`;
       const data = await fetchJson(url);
-      const arr = data && (data.collections || data.results) || [];
+      const arr = (data && data.contracts) || [];
       return arr.map(c => {
-        // Reservoir's response shape varies slightly between versions; cover both.
-        const collection = c.collection || c;
-        const contract = (collection.contract || collection.primaryContract || (collection.contracts && collection.contracts[0])) || "";
+        const os = c.openSeaMetadata || {};
         return {
           chain: chainId,
-          name: collection.name || "Untitled",
-          image: collection.image || collection.imageUrl || "",
-          slug: collection.slug || "",
-          contract: String(contract).toLowerCase(),
-          tokenCount: Number(collection.tokenCount || collection.count || 0),
-          verified: !!collection.openseaVerificationStatus || !!collection.isVerified,
+          name: c.name || os.collectionName || "Untitled",
+          image: os.imageUrl || os.bannerImageUrl || (c.image && c.image.cachedUrl) || "",
+          slug: os.collectionSlug || "",
+          contract: String(c.address || "").toLowerCase(),
+          tokenCount: Number(c.totalSupply) || 0,
+          tokenType: (c.tokenType || "").toUpperCase(),
+          verified: (os.safelistRequestStatus === "verified") || (os.safelistRequestStatus === "approved"),
         };
-      }).filter(c => c.contract && /^0x[a-f0-9]{40}$/i.test(c.contract));
+      }).filter(c =>
+        c.contract && /^0x[a-f0-9]{40}$/i.test(c.contract) &&
+        ["ERC721", "ERC1155"].includes(c.tokenType)
+      );
     } catch (e) {
       // One chain erroring shouldn't kill the whole suggest dropdown.
       return [];
