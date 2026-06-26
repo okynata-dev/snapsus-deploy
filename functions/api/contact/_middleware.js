@@ -153,7 +153,6 @@ export const onRequest = async (ctx) => {
   /* ── Compose email ── */
   const to       = env.CONTACT_TO   || DEFAULT_TO;
   const from     = env.CONTACT_FROM || DEFAULT_FROM;
-  const ip       = request.headers.get("cf-connecting-ip") || "?";
   const ua       = request.headers.get("user-agent") || "?";
   const ts       = new Date().toISOString();
   const catLabel = cap(category);
