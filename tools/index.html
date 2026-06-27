@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#ffffff" />
+<title>Snapsus Agent Tools — onchain tools for AI agents</title>
+<meta name="description" content="13 onchain tools for AI agents: holder snapshots, airdrop merkle proofs, ENS, calldata, token data. Pay-per-call in USDC via x402, live on OpenSea's Agent Tool Registry on Base." />
+<meta property="og:title" content="Snapsus Agent Tools" />
+<meta property="og:description" content="13 onchain tools for AI agents. Pay-per-call in USDC via x402. Live on OpenSea (Base)." />
+<meta property="og:image" content="https://snapsus.com/tools/banner-airdrop-kit.png" />
+<meta property="og:url" content="https://snapsus.com/tools/" />
+<meta name="twitter:card" content="summary_large_image" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" />
+<link rel="icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230052ff'/><g stroke='white' stroke-width='3.4' stroke-linecap='round' fill='none'><path d='M14 23 L14 14 L23 14'/><path d='M41 14 L50 14 L50 23'/><path d='M50 41 L50 50 L41 50'/><path d='M23 50 L14 50 L14 41'/></g><circle cx='32' cy='32' r='3.5' fill='white'/></svg>" />
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --ink:#0a0b0d;--ink-2:#5b616e;--ink-3:#8a909c;--line:rgba(11,13,20,0.09);
+    --paper:#fff;--bg:#f6f8fb;--fill:#f4f6fa;--accent:#0052ff;--accent-soft:#e8f0ff;
+    --radius:12px;--radius-lg:16px;--font:"Inter",-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+  }
+  html,body{margin:0;padding:0}
+  body{font-family:var(--font);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;letter-spacing:-0.005em;line-height:1.5;font-size:15px}
+  a{color:inherit}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  .topbar{border-bottom:1px solid var(--line);background:rgba(255,255,255,0.82);backdrop-filter:saturate(180%) blur(10px);position:sticky;top:0;z-index:10}
+  .topbar-inner{max-width:1080px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+  .brand{display:inline-flex;align-items:center;gap:9px;text-decoration:none;font-weight:600;font-size:15px;letter-spacing:-0.01em}
+  .mark{width:24px;height:24px;border-radius:7px;background:var(--accent);display:inline-flex;align-items:center;justify-content:center}
+  .mark svg{width:14px;height:14px}
+  .cta{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--accent);color:#fff;border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;transition:background .15s}
+  .cta:hover{background:#0042e6}
+  .hero{padding:64px 0 8px;text-align:center}
+  .eyebrow{display:inline-flex;align-items:center;gap:7px;padding:5px 12px;background:#fff;border:1px solid var(--line);border-radius:999px;font-size:12px;font-weight:500;color:var(--ink-2);box-shadow:0 1px 2px rgba(11,13,20,0.05);margin-bottom:20px}
+  .dot{width:6px;height:6px;border-radius:50%;background:#098551;box-shadow:0 0 0 3px rgba(9,133,81,0.16)}
+  h1{font-size:clamp(34px,5vw,52px);font-weight:700;letter-spacing:-0.03em;line-height:1.05;margin:0 0 16px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{color:var(--ink-2);font-size:16px;max-width:560px;margin:0 auto 12px;line-height:1.55}
+  .meta-line{color:var(--ink-3);font-size:13px;font-family:var(--mono);margin-bottom:8px}
+  .group{margin-top:48px}
+  .group-head{display:flex;align-items:baseline;gap:10px;margin:0 0 16px}
+  .group-head h2{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin:0}
+  .group-head span{color:var(--ink-3);font-size:13px}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media(max-width:720px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:20px;display:flex;flex-direction:column;transition:border-color .2s,box-shadow .2s}
+  .card:hover{border-color:var(--ink-3);box-shadow:0 12px 32px -12px rgba(11,13,20,0.12)}
+  .card-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+  .card-ico{width:40px;height:40px;border-radius:10px;border:1px solid var(--line);flex-shrink:0;background:#fff}
+  .card-name{font-weight:600;font-size:16px;letter-spacing:-0.01em}
+  .card-slug{font-family:var(--mono);font-size:11.5px;color:var(--ink-3)}
+  .price{margin-left:auto;font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);padding:3px 9px;border-radius:999px;white-space:nowrap}
+  .card p{color:var(--ink-2);font-size:13.5px;line-height:1.5;margin:0 0 14px;flex:1}
+  .ex{background:var(--fill);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:var(--mono);font-size:11.5px;color:var(--ink);overflow-x:auto;white-space:pre;margin:0 0 12px}
+  .ex .k{color:var(--accent)}
+  .card-links{display:flex;gap:14px;font-size:12.5px;font-weight:500}
+  .card-links a{color:var(--accent);text-decoration:none}
+  .card-links a:hover{text-decoration:underline}
+  .how{margin:56px 0;background:var(--paper);border:1px solid var(--line);border-radius:var(--radius-lg);padding:28px}
+  .how h2{font-size:20px;font-weight:600;letter-spacing:-0.02em;margin:0 0 14px}
+  .how ol{margin:0;padding-left:20px;color:var(--ink-2);font-size:14px;line-height:1.7}
+  .how code{font-family:var(--mono);font-size:12.5px;background:var(--fill);padding:1px 6px;border-radius:4px;color:var(--ink)}
+  footer{border-top:1px solid var(--line);background:var(--paper);margin-top:48px}
+  .foot{max-width:1080px;margin:0 auto;padding:28px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--ink-3)}
+  .foot a{color:var(--ink-2);text-decoration:none}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="https://snapsus.com">
+      <span class="mark"><svg viewBox="0 0 64 64" fill="none"><g stroke="white" stroke-width="6" stroke-linecap="round"><path d="M14 23 L14 14 L23 14"/><path d="M41 14 L50 14 L50 23"/><path d="M50 41 L50 50 L41 50"/><path d="M23 50 L14 50 L14 41"/></g><circle cx="32" cy="32" r="5" fill="white"/></svg></span>
+      <span>Snapsus</span>
+    </a>
+    <a class="cta" href="https://opensea.io/tools" target="_blank" rel="noopener">View on OpenSea →</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <span class="eyebrow"><span class="dot"></span>13 tools live on Base</span>
+    <h1>Onchain tools for <em>AI agents</em>.</h1>
+    <p class="lede">Holder snapshots, airdrop merkle proofs, ENS, calldata, token data — callable by any agent, paid per call in USDC via x402.</p>
+    <p class="meta-line">ERC-8257 Agent Tool Registry · Base · endpoint: tools.snapsus.com</p>
+  </section>
+
+  <div id="groups"></div>
+
+  <section class="how">
+    <h2>How an agent calls a tool</h2>
+    <ol>
+      <li>Discover it in OpenSea's onchain registry (or load it directly).</li>
+      <li><code>POST</code> the endpoint with a JSON body. With no payment it returns <code>402</code> + the price.</li>
+      <li>The agent signs an x402 USDC payment and retries — it gets the JSON result back. Settlement is gasless via the facilitator.</li>
+    </ol>
+  </section>
+</main>
+
+<footer>
+  <div class="foot">
+    <span>© <span id="y">2026</span> Snapsus · onchain tools for agents</span>
+    <span><a href="https://snapsus.com">snapsus.com</a> · <a href="https://opensea.io/tools" target="_blank" rel="noopener">opensea.io/tools</a></span>
+  </div>
+</footer>
+
+<script>
+document.getElementById('y').textContent = new Date().getFullYear();
+const GROUPS = [
+  { title: "Holder data", note: "snapshot, check, overlap, allocate", tools: [
+    { slug:"holders", id:159, price:"$0.05", desc:"Every wallet that currently holds an NFT collection. The full holder list for a contract — airdrops, allowlists, analytics — across 5 chains.", ex:`{"contract":"0x…","chain":"base"}` },
+    { slug:"eligibility", id:160, price:"$0.02", desc:"Fast yes/no: does a wallet hold a collection? Gate access, mints, or allowlists before you act on an unverified holder.", ex:`{"wallet":"0x…","collections":[{"contract":"0x…","chain":"base"}]}` },
+    { slug:"overlap", id:161, price:"$0.10", desc:"Wallets that hold every one of several collections (the intersection). Partnership airdrops, co-drops, shared community.", ex:`{"collections":[{"contract":"0x…"},{"contract":"0x…"}]}` },
+    { slug:"wallet", id:162, price:"$0.02", desc:"The NFT collections a wallet holds across Ethereum, Base, Polygon, Arbitrum, and Optimism. A cross-chain portfolio.", ex:`{"wallet":"0x…"}` },
+    { slug:"allocation", id:163, price:"$0.15", desc:"Turn holders into an airdrop allocation (address → amount). Proportional, flat, capped, or square-root.", ex:`{"contract":"0x…","mode":"sqrt"}` },
+  ]},
+  { title: "Airdrop infrastructure", note: "from holders to a claim contract", tools: [
+    { slug:"airdrop-kit", id:171, price:"$0.25", desc:"One call: snapshot holders → compute allocation → OpenZeppelin Merkle root + per-address proofs. A deployable airdrop, no chaining.", ex:`{"collections":[{"contract":"0x…","chain":"base"}],"mode":"proportional"}` },
+    { slug:"merkle", id:164, price:"$0.15", desc:"Merkle root + per-address proofs for an allowlist or airdrop. OZ StandardMerkleTree, ready to drop into a Solidity claim contract.", ex:`{"entries":[{"address":"0x…","amount":"1000000000000000000"}]}` },
+    { slug:"clean-list", id:166, price:"$0.02", desc:"Normalize a messy list of addresses + ENS names into a canonical, deduplicated list. Resolve ENS, drop invalid/burn, optionally contracts.", ex:`{"list":["vitalik.eth","0x…","0x…"]}` },
+    { slug:"address-intel", id:165, price:"$0.02", desc:"What an address is before you interact: contract or wallet, known label (marketplace/burn/protocol), ENS, safety warnings.", ex:`{"address":"0x…"}` },
+  ]},
+  { title: "Onchain utility belt", note: "encode, resolve, convert, price", tools: [
+    { slug:"abi", id:168, price:"$0.02", desc:"Encode args into EVM calldata, or decode calldata back into typed arguments, from a function signature.", ex:`{"op":"encode","signature":"transfer(address,uint256)","args":["0x…","1"]}` },
+    { slug:"ens", id:169, price:"$0.01", desc:"Resolve an ENS name to an address, or reverse an address to its primary ENS name.", ex:`{"op":"resolve","value":"vitalik.eth"}` },
+    { slug:"token", id:170, price:"$0.02", desc:"Name, symbol, decimals, total supply and current USD price for any ERC-20/721 from its contract address.", ex:`{"address":"0x…","chain":"ethereum"}` },
+    { slug:"crypto-utils", id:167, price:"$0.01", desc:"wei/gwei conversion, keccak256, function selectors, hex/decimal, address checksums — quick onchain math.", ex:`{"op":"selector","value":"transfer(address,uint256)"}` },
+  ]},
+];
+const titleCase = s => s.replace(/-/g," ").replace(/\b\w/g,c=>c.toUpperCase());
+const root = document.getElementById('groups');
+for (const g of GROUPS) {
+  const sec = document.createElement('section'); sec.className='group';
+  sec.innerHTML = `<div class="group-head"><h2>${g.title}</h2><span>${g.note}</span></div><div class="grid"></div>`;
+  const grid = sec.querySelector('.grid');
+  for (const t of g.tools) {
+    const card = document.createElement('div'); card.className='card';
+    card.innerHTML = `
+      <div class="card-top">
+        <img class="card-ico" src="icon-${t.slug}.png" alt="" width="40" height="40" loading="lazy">
+        <div><div class="card-name">Snapsus ${titleCase(t.slug)}</div><div class="card-slug">${t.slug}</div></div>
+        <span class="price">${t.price}</span>
+      </div>
+      <p>${t.desc}</p>
+      <div class="ex"><span class="k">POST</span> /api/${t.slug}\n${t.ex}</div>
+      <div class="card-links">
+        <a href="https://opensea.io/tools/erc8257/base/${t.id}" target="_blank" rel="noopener">OpenSea ↗</a>
+        <a href="https://tools.snapsus.com/.well-known/ai-tool/${t.slug}.json" target="_blank" rel="noopener">Manifest ↗</a>
+      </div>`;
+    grid.appendChild(card);
+  }
+  root.appendChild(sec);
+}
+</script>
+</body>
+</html>
