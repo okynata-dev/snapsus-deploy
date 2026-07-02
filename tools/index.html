@@ -121,7 +121,7 @@ const GROUPS = [
   { title: "Risk & safety", note: "vet a token or address before you act", tools: [
     { slug:"token-safety", id:172, price:"$0.02", desc:"Is this token safe to trade? Honeypot status, buy/sell tax, mint/blacklist/pause privileges and ownership risks — one verdict, before you swap or approve.", ex:`{"address":"0x…","chain":"base"}` },
     { slug:"address-safety", id:176, price:"$0.02", desc:"Screen an address before sending funds: GoPlus threat intel (phishing, scam, laundering, drainer) plus the Chainalysis on-chain OFAC sanctions oracle.", ex:`{"address":"0x…"}` },
-    { slug:"simulate", id:179, price:"$0.05", desc:"Dry-run a transaction before you send it: whether it reverts, which assets move in and out, and how much gas it burns — without touching the chain.", ex:`{"from":"0x…","to":"0x…","data":"0x…"}` },
+    { slug:"simulate", id:187, price:"$0.05", desc:"Dry-run a transaction before you send it: whether it reverts, which assets move in and out, and how much gas it burns — without touching the chain.", ex:`{"from":"0x…","to":"0x…","data":"0x…"}` },
   ]},
   { title: "Airdrop infrastructure", note: "from holders to a claim contract", tools: [
     { slug:"airdrop-kit", id:171, price:"$0.25", desc:"One call: snapshot holders → compute allocation → OpenZeppelin Merkle root + per-address proofs. A deployable airdrop, no chaining.", ex:`{"collections":[{"contract":"0x…","chain":"base"}],"mode":"proportional"}` },
@@ -131,7 +131,7 @@ const GROUPS = [
   ]},
   { title: "Onchain utility belt", note: "encode, resolve, decode, price", tools: [
     { slug:"contract-abi", id:173, price:"$0.02", desc:"Fetch the verified ABI of any contract by address (Sourcify), with a clean list of function and event signatures. The interface an agent needs to call a contract.", ex:`{"address":"0x…","chain":"base"}` },
-    { slug:"contract-read", id:178, price:"$0.01", desc:"Read any view/pure function from a contract: give an address and a signature with return types, get the decoded result. Onchain state no other tool covers.", ex:`{"address":"0x…","signature":"balanceOf(address) returns (uint256)","args":["0x…"]}` },
+    { slug:"contract-read", id:186, price:"$0.01", desc:"Read any view/pure function from a contract: give an address and a signature with return types, get the decoded result. Onchain state no other tool covers.", ex:`{"address":"0x…","signature":"balanceOf(address) returns (uint256)","args":["0x…"]}` },
     { slug:"tx", id:174, price:"$0.02", desc:"Explain a transaction from its hash: status, sender/recipient, ETH value, gas cost, the method called (4byte), and every ERC-20/NFT transfer in the receipt.", ex:`{"hash":"0x…","chain":"ethereum"}` },
     { slug:"gas", id:175, price:"$0.01", desc:"Current gas across Ethereum, Base, Polygon, Arbitrum and Optimism in one call, with a transfer and a swap estimated in USD. Decide when and where to transact.", ex:`{"chains":["ethereum","base"]}` },
     { slug:"abi", id:168, price:"$0.02", desc:"Encode args into EVM calldata, or decode calldata back into typed arguments, from a function signature.", ex:`{"op":"encode","signature":"transfer(address,uint256)","args":["0x…","1"]}` },
